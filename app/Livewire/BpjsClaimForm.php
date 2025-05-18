@@ -115,7 +115,7 @@ class BpjsClaimForm extends Component
         $patient = Patient::where('no_rkm_medis', $this->no_rm)->first();
         if ($patient) {
             $this->patient_name = $patient->nm_pasien;
-            $this->no_kartu_bpjs = $patient->kd_pj;
+            $this->no_kartu_bpjs = $patient->no_peserta;
         } else {
             $this->reset(['nama', 'no_kartu_bpjs']);
             $this->addError('no_rm', 'Pasien tidak ditemukan.');
