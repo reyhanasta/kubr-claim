@@ -45,6 +45,7 @@
         </div>
 
         <!-- File Upload Section -->
+        {{-- Make the width smaller --}}
         <div>
             <flux:input type="file" label="Upload Scanned Documents" wire:model="scanned_docs" multiple accept=".pdf,.jpg,.png" placeholder="Upload Scanned Documents" />
         </div>
