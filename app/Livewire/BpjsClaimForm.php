@@ -168,12 +168,18 @@ class BpjsClaimForm extends Component
 
     protected function generateFolderPath()
     {
-        $monthYear = now()->format('F Y'); // e.g., "April 2025"
-        $day = now()->format('j'); // "4"
+         // Set the locale to Indonesian
+        \Carbon\Carbon::setLocale('id');
+
+        $date = \Carbon\Carbon::parse($this->tanggal_rawatan); // Use user-provided date
+        $month = strtoupper($date->translatedFormat('F')); // e.g., "April 2025"
+        $year = $date->format('Y'); // e.g., "April 2025"
+        $day = $date->format('d'); // "4"
+
         // Use the user-provided date for the folder structure
         $jenisRawatan = $this->jenis_rawatan === 'RAWAT JALAN' ? 'RJ' : 'RI';
 
-        return "{$monthYear}/{$jenisRawatan}/{$day}/{$this->no_sep}";
+        return "{$month} REGULER {$year}/{$jenisRawatan}/{$day}/{$this->no_sep}";
     }
 
     // protected function generateFolderPath(): string

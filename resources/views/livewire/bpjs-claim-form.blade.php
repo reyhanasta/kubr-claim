@@ -14,12 +14,12 @@
             </div>
             <!-- Nama Pasien -->
             <div class="col-span-2">
-                <flux:input type="text" icon="user" wire:model.debounce.500ms="patient_name" readonly
+                <flux:input type="text" variant="filled" icon="user" wire:model.debounce.500ms="patient_name" readonly
                         class="cursor-not-allowed mt-1.5" label="Nama Pasien" placeholder="Terisi Otomatis"/>     
             </div>
             <div class="col-span-1">
-                <flux:input type="text" icon="credit-card" wire:model.debounce.500ms="no_kartu_bpjs" readonly
-                        class="cursor-not-allowed mt-1.5" label="Nomor Kartu BPJS" placeholder="Terisi Otomatis"/>
+                <flux:input type="text" variant="filled" icon="credit-card" wire:model.debounce.500ms="no_kartu_bpjs" readonly
+                        class="cursor-not-allowed mt-1.5" label="Nomor Kartu BPJS" placeholder="Terisi Otomatis" copyable/>
             </div>
         </div>
 
