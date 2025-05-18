@@ -95,32 +95,36 @@
 
         <!-- Preview Modal -->
         @if($showPreviewModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4"
-            wire:click.prevent="closePreviewModal">
-            <div class="relative bg-gray-800 rounded-lg shadow-xl overflow-hidden w-full max-w-4xl h-[80vh]">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4 overflow-auto"
+            wire:click.self="closePreviewModal">
+            <div class="relative bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
                 <!-- Modal Header -->
-                <div class="flex justify-between items-center px-6 py-4 border-b border-gray-600">
+                <div class="flex-shrink-0 flex justify-between items-center px-6 py-4 border-b border-gray-600">
                     <h3 class="text-xl font-semibold text-amber-300">PDF Preview</h3>
                     <button wire:click="closePreviewModal"
-                        class="text-amber-300 text-2xl leading-none focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
+                        class="text-amber-300 hover:text-white text-2xl leading-none focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
                         &times;
                     </button>
                 </div>
 
                 <!-- Modal Content -->
-                <div class="relative flex-1 bg-gray-900">
+                <div class="flex-1 min-h-0 relative">
                     @if($this->currentPreviewUrl)
-                    <iframe src="{{ $this->currentPreviewUrl }}" class="w-full h-full" frameborder="0"></iframe>
+                    <iframe src="{{ $this->currentPreviewUrl }}" 
+                            class="w-full h-full border-0" 
+                            frameborder="0"
+                            style="min-height: 80vh;">
+                    </iframe>
                     @endif
                 </div>
 
-                <!-- Close Button (Bottom) -->
-                <div class="px-6 py-4 border-t border-gray-600 flex justify-end">
+                {{-- <!-- Close Button (Bottom) -->
+                <div class="flex-shrink-0 px-6 py-6 border-t border-gray-600 flex justify-end">
                     <button wire:click.prevent="closePreviewModal"
                         class="px-6 py-2 bg-amber-500 text-white rounded-lg shadow-md transition-all duration-200 ease-in-out hover:bg-amber-400 hover:shadow-amber-500/30 focus:outline-none focus:ring-2 focus:ring-amber-500">
                         Close
                     </button>
-                </div>
+                </div> --}}
             </div>
         </div>
         @endif

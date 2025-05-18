@@ -48,7 +48,7 @@ class BpjsClaimForm extends Component
         if (is_null($this->currentPreviewIndex)) {
             return null;
         }
-
+        
         $filename = $this->scanned_docs[$this->currentPreviewIndex]->getFilename();
         return route('preview-temp-file', ['filename' => $filename]);
     }

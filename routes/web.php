@@ -24,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('bpjs-claim-form', \App\Livewire\BpjsClaimForm::class)->middleware(['auth', 'verified'])->name('bpjs-claim-form');
 
 Route::get('/preview-temp-file/{filename}', function ($filename) {
-    $path = storage_path("app/livewire-tmp/{$filename}");
+    $path = storage_path("app/private/livewire-tmp/{$filename}");
 
     // Make sure the file exists before attempting to serve it
     if (file_exists($path)) {

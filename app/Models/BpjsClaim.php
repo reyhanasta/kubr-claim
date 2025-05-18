@@ -8,4 +8,6 @@ class BpjsClaim extends Model
 {
     //
     protected $guarded = ['id'];
+
+    protected $table = 'bpjs_claims';
 }
