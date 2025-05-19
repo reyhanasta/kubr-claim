@@ -1,9 +1,12 @@
+
 <div class="max-w-4xl mx-auto p-8 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
+     
     <!-- Header -->
     <div class="mb-8 text-center">
         <flux:heading size="xl" level="1" class="text-amber">BPJS Claim Submission</flux:heading>
         <flux:subheading size="md" class="text-gray-200">Please fill in the patient's details below.</flux:subheading>
     </div>
+   
 
     <form wire:submit.prevent="submit" class="space-y-8">
         <!-- Patient Info Section -->
@@ -120,11 +123,4 @@
                 Simpan</flux:button>
         </div>
     </form>
-
-    <!-- Success Message -->
-    @if (session('message'))
-    <div class="mt-6 bg-green-500 text-white px-4 py-2 rounded-lg text-center">
-        {{ session('message') }}
-    </div>
-    @endif
 </div>

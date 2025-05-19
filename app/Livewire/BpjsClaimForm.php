@@ -10,6 +10,7 @@ use Livewire\WithFileUploads;
 use App\Services\PdfMergerService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
 
 class BpjsClaimForm extends Component
 {
@@ -125,10 +126,7 @@ class BpjsClaimForm extends Component
         $this->validate();
         
         $folderPath = $this->generateFolderPath();
-        // $pdfPath = $this->mergePdfs($folderPath);
-        // $storedPath = array_map(function($file){
-        //     return $file->store("temp");
-        // }, $this->scanned_docs);
+        
       try {
             $tempPaths = [];
             foreach ($this->scanned_docs as $doc) {
@@ -153,15 +151,18 @@ class BpjsClaimForm extends Component
             foreach ($tempPaths as $path) {
                 Storage::delete($path);
             }
-             // Hapus file temp
-            // Storage::disk('local')->delete($tempPaths);
-
-
-            $this->resetExcept(['no_rm']); // Clear form after submission
-            session()->flash('success', 'Klaim berhasil dibuat!');
+             // Hapus isi form
+            $this->reset();
+            // Use Laravel SweetAlert2
+            LivewireAlert::title('Klaim berhasil dibuat!')
+            ->success()
+            ->show();
+        
         } catch (\Exception $e) {
             Log::error("BPJS Claim Error: " . $e->getMessage());
-            session()->flash('error', 'Gagal membuat klaim: ' . $e->getMessage());
+            LivewireAlert::title('Klaim gagal dibuat!')
+            ->error()
+            ->show();
         }
     }
 
