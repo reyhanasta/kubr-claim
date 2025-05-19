@@ -117,12 +117,91 @@ class BpjsClaimForm extends Component
     }
     public function removeFile($index)
     {
-        unset($this->scanned_docs[$this->fileOrder[$index]]);
-        unset($this->previewUrls[$index]);
-        unset($this->fileOrder[$index]);
-        $this->scanned_docs = array_values($this->scanned_docs);
-        $this->previewUrls = array_values($this->previewUrls);
-        $this->fileOrder = array_values($this->fileOrder);
+        Log::info('removeFile called', ['index' => $index, 'fileOrder' => $this->fileOrder, 'scanned_docs_count' => count($this->scanned_docs)]);
+        
+        // Check if the index is valid
+        if (!isset($this->fileOrder[$index])) {
+            Log::error('Invalid index in fileOrder', ['index' => $index, 'fileOrder' => $this->fileOrder]);
+            return;
+        }
+
+        $fileKey = $this->fileOrder[$index];
+        if (!isset($this->scanned_docs[$fileKey])) {
+            Log::error('File not found in scanned_docs', ['index' => $index, 'fileKey' => $fileKey, 'scanned_docs' => array_keys($this->scanned_docs)]);
+            return;
+        }
+
+        try {
+            // Get the file to remove
+            $fileToRemove = $this->scanned_docs[$fileKey];
+            $isUploadedFile = is_object($fileToRemove) && method_exists($fileToRemove, 'getFilename');
+            $filename = $isUploadedFile ? $fileToRemove->getFilename() : basename($fileToRemove);
+            
+            Log::info('Removing file', [
+                'fileKey' => $fileKey,
+                'isUploadedFile' => $isUploadedFile,
+                'filename' => $filename,
+                'fileToRemove' => is_string($fileToRemove) ? $fileToRemove : get_class($fileToRemove)
+            ]);
+            
+            // Remove from arrays first to prevent race conditions
+            unset($this->scanned_docs[$fileKey]);
+            if (isset($this->previewUrls[$index])) {
+                unset($this->previewUrls[$index]);
+            }
+            unset($this->fileOrder[$index]);
+            
+            // Reindex arrays
+            $this->scanned_docs = array_values($this->scanned_docs);
+            $this->previewUrls = array_values($this->previewUrls);
+            $this->fileOrder = array_values($this->fileOrder);
+            
+            Log::info('Arrays after removal and reindexing', [
+                'new_scanned_docs_count' => count($this->scanned_docs),
+                'new_previewUrls_count' => count($this->previewUrls),
+                'new_fileOrder' => $this->fileOrder
+            ]);
+            
+            // Clean up files
+            if ($isUploadedFile && $fileToRemove) {
+                Log::info('Deleting Livewire temporary file', ['filename' => $filename]);
+                $fileToRemove->delete();
+                Log::info('Successfully deleted Livewire temporary file');
+            } else {
+                // For files that have been moved to storage
+                $storagePath = str_replace('storage/', 'public/', $fileToRemove);
+                Log::info('Attempting to delete from storage', ['storagePath' => $storagePath]);
+                
+                if (Storage::exists($storagePath)) {
+                    Storage::delete($storagePath);
+                    Log::info('Successfully deleted from storage', ['path' => $storagePath]);
+                } else {
+                    Log::warning('File not found in storage', ['path' => $storagePath]);
+                }
+                
+                // Also check Livewire's temp directory
+                $livewireTempPath = 'livewire-tmp/' . $filename;
+                Log::info('Checking Livewire temp directory', ['path' => $livewireTempPath]);
+                
+                if (Storage::exists($livewireTempPath)) {
+                    Storage::delete($livewireTempPath);
+                    Log::info('Successfully deleted from Livewire temp', ['path' => $livewireTempPath]);
+                } else {
+                    Log::info('File not found in Livewire temp', ['path' => $livewireTempPath]);
+                }
+            }
+            
+            Log::info('File removal completed successfully');
+        } catch (\Exception $e) {
+            Log::error('Error in removeFile', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'index' => $index,
+                'fileOrder' => $this->fileOrder,
+                'scanned_docs' => $this->scanned_docs
+            ]);
+            throw $e; // Re-throw to see the error in the UI during development
+        }
     }
 
     public function searchPatient()
@@ -148,7 +227,6 @@ class BpjsClaimForm extends Component
         $this->validate();
         
         $folderPath = $this->generateFolderPath();
-        
       try {
             $tempPaths = [];
             foreach ($this->scanned_docs as $doc) {
