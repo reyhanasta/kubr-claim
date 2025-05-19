@@ -16,6 +16,8 @@ class BpjsClaimForm extends Component
 {
     use WithFileUploads;
     public $no_rm = '';
+
+    public $rmIcon = 'magnifying-glass';
     public $patient_name = '';
     public $no_sep = '';
     public $no_kartu_bpjs = '';
@@ -125,11 +127,19 @@ class BpjsClaimForm extends Component
 
     public function searchPatient()
     {
-        $this->validateOnly('no_rm');
+        // $this->validateOnly('no_rm');
         $patient = Patient::where('no_rkm_medis', $this->no_rm)->first();
-        $this->patient_name = $patient->nm_pasien;
-        $this->no_kartu_bpjs = $patient->no_peserta;
-         
+        if ($patient) {
+            $this->patient_name = $patient->nm_pasien;
+            $this->no_kartu_bpjs = $patient->no_peserta;
+            $this->rmIcon = 'check-circle';
+        } else {
+            $this->patient_name = '';
+            $this->no_kartu_bpjs = '';
+            $this->rmIcon = 'x-circle';
+            LivewireAlert::title('Pasien tidak ditemukan!')
+            ->error()->show();
+        }
     }
 
     // Generate folder structure and merge PDFs

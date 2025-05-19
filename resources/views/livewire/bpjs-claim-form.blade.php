@@ -14,13 +14,13 @@
             <!-- Nomor RM -->
             <div class="col-span-1">
                 <flux:input name="no_rm" label="Nomor RM" type="text" wire:model.lazy="no_rm"
-                    icon:trailing="magnifying-glass" placeholder="Nomor RM" wire:change="searchPatient" clearable
+                    icon:trailing="{{ $rmIcon }}" placeholder="Nomor RM" wire:change="searchPatient" 
                     badge="Wajib diisi" />
             </div>
             <!-- Nama Pasien -->
             <div class="col-span-2">
                 <flux:input type="text" variant="filled" icon="user" wire:model.debounce.500ms="patient_name" readonly
-                    class="cursor-not-allowed mt-1.5" label="Nama Pasien" placeholder="Terisi Otomatis" />
+                    class="cursor-not-allowed mt-1.5 " label="Nama Pasien" placeholder="Terisi Otomatis" />
             </div>
             <div class="col-span-1">
                 <flux:input type="text" variant="filled" icon="credit-card" wire:model.debounce.500ms="no_kartu_bpjs"
