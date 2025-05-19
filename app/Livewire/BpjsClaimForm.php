@@ -33,8 +33,6 @@ class BpjsClaimForm extends Component
         'scanned_docs.*' => 'file|mimes:pdf,jpg,png|max:2048', // 2MB max
     ];
 
-    
-
     public function previewFile($index)
     {
         if (isset($this->scanned_docs[$index])) {
