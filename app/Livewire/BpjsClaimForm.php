@@ -30,8 +30,24 @@ class BpjsClaimForm extends Component
      protected $rules = [
         'no_rm' => 'required|exists:pasien,no_rkm_medis',
         'tanggal_rawatan' => 'required|date',
-        'scanned_docs.*' => 'file|mimes:pdf,jpg,png|max:2048', // 2MB max
+        'jenis_rawatan' => 'required',
+        'no_sep' => 'required',
+        'scanned_docs.*' => 'required|file|mimes:pdf,jpg,png|max:2048', // 2MB max
     ];
+
+    protected $messages = [
+            'no_rm.required' => 'Nomor RM wajib diisi.',
+            'no_rm.exists' => 'Nomor RM tidak ditemukan.',
+            'tanggal_rawatan.required' => 'Tanggal rawatan wajib diisi.',
+            'tanggal_rawatan.date' => 'Tanggal rawatan harus berupa tanggal.',
+            'jenis_rawatan.required' => 'Jenis rawatan wajib diisi.',
+            'no_sep.required' => 'Nomor SEP wajib diisi.',
+            'scanned_docs.*.required' => 'File wajib diisi.',
+            'scanned_docs.*.file' => 'File harus berformat PDF, JPG, atau PNG.',
+            'scanned_docs.*.mimes' => 'File harus berformat PDF, JPG, atau PNG.',
+            'scanned_docs.*.max' => 'File tidak boleh lebih dari 2MB.',
+        ];
+    
 
     public function previewFile($index)
     {
@@ -43,7 +59,7 @@ class BpjsClaimForm extends Component
 
     public function getCurrentPreviewUrlProperty()
     {
-        if (is_null($this->currentPreviewIndex)) {
+        if ($this->currentPreviewIndex === null) {
             return null;
         }
         
@@ -111,13 +127,9 @@ class BpjsClaimForm extends Component
     {
         $this->validateOnly('no_rm');
         $patient = Patient::where('no_rkm_medis', $this->no_rm)->first();
-        if ($patient) {
-            $this->patient_name = $patient->nm_pasien;
-            $this->no_kartu_bpjs = $patient->no_peserta;
-        } else {
-            $this->reset(['nama', 'no_kartu_bpjs']);
-            $this->addError('no_rm', 'Pasien tidak ditemukan.');
-        }
+        $this->patient_name = $patient->nm_pasien;
+        $this->no_kartu_bpjs = $patient->no_peserta;
+         
     }
 
     // Generate folder structure and merge PDFs
