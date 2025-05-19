@@ -27,6 +27,8 @@ class BpjsClaimForm extends Component
     public $previewUrls = [];
     public $fileOrder = [];
     public $showPreviewModal = false;
+
+    public $currentPreviewUrl = '';
     public $currentPreviewIndex = null;
     
      protected $rules = [
@@ -138,7 +140,11 @@ class BpjsClaimForm extends Component
             $this->no_kartu_bpjs = '';
             $this->rmIcon = 'x-circle';
             LivewireAlert::title('Pasien tidak ditemukan!')
-            ->error()->show();
+            ->text('Pasien dengan no rm tidak terdaftar di SIMRS.')
+            ->error()
+            ->toast()
+            ->position('top-end')
+            ->show();
         }
     }
 
@@ -149,43 +155,49 @@ class BpjsClaimForm extends Component
         
         $folderPath = $this->generateFolderPath();
         
-      try {
-            $tempPaths = [];
-            foreach ($this->scanned_docs as $doc) {
-                $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
-            }
-            $patientName = Str::slug($this->patient_name);
-            $upperCasePatientName = Str::upper($patientName);
-            $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
-        
-            $finalPath = $pdfMergeService->mergePdfs($tempPaths, $outputPath);
-            BpjsClaim::create([
-                'no_rkm_medis' => $this->no_rm, // Track RM number
-                'no_kartu_bpjs' => $this->no_kartu_bpjs,
-                'no_sep' => $this->no_sep,
-                'jenis_rawatan' => $this->jenis_rawatan,
-                'tanggal_rawatan' => $this->tanggal_rawatan,
-                'patient_name' => $this->patient_name,
-                'file_path' => $finalPath,
-            ]);
+        try {
+                $tempPaths = [];
+                foreach ($this->scanned_docs as $doc) {
+                    $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
+                }
+                $patientName = Str::slug($this->patient_name);
+                $upperCasePatientName = Str::upper($patientName);
+                $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
+            
+                $finalPath = $pdfMergeService->mergePdfs($tempPaths, $outputPath);
+                BpjsClaim::create([
+                    'no_rkm_medis' => $this->no_rm, // Track RM number
+                    'no_kartu_bpjs' => $this->no_kartu_bpjs,
+                    'no_sep' => $this->no_sep,
+                    'jenis_rawatan' => $this->jenis_rawatan,
+                    'tanggal_rawatan' => $this->tanggal_rawatan,
+                    'patient_name' => $this->patient_name,
+                    'file_path' => $finalPath,
+                ]);
 
-            // Cleanup
-            foreach ($tempPaths as $path) {
-                Storage::delete($path);
+                // Cleanup
+                foreach ($tempPaths as $path) {
+                    Storage::delete($path);
+                }
+                // Hapus isi form
+                $this->reset();
+                // Use Laravel SweetAlert2
+                LivewireAlert::title('Klaim berhasil dibuat!')
+                ->text('Klaim berhasil disimpan di dalam folder klaim.')
+                ->success()
+                ->position('center')
+                ->timer(3400) // Dismisses after 2.4 seconds
+                ->show();
+            
+            } catch (\Exception $e) {
+                Log::error("BPJS Claim Error: " . $e->getMessage());
+                LivewireAlert::title('Klaim gagal dibuat!')
+                ->text('Terjadi kesalahan saat membuat klaim.')
+                ->error()
+                ->position('center')
+                ->timer(3400)
+                ->show();
             }
-             // Hapus isi form
-            $this->reset();
-            // Use Laravel SweetAlert2
-            LivewireAlert::title('Klaim berhasil dibuat!')
-            ->success()
-            ->show();
-        
-        } catch (\Exception $e) {
-            Log::error("BPJS Claim Error: " . $e->getMessage());
-            LivewireAlert::title('Klaim gagal dibuat!')
-            ->error()
-            ->show();
-        }
     }
 
     protected function generateFolderPath()
