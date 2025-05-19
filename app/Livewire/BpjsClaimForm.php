@@ -21,7 +21,6 @@ class BpjsClaimForm extends Component
     public $jenis_rawatan = 'RAWAT JALAN'; // Default to 'RAWAT JALAN'
     public $tanggal_rawatan ;
     public $scanned_docs = [];
-
     public $previewUrls = [];
     public $fileOrder = [];
     public $showPreviewModal = false;
@@ -131,11 +130,13 @@ class BpjsClaimForm extends Component
         //     return $file->store("temp");
         // }, $this->scanned_docs);
       try {
-        $tempPaths = [];
-        foreach ($this->scanned_docs as $doc) {
-             $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
-        }
-            $outputPath = "bpjs-claims/{$folderPath}/" . Str::slug($this->patient_name) . '.pdf';
+            $tempPaths = [];
+            foreach ($this->scanned_docs as $doc) {
+                $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
+            }
+            $patientName = Str::slug($this->patient_name);
+            $upperCasePatientName = Str::upper($patientName);
+            $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
         
             $finalPath = $pdfMergeService->mergePdfs($tempPaths, $outputPath);
             BpjsClaim::create([
@@ -180,54 +181,7 @@ class BpjsClaimForm extends Component
         return "{$month} REGULER {$year}/{$jenisRawatan}/{$day}/{$this->no_sep}";
     }
 
-    // protected function generateFolderPath(): string
-    // {
-    //     $date = now()->parse($this->tanggal_rawatan); // Use user-provided date
-        
-    //     return sprintf(
-    //         "%s/%s/%d/%s",
-    //         strtoupper($date->format('F Y')), // APRIL 2025
-    //         $this->jenis_rawatan === 'RAWAT JALAN' ? 'RJ' : 'RI',
-    //         $date->day, // 4 (no leading zero)
-    //         $this->no_sep
-    //     );
-    // }
 
-    protected function mergePdfs($folderPath)
-    {
-       
-       
-        // Save uploaded files
-        $paths = [];
-        foreach ($this->scanned_docs as $doc) {
-            $paths[] = $doc->store("temp");
-        }
-         
-        // Merge logic (simplified)
-        $outputPath = "bpjs-claims/{$folderPath}/" . Str::slug($this->patient_name) . '.pdf';
-        Storage::disk('shared')->put($outputPath, 'Merged PDF content here');
-        
-        return $outputPath;
-    }
-
-    // protected function mergePdfs(string $folderPath): string
-    // {
-    //     $mergedContent = $this->generatePdfContent(); // Customize this
-        
-    //     $fileName = Str::slug($this->patient_name) . '.pdf';
-    //     $fullPath = "bpjs-claims/{$folderPath}/{$fileName}";
-
-    //     Storage::disk('shared')->put($fullPath, $mergedContent);
-    //     // return response()->file(Storage::disk('shared')->path($fullPath))->getContent();
-        
-    //     return $fullPath;
-    // }
-
-    protected function generatePdfContent(): string
-    {
-        // Implement your PDF generation logic here
-        return "Merged PDF content for {$this->patient_name}";
-    }
     public function render()
     {
         return view('livewire.bpjs-claim-form');
