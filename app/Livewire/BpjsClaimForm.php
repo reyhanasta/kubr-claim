@@ -10,18 +10,20 @@ use Livewire\WithFileUploads;
 use App\Services\PdfMergerService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
 
 class BpjsClaimForm extends Component
 {
     use WithFileUploads;
     public $no_rm = '';
+
+    public $rmIcon = 'magnifying-glass';
     public $patient_name = '';
     public $no_sep = '';
     public $no_kartu_bpjs = '';
     public $jenis_rawatan = 'RAWAT JALAN'; // Default to 'RAWAT JALAN'
     public $tanggal_rawatan ;
     public $scanned_docs = [];
-
     public $previewUrls = [];
     public $fileOrder = [];
     public $showPreviewModal = false;
@@ -30,9 +32,23 @@ class BpjsClaimForm extends Component
      protected $rules = [
         'no_rm' => 'required|exists:pasien,no_rkm_medis',
         'tanggal_rawatan' => 'required|date',
-        'scanned_docs.*' => 'file|mimes:pdf,jpg,png|max:2048', // 2MB max
+        'jenis_rawatan' => 'required',
+        'no_sep' => 'required',
+        'scanned_docs.*' => 'required|file|mimes:pdf,jpg,png|max:2048', // 2MB max
     ];
 
+    protected $messages = [
+            'no_rm.required' => 'Nomor RM wajib diisi.',
+            'no_rm.exists' => 'Nomor RM tidak ditemukan.',
+            'tanggal_rawatan.required' => 'Tanggal rawatan wajib diisi.',
+            'tanggal_rawatan.date' => 'Tanggal rawatan harus berupa tanggal.',
+            'jenis_rawatan.required' => 'Jenis rawatan wajib diisi.',
+            'no_sep.required' => 'Nomor SEP wajib diisi.',
+            'scanned_docs.*.required' => 'File wajib diisi.',
+            'scanned_docs.*.file' => 'File harus berformat PDF, JPG, atau PNG.',
+            'scanned_docs.*.mimes' => 'File harus berformat PDF, JPG, atau PNG.',
+            'scanned_docs.*.max' => 'File tidak boleh lebih dari 2MB.',
+        ];
     
 
     public function previewFile($index)
@@ -45,7 +61,7 @@ class BpjsClaimForm extends Component
 
     public function getCurrentPreviewUrlProperty()
     {
-        if (is_null($this->currentPreviewIndex)) {
+        if ($this->currentPreviewIndex === null) {
             return null;
         }
         
@@ -190,14 +206,18 @@ class BpjsClaimForm extends Component
 
     public function searchPatient()
     {
-        $this->validateOnly('no_rm');
+        // $this->validateOnly('no_rm');
         $patient = Patient::where('no_rkm_medis', $this->no_rm)->first();
         if ($patient) {
             $this->patient_name = $patient->nm_pasien;
             $this->no_kartu_bpjs = $patient->no_peserta;
+            $this->rmIcon = 'check-circle';
         } else {
-            $this->reset(['nama', 'no_kartu_bpjs']);
-            $this->addError('no_rm', 'Pasien tidak ditemukan.');
+            $this->patient_name = '';
+            $this->no_kartu_bpjs = '';
+            $this->rmIcon = 'x-circle';
+            LivewireAlert::title('Pasien tidak ditemukan!')
+            ->error()->show();
         }
     }
 
@@ -208,11 +228,13 @@ class BpjsClaimForm extends Component
         
         $folderPath = $this->generateFolderPath();
       try {
-        $tempPaths = [];
-        foreach ($this->scanned_docs as $doc) {
-             $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
-        }
-            $outputPath = "bpjs-claims/{$folderPath}/" . Str::slug($this->patient_name) . '.pdf';
+            $tempPaths = [];
+            foreach ($this->scanned_docs as $doc) {
+                $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
+            }
+            $patientName = Str::slug($this->patient_name);
+            $upperCasePatientName = Str::upper($patientName);
+            $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
         
             $finalPath = $pdfMergeService->mergePdfs($tempPaths, $outputPath);
             BpjsClaim::create([
@@ -229,15 +251,18 @@ class BpjsClaimForm extends Component
             foreach ($tempPaths as $path) {
                 Storage::delete($path);
             }
-             // Hapus file temp
-            // Storage::disk('local')->delete($tempPaths);
-
-
-            $this->resetExcept(['no_rm']); // Clear form after submission
-            session()->flash('success', 'Klaim berhasil dibuat!');
+             // Hapus isi form
+            $this->reset();
+            // Use Laravel SweetAlert2
+            LivewireAlert::title('Klaim berhasil dibuat!')
+            ->success()
+            ->show();
+        
         } catch (\Exception $e) {
             Log::error("BPJS Claim Error: " . $e->getMessage());
-            session()->flash('error', 'Gagal membuat klaim: ' . $e->getMessage());
+            LivewireAlert::title('Klaim gagal dibuat!')
+            ->error()
+            ->show();
         }
     }
 
@@ -257,54 +282,7 @@ class BpjsClaimForm extends Component
         return "{$month} REGULER {$year}/{$jenisRawatan}/{$day}/{$this->no_sep}";
     }
 
-    // protected function generateFolderPath(): string
-    // {
-    //     $date = now()->parse($this->tanggal_rawatan); // Use user-provided date
-        
-    //     return sprintf(
-    //         "%s/%s/%d/%s",
-    //         strtoupper($date->format('F Y')), // APRIL 2025
-    //         $this->jenis_rawatan === 'RAWAT JALAN' ? 'RJ' : 'RI',
-    //         $date->day, // 4 (no leading zero)
-    //         $this->no_sep
-    //     );
-    // }
 
-    protected function mergePdfs($folderPath)
-    {
-       
-       
-        // Save uploaded files
-        $paths = [];
-        foreach ($this->scanned_docs as $doc) {
-            $paths[] = $doc->store("temp");
-        }
-         
-        // Merge logic (simplified)
-        $outputPath = "bpjs-claims/{$folderPath}/" . Str::slug($this->patient_name) . '.pdf';
-        Storage::disk('shared')->put($outputPath, 'Merged PDF content here');
-        
-        return $outputPath;
-    }
-
-    // protected function mergePdfs(string $folderPath): string
-    // {
-    //     $mergedContent = $this->generatePdfContent(); // Customize this
-        
-    //     $fileName = Str::slug($this->patient_name) . '.pdf';
-    //     $fullPath = "bpjs-claims/{$folderPath}/{$fileName}";
-
-    //     Storage::disk('shared')->put($fullPath, $mergedContent);
-    //     // return response()->file(Storage::disk('shared')->path($fullPath))->getContent();
-        
-    //     return $fullPath;
-    // }
-
-    protected function generatePdfContent(): string
-    {
-        // Implement your PDF generation logic here
-        return "Merged PDF content for {$this->patient_name}";
-    }
     public function render()
     {
         return view('livewire.bpjs-claim-form');
