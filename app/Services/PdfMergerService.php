@@ -20,52 +20,57 @@ class PdfMergerService {
     {
         try {
             $pdf = new Fpdi();
-        
+    
             foreach ($pdfPaths as $pdfPath) {
-                // Verify file exists in storage
-                if (!Storage::disk('local')->exists($pdfPath)) {
+                // Support both storage and Livewire temp files
+                if (Storage::disk('local')->exists($pdfPath)) {
+                    $fullPath = Storage::disk('local')->path($pdfPath);
+                } elseif (file_exists(storage_path('app/livewire-tmp/' . $pdfPath))) {
+                    $fullPath = storage_path('app/livewire-tmp/' . $pdfPath);
+                } else {
                     throw new \Exception("PDF file not found: {$pdfPath}");
                 }
-                $fullPath = Storage::disk('local')->path($pdfPath);
+    
                 // Get page count
                 $pageCount = $pdf->setSourceFile($fullPath);
                 if ($pageCount === 0) {
                     throw new \Exception("Failed to read PDF file: {$pdfPath}");
                 }
-                // Loop through all pages and import them
+    
+                // Import pages
                 for ($i = 1; $i <= $pageCount; $i++) {
                     $templateId = $pdf->importPage($i);
                     $size = $pdf->getTemplateSize($templateId);
-                    // Add page with proper orientation
                     $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
                     $pdf->AddPage($orientation, [$size['width'], $size['height']]);
                     $pdf->useTemplate($templateId);
                 }
             }
+    
             // Ensure output directory exists
             $outputFullPath = Storage::disk('shared')->path($outputPath);
             $outputDir = dirname($outputFullPath);
             if (!file_exists($outputDir)) {
                 mkdir($outputDir, 0755, true);
             }
-            
+    
             // Save to temporary file first
-            $tempPath = storage_path('app/temp_merged_'.md5(time()).'.pdf');
+            $tempPath = storage_path('app/temp_merged_' . md5(time()) . '.pdf');
             $pdf->Output($tempPath, 'F');
-            
-            // Verify merged PDF
+    
+            // **🔍 Size Check (Important)**
             if (filesize($tempPath) < 1024) {
-                throw new \Exception("Merged PDF is too small - likely corrupt");
+                unlink($tempPath); // Clean up corrupted file
+                throw new \Exception("Failed to merge PDFs: Merged PDF is too small - likely corrupt");
             }
-            
+    
             // Move to final location
             Storage::disk('shared')->put($outputPath, file_get_contents($tempPath));
             unlink($tempPath);
+    
+            return $outputPath;
             
-        return $outputPath;
-        
-        }catch (\Exception $e) {
-           // Log detailed error
+        } catch (\Exception $e) {
             Log::error('PDF Merge Failed', [
                 'error' => $e->getMessage(),
                 'files' => $pdfPaths,
@@ -74,7 +79,8 @@ class PdfMergerService {
             
             throw new \Exception("Failed to merge PDFs: " . $e->getMessage());
         }
-     
     }
+    
+
   
 }

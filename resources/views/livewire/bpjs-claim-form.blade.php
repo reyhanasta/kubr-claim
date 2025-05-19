@@ -107,8 +107,8 @@
 
                 <!-- Modal Content -->
                 <div class="flex-1 min-h-0 relative">
-                    @if($this->currentPreviewUrl)
-                    <iframe src="{{ $this->currentPreviewUrl }}" class="w-full h-full border-0" frameborder="0"
+                    @if($currentPreviewUrl)
+                    <iframe src="{{ $currentPreviewUrl }}" class="w-full h-full border-0" frameborder="0"
                         style="min-height: 80vh;">
                     </iframe>
                     @endif

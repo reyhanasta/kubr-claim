@@ -1,3 +1,3 @@
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
-window.Swal = Swal
+window.Swal = Swal;
