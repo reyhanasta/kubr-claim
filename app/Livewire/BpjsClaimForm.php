@@ -85,7 +85,9 @@ class BpjsClaimForm extends Component
         $this->previewUrls = [];
         $this->fileOrder = [];
         foreach ($this->scanned_docs as $index => $doc) {
-            $this->previewUrls[$index] = $doc->temporaryUrl();
+            // $this->previewUrls[$index] = $doc->temporaryUrl();
+            $path = $doc->storeAs('temp', $doc->getFilename(), 'public');
+            $this->previewUrls[] = Storage::url($path);
             $this->fileOrder[$index] = $index;
         }
     }
@@ -101,7 +103,8 @@ class BpjsClaimForm extends Component
         // Re-generate preview/order
         $this->previewUrls = [];
         foreach ($this->scanned_docs as $index => $doc) {
-            $this->previewUrls[$index] = $doc->temporaryUrl();
+            $path = $doc->storeAs('temp', $doc->getFilename(), 'public');
+            $this->previewUrls[] = Storage::url($path);
         }
 
         $this->fileOrder = array_keys($this->scanned_docs);
@@ -129,30 +132,34 @@ class BpjsClaimForm extends Component
     public function moveUp($index)
     {
         if ($index > 0) {
-            // Swap the scanned_docs order
-            $tempDoc = $this->scanned_docs[$index];
-            $this->scanned_docs[$index] = $this->scanned_docs[$index - 1];
-            $this->scanned_docs[$index - 1] = $tempDoc;
+            // Swap scanned_docs
+            [$this->scanned_docs[$index - 1], $this->scanned_docs[$index]] =
+                [$this->scanned_docs[$index], $this->scanned_docs[$index - 1]];
 
-            // Swap the fileOrder to match the docs order
-            $tempOrder = $this->fileOrder[$index];
-            $this->fileOrder[$index] = $this->fileOrder[$index - 1];
-            $this->fileOrder[$index - 1] = $tempOrder;
+            // Swap previewUrls
+            [$this->previewUrls[$index - 1], $this->previewUrls[$index]] =
+                [$this->previewUrls[$index], $this->previewUrls[$index - 1]];
+
+            // Swap fileOrder (optional)
+            [$this->fileOrder[$index - 1], $this->fileOrder[$index]] =
+                [$this->fileOrder[$index], $this->fileOrder[$index - 1]];
         }
     }
 
     public function moveDown($index)
     {
-         if ($index < count($this->fileOrder) - 1) {
-            // Swap the scanned_docs order
-            $tempDoc = $this->scanned_docs[$index];
-            $this->scanned_docs[$index] = $this->scanned_docs[$index + 1];
-            $this->scanned_docs[$index + 1] = $tempDoc;
+        if ($index < count($this->scanned_docs) - 1) {
+            // Swap scanned_docs
+            [$this->scanned_docs[$index + 1], $this->scanned_docs[$index]] =
+                [$this->scanned_docs[$index], $this->scanned_docs[$index + 1]];
 
-            // Swap the fileOrder to match the docs order
-            $tempOrder = $this->fileOrder[$index];
-            $this->fileOrder[$index] = $this->fileOrder[$index + 1];
-            $this->fileOrder[$index + 1] = $tempOrder;
+            // Swap previewUrls
+            [$this->previewUrls[$index + 1], $this->previewUrls[$index]] =
+                [$this->previewUrls[$index], $this->previewUrls[$index + 1]];
+
+            // Swap fileOrder (optional)
+            [$this->fileOrder[$index + 1], $this->fileOrder[$index]] =
+                [$this->fileOrder[$index], $this->fileOrder[$index + 1]];
         }
     }
     

@@ -62,14 +62,13 @@
         </div>
         @endif
         <!-- Add More Files -->
-        <flux:input type="file" id="add-more-files" wire:model="new_docs" multiple accept=".pdf,.jpg,.png" class="hidden"
-                placeholder="Tambahkan PDF" />
-
-
+        <flux:input type="file" id="add-more-files" wire:model="new_docs" multiple accept=".pdf,.jpg,.png"
+            class="hidden" placeholder="Tambahkan PDF" />
         <!-- File List with Reordering -->
         @if($scanned_docs)
         <div class="text-right mb-4">
-            <flux:button icon="plus" variant="subtle" class="text-amber-300 hover:text-amber-400" onclick="document.getElementById('add-more-files').click()">
+            <flux:button icon="plus" variant="subtle" class="text-amber-300 hover:text-amber-400"
+                onclick="document.getElementById('add-more-files').click()">
                 Tambahkan File
             </flux:button>
             @if(count($scanned_docs) > 1)
@@ -82,29 +81,33 @@
         <div class="mt-4 space-y-2">
             @foreach($scanned_docs as $index => $doc)
             <div class="flex items-center gap-4 p-4 bg-gray-700 border border-gray-600 rounded-lg">
-                <span class="text-amber-300 font-semibold">Page {{ $loop->iteration }}</span>
-                <!-- Reorder Buttons -->
-                @if($index > 0)
-                <flux:button size="xs" icon="arrow-up" variant="primary" wire:click.prevent="moveUp({{ $index }})">
-                </flux:button>
-                @endif
-                @if($index < count($scanned_docs) - 1) <flux:button size="xs" icon="arrow-down" variant="primary"
-                    wire:click.prevent="moveDown({{ $index }})">
-                    </flux:button>
+                <!-- Inline PDF Preview -->
+                <div class="w-64 h-80 overflow-hidden border border-gray-500 rounded bg-white flex-shrink-0 shadow-sm">
+                    <iframe src="{{ $previewUrls[$index] }}#toolbar=0&navpanes=0&scrollbar=0" class="w-full h-full"
+                        frameborder="0">
+                    </iframe>
+                </div>
+
+
+
+                <!-- File Name -->
+                <div class="flex-1 truncate text-sm text-gray-100">
+                    {{ $doc->getClientOriginalName() }}
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    @if($index > 0)
+                    <flux:button icon="arrow-up" size="xs" variant="ghost" wire:click.prevent="moveUp({{ $index }})" />
+                    @endif
+                    @if($index
+                    < count($scanned_docs) - 1) <flux:button icon="arrow-down" size="xs" variant="ghost"
+                        wire:click.prevent="moveDown({{ $index }})" />
                     @endif
 
-                    <!-- File Info -->
-                    <span class="flex-1 truncate">
-                        {{ $doc->getClientOriginalName() }}
-                    </span>
-
-                    <!-- Preview Button -->
-                    <flux:button icon="eye" variant="ghost" wire:click.prevent="previewFile({{ $index }})">
-                    </flux:button>
-                    <!-- Remove Button -->
-                    <flux:button icon="trash" variant="subtle" class=" hover:text-red-500"
-                        wire:click.prevent="removeFile({{ $index }})">
-                    </flux:button>
+                    <flux:button icon="trash" size="xs" variant="subtle" class="text-red-400"
+                        wire:click.prevent="removeFile({{ $index }})" />
+                </div>
             </div>
             @endforeach
         </div>
