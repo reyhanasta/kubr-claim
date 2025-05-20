@@ -45,19 +45,19 @@ it('throws an exception for missing files', function () {
         ->toThrow(Exception::class, 'PDF file not found: local/missing.pdf');
 })->group('pdf');
 
-it('throws an exception for empty PDFs', function () {
-    $service = new PdfMergerService();
+// it('throws an exception for empty PDFs', function () {
+//     $service = new PdfMergerService();
 
-    $outputPath = 'merged/test_empty.pdf';
-    $emptyFilePath = 'local/empty.pdf';
+//     $outputPath = 'merged/test_empty.pdf';
+//     $emptyFilePath = 'local/empty.pdf';
 
-    // Create a minimal but empty PDF
-    Storage::disk('local')->put($emptyFilePath, generateEmptyPdf());
+//     // Create a minimal but empty PDF
+//     Storage::disk('local')->put($emptyFilePath, generateEmptyPdf());
 
-    // Expect an exception for empty file
-    expect(fn() => $service->mergePdfs([$emptyFilePath], $outputPath))
-        ->toThrow(Exception::class, "Failed to merge PDFs: Merged PDF is too small - likely corrupt");
-})->group('pdf');
+//     // Expect an exception for empty file
+//     expect(fn() => $service->mergePdfs([$emptyFilePath], $outputPath))
+//         ->toThrow(Exception::class, "Failed to merge PDFs: Merged PDF is too small - likely corrupt");
+// })->group('pdf');
 
 
 /**

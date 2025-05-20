@@ -1,20 +1,19 @@
-
 <div class="max-w-4xl mx-auto p-8 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
-     
+
     <!-- Header -->
     <div class="mb-8 text-center">
         <flux:heading size="xl" level="1" class="text-amber">BPJS Claim Submission</flux:heading>
         <flux:subheading size="md" class="text-gray-200">Please fill in the patient's details below.</flux:subheading>
     </div>
-   
 
-    <form wire:submit.prevent="submit" class="space-y-8">
+
+    <form wire:submit.prevent="submit" wire:loading.attr="disabled" wire:target="submit" class="space-y-8">
         <!-- Patient Info Section -->
         <div class="grid grid-cols-4 md:grid-cols-4 gap-6">
             <!-- Nomor RM -->
             <div class="col-span-1">
                 <flux:input name="no_rm" label="Nomor RM" type="text" wire:model.lazy="no_rm"
-                    icon:trailing="{{ $rmIcon }}" placeholder="Nomor RM" wire:change="searchPatient" 
+                    icon:trailing="{{ $rmIcon }}" placeholder="Nomor RM" wire:change="searchPatient"
                     badge="Wajib diisi" />
             </div>
             <!-- Nama Pasien -->
@@ -55,13 +54,31 @@
 
         <!-- File Upload Section -->
         {{-- Make the width smaller --}}
+        @if(empty($scanned_docs))
+        <!-- Initial Upload -->
         <div>
             <flux:input type="file" label="Upload Scanned Documents" wire:model="scanned_docs" multiple
                 accept=".pdf,.jpg,.png" placeholder="Upload Scanned Documents" />
         </div>
+        @endif
+        <!-- Add More Files -->
+        <flux:input type="file" id="add-more-files" wire:model="new_docs" multiple accept=".pdf,.jpg,.png" class="hidden"
+                placeholder="Tambahkan PDF" />
+
 
         <!-- File List with Reordering -->
         @if($scanned_docs)
+        <div class="text-right mb-4">
+            <flux:button icon="plus" variant="subtle" class="text-amber-300 hover:text-amber-400" onclick="document.getElementById('add-more-files').click()">
+                Tambahkan File
+            </flux:button>
+            @if(count($scanned_docs) > 1)
+            <flux:button icon="trash" variant="subtle" wire:click="clearAllFiles"
+                class="text-red-400 hover:text-red-600">
+                Hapus Semua File
+            </flux:button>
+            @endif
+        </div>
         <div class="mt-4 space-y-2">
             @foreach($scanned_docs as $index => $doc)
             <div class="flex items-center gap-4 p-4 bg-gray-700 border border-gray-600 rounded-lg">
@@ -91,8 +108,8 @@
             </div>
             @endforeach
         </div>
-        @endif
 
+        @endif
         <!-- Preview Modal -->
         @if($showPreviewModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4 overflow-auto"
@@ -123,5 +140,31 @@
                 class="active:scale-110 px-6 py-3 bg-emerald-500 text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-md hover:bg-emerald-600 hover:shadow-emerald-500/30 focus:outline-none focus:ring-4 focus:ring-emerald-500">
                 Simpan</flux:button>
         </div>
+        <div wire:dirty>Perubahan belum tersimpan...</div>
     </form>
+    <!-- Merge Loading Overlay -->
+    <div wire:loading wire:target="scanned_docs"
+        class="fixed inset-0 z-50 bg-neutral-900/60 flex items-center justify-center backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4 text-center animate-fade-in">
+            <svg class="h-12 w-12 animate-spin text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            <p class="text-amber-100 font-semibold text-lg">Merging PDF files, please wait...</p>
+        </div>
+    </div>
+    <div wire:loading wire:target="new_docs"
+        class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4 text-center">
+            <svg class="h-10 w-10 animate-spin text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+            <p class="text-amber-100 font-medium text-md">Menambahkan file tambahan...</p>
+        </div>
+    </div>
+
+
 </div>
