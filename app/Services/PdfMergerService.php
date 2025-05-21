@@ -25,7 +25,7 @@ class PdfMergerService {
             foreach ($pdfPaths as $pdfPath) {
                 $fullPath = Storage::disk('public')->exists($pdfPath)
                     ? Storage::disk('public')->path($pdfPath)
-                    : storage_path('app/livewire-tmp/' . $pdfPath); // fallback
+                    : storage_path('app/public/' . $pdfPath); // fallback
 
                 $pageCount = $pdf->setSourceFile($fullPath);
                 if ($pageCount === 0) {
