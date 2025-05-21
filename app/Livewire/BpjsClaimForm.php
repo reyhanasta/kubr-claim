@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Patient;
+use CzProject\PdfRotate\PdfRotate;
 use Livewire\Component;
 use App\Models\BpjsClaim;
 use Illuminate\Support\Str;
@@ -77,15 +78,11 @@ class BpjsClaimForm extends Component
         $this->currentPreviewIndex = null;
     }
 
-    public function updatedScannedDocs()
-    {
-        $this->validateOnly('scanned_docs.*');
-        $this->previewUrls = [];
-        $this->fileOrder = [];
-        foreach ($this->scanned_docs as $index => $doc) {
-            $this->previewUrls[$index] = $doc->temporaryUrl();
-            $this->fileOrder[$index] = $index;
-        }
+    public function rotatePdf($filePath, int $degrees){
+        if (!in_array($degrees, [0, 90, 180, 270])) return;
+
+        $rotator = new PdfRotate();
+        $rotator->rotatePdf($filePath,$filePath, $degrees);
     }
 
     public function moveUp($index)
@@ -148,6 +145,31 @@ class BpjsClaimForm extends Component
         }
     }
 
+    public function updatedScannedDocs()
+    {
+        $this->validateOnly('scanned_docs.*');
+        $this->previewUrls = [];
+        $this->fileOrder = [];
+        foreach ($this->scanned_docs as $index => $doc) {
+            $filename = uniqid() . '_' . $doc->getClientOriginalName();
+
+            // Simpan file ke disk 'public' -> /storage/temp/
+            $storedPath = $doc->storeAs('temp', $filename, 'public');
+            $fullPath = Storage::disk('public')->path($storedPath);
+
+            // Apply rotation
+            $rotation = $this->rotations[$index] ?? 0;
+            if ($rotation !== 0) {
+                $this->rotatePdf($fullPath, $rotation);
+            }
+
+              // Simpan untuk preview dan merge
+            $this->rotatedPaths[] = $storedPath;
+            $this->previewUrls[$index] = Storage::url($storedPath);
+        }
+    }
+
+
     // Generate folder structure and merge PDFs
     public function submit(PdfMergerService $pdfMergeService)
     {
@@ -156,28 +178,38 @@ class BpjsClaimForm extends Component
         $folderPath = $this->generateFolderPath();
         
         try {
-                $tempPaths = [];
-                foreach ($this->scanned_docs as $doc) {
-                    $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
-                }
-                $patientName = Str::slug($this->patient_name);
-                $upperCasePatientName = Str::upper($patientName);
-                $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
+            //Final Output path
+            $patientName = Str::slug($this->patient_name);
+            $upperCasePatientName = Str::upper($patientName);
+            $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
+            $finalPath = $pdfMergeService->mergePdfs($this->rotatedPaths, $outputPath);
+
+                // $tempPaths = [];
+                // foreach ($this->scanned_docs as $doc) {
+                //     $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
+                // }
+
             
-                $finalPath = $pdfMergeService->mergePdfs($tempPaths, $outputPath);
-                BpjsClaim::create([
+                
+                $claim = BpjsClaim::create([
                     'no_rkm_medis' => $this->no_rm, // Track RM number
                     'no_kartu_bpjs' => $this->no_kartu_bpjs,
                     'no_sep' => $this->no_sep,
                     'jenis_rawatan' => $this->jenis_rawatan,
                     'tanggal_rawatan' => $this->tanggal_rawatan,
                     'patient_name' => $this->patient_name,
-                    'file_path' => $finalPath,
+                    'file_path' => $outputPath,
                 ]);
 
                 // Cleanup
-                foreach ($tempPaths as $path) {
-                    Storage::delete($path);
+                foreach ($this->scanned_docs as $index => $file) {
+                    $filename = uniqid() . '_' . $file->getClientOriginalName();
+                    $file->storeAs('claims', $filename, 'public');
+                    ClaimDocument::create([
+                        'claim_id' => $claim->id,
+                        'file_path' => $filename,
+                        'order' => $index,
+                    ]);
                 }
                 // Hapus isi form
                 $this->reset();
