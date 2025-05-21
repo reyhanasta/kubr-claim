@@ -305,7 +305,7 @@ class BpjsClaimForm extends Component
         try {
             // PERBAIKAN 13: Perbaikan logika merge files dan pastikan direktori tujuan ada
             $outputDir = "bpjs-claims/{$folderPath}";
-            Storage::disk('public')->makeDirectory($outputDir);
+            // Storage::disk('public')->makeDirectory($outputDir);
 
             // Prepare final PDF output path
             $patientName = trim(explode(',', $this->patient_name)[0]);
