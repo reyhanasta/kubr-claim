@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('no_kartu_bpjs')->nullable();
             $table->string('jenis_rawatan')->nullable();
             $table->date('tanggal_rawatan')->nullable();
-            $table->string('file_path')->nullable();
-            $table->string('disk')->default('shared'); // Default to 'shared'
+            // $table->string('file_path')->nullable();
+            // $table->string('disk')->default('shared'); // Default to 'shared'
             $table->timestamps();
         });
     }

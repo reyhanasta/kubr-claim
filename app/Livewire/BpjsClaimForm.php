@@ -6,19 +6,21 @@ use App\Models\Patient;
 use Livewire\Component;
 use App\Models\BpjsClaim;
 use Illuminate\Support\Str;
+use App\Models\ClaimDocument;
 use Livewire\WithFileUploads;
 use App\Services\PdfMergerService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
+use CzProject\PdfRotate\PdfRotate;
 
 class BpjsClaimForm extends Component
 {
     use WithFileUploads;
     public $no_rm = '';
-
     public $rmIcon = 'magnifying-glass';
     public $patient_name = '';
+    public $rotations = []; // maps index => degrees (e.g., 90, 180, etc.)
     public $no_sep = '';
     public $no_kartu_bpjs = '';
     public $jenis_rawatan = 'RAWAT JALAN'; // Default to 'RAWAT JALAN'
@@ -26,6 +28,7 @@ class BpjsClaimForm extends Component
     public $scanned_docs = [];
     public $previewUrls = [];
     public $fileOrder = [];
+    public $rotatedPaths = [];
     public $showPreviewModal = false;
     public $currentPreviewIndex = null;
     public $currentPreviewUrl = '';
@@ -61,36 +64,80 @@ class BpjsClaimForm extends Component
         }
     }
 
-    public function getCurrentPreviewUrlProperty()
-    {
-        if ($this->currentPreviewIndex === null) {
-            return null;
-        }
+    // public function getCurrentPreviewUrlProperty()
+    // {
+    //     if ($this->currentPreviewIndex === null) {
+    //         return null;
+    //     }
         
-        $filename = $this->scanned_docs[$this->currentPreviewIndex]->getFilename();
-        return route('preview-temp-file', ['filename' => $filename]);
-    }
+    //     $filename = $this->scanned_docs[$this->currentPreviewIndex]->getFilename();
+    //     return route('preview-temp-file', ['filename' => $filename]);
+    // }
 
-    public function closePreviewModal()
-    {
-        $this->showPreviewModal = false;
-        $this->currentPreviewIndex = null;
-    }
+    // public function closePreviewModal()
+    // {
+    //     $this->showPreviewModal = false;
+    //     $this->currentPreviewIndex = null;
+    // }
+
+    // public function updatedScannedDocs()
+    // {
+    //     // sleep(2); // simulate preview generation delay
+
+    //     $this->validateOnly('scanned_docs.*');
+    //     $this->previewUrls = [];
+    //     $this->fileOrder = [];
+    //     foreach ($this->scanned_docs as $index => $doc) {
+    //         // $this->previewUrls[$index] = $doc->temporaryUrl();
+    //         $path = $doc->storeAs('temp', $doc->getFilename(), 'public');
+    //         $this->previewUrls[] = Storage::url($path);
+    //         $this->fileOrder[$index] = $index;
+    //     }
+    // }
 
     public function updatedScannedDocs()
     {
-        // sleep(2); // simulate preview generation delay
-
         $this->validateOnly('scanned_docs.*');
+
         $this->previewUrls = [];
-        $this->fileOrder = [];
+        $this->rotatedPaths = [];
+        
+
         foreach ($this->scanned_docs as $index => $doc) {
-            // $this->previewUrls[$index] = $doc->temporaryUrl();
-            $path = $doc->storeAs('temp', $doc->getFilename(), 'public');
-            $this->previewUrls[] = Storage::url($path);
-            $this->fileOrder[$index] = $index;
+            $filename = uniqid() . '_' . $doc->getClientOriginalName();
+            $storedPath = $doc->storeAs('temp', $filename, 'public');
+            $fullPath = storage_path('app/' . $storedPath);
+    
+            // Rotate PDF if needed
+            $rotation = $this->rotations[$index] ?? 0;
+            if ($rotation !== 0) {
+                $this->rotatePdf($fullPath, $rotation);
+            }
+    
+            $this->previewUrls[$index] = Storage::url($storedPath);
+            // $this->previewUrls[$index] = Storage::url($storedPath);
+            $this->rotatedPaths[] = $storedPath; // used for merging later
         }
     }
+
+
+    // public function updatedNewDocs()
+    // {
+    //     foreach ($this->new_docs as $doc) {
+    //         $this->scanned_docs[] = $doc;
+    //     }
+
+    //     $this->new_docs = [];
+
+    //     // Re-generate preview/order
+    //     $this->previewUrls = [];
+    //     foreach ($this->scanned_docs as $index => $doc) {
+    //         $path = $doc->storeAs('temp', $doc->getFilename(), 'public');
+    //         $this->previewUrls[] = Storage::url($path);
+    //     }
+
+    //     $this->fileOrder = array_keys($this->scanned_docs);
+    // }
 
     public function updatedNewDocs()
     {
@@ -100,15 +147,30 @@ class BpjsClaimForm extends Component
 
         $this->new_docs = [];
 
-        // Re-generate preview/order
         $this->previewUrls = [];
-        foreach ($this->scanned_docs as $index => $doc) {
-            $path = $doc->storeAs('temp', $doc->getFilename(), 'public');
-            $this->previewUrls[] = Storage::url($path);
-        }
 
-        $this->fileOrder = array_keys($this->scanned_docs);
+        foreach ($this->scanned_docs as $index => $doc) {
+            $this->rotations[$index] = 0; // default rotation
+            $filename = uniqid() . '_' . $doc->getClientOriginalName();
+            $path = $doc->storeAs('temp', $filename, 'public');
+            $this->previewUrls[$index] = Storage::url($path);
+        }
     }
+    public function rotateFile($index)
+    {
+        // Rotate clockwise by 90°, loop back to 0 after 270
+        $this->rotations[$index] = ($this->rotations[$index] ?? 0) + 90;
+        if ($this->rotations[$index] >= 360) {
+            $this->rotations[$index] = 0;
+        }
+    }
+    public function rotatePdf($filePath, $rotation)
+    {
+        $rotator = new PdfRotate();
+        $rotator->rotatePdf($filePath, $filePath, $rotation);
+    }
+
+
 
     public function clearAllFiles()
     {
@@ -132,34 +194,22 @@ class BpjsClaimForm extends Component
     public function moveUp($index)
     {
         if ($index > 0) {
-            // Swap scanned_docs
             [$this->scanned_docs[$index - 1], $this->scanned_docs[$index]] =
                 [$this->scanned_docs[$index], $this->scanned_docs[$index - 1]];
 
-            // Swap previewUrls
             [$this->previewUrls[$index - 1], $this->previewUrls[$index]] =
                 [$this->previewUrls[$index], $this->previewUrls[$index - 1]];
-
-            // Swap fileOrder (optional)
-            [$this->fileOrder[$index - 1], $this->fileOrder[$index]] =
-                [$this->fileOrder[$index], $this->fileOrder[$index - 1]];
         }
     }
 
     public function moveDown($index)
     {
         if ($index < count($this->scanned_docs) - 1) {
-            // Swap scanned_docs
             [$this->scanned_docs[$index + 1], $this->scanned_docs[$index]] =
                 [$this->scanned_docs[$index], $this->scanned_docs[$index + 1]];
 
-            // Swap previewUrls
             [$this->previewUrls[$index + 1], $this->previewUrls[$index]] =
                 [$this->previewUrls[$index], $this->previewUrls[$index + 1]];
-
-            // Swap fileOrder (optional)
-            [$this->fileOrder[$index + 1], $this->fileOrder[$index]] =
-                [$this->fileOrder[$index], $this->fileOrder[$index + 1]];
         }
     }
     
@@ -241,51 +291,142 @@ class BpjsClaimForm extends Component
     }
 
     // Generate folder structure and merge PDFs
+    // public function submit(PdfMergerService $pdfMergeService)
+    // {
+    //     $this->validate();
+    //     $folderPath = $this->generateFolderPath();
+    //     try {
+    //             $tempPaths = [];
+    //             foreach ($this->scanned_docs as $doc) {
+    //                 $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
+    //             }
+    //             $patientName = trim(explode(',', $this->patient_name)[0]);
+    //             $upperCasePatientName = Str::upper($patientName);
+    //             $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
+            
+    //             $finalPath = $pdfMergeService->mergePdfs($tempPaths, $outputPath);
+    //             $claim = BpjsClaim::create([
+    //                 'no_rkm_medis' => $this->no_rm, // Track RM number
+    //                 'no_kartu_bpjs' => $this->no_kartu_bpjs,
+    //                 'no_sep' => $this->no_sep,
+    //                 'jenis_rawatan' => $this->jenis_rawatan,
+    //                 'tanggal_rawatan' => $this->tanggal_rawatan,
+    //                 'patient_name' => $this->patient_name,
+    //                 // 'file_path' => $finalPath,
+    //             ]);
+    //             // Simpan semua file sesuai urutan
+    //             foreach ($this->scanned_docs as $index => $file) {
+    //                 $filename = uniqid() . '_' . $file->getClientOriginalName();
+    //                 $file->storeAs('claims', $filename, 'public');
+
+    //                 ClaimDocument::create([
+    //                     'bpjs_claims_id' => $claim->id,
+    //                     'filename' => $filename,
+    //                     'order' => $index,
+    //                 ]);
+    //             }
+
+    //             // Cleanup
+    //             foreach ($tempPaths as $path) {
+    //                 Storage::delete($path);
+    //             }
+    //             // Hapus isi form
+    //             $this->reset();
+    //             // Use Laravel SweetAlert2
+    //             LivewireAlert::title('Klaim berhasil dibuat!')
+    //             ->success()
+    //             ->text('Folder Klaim berhasil ditambahkan!')
+    //             ->timer(2400) // Dismisses after 3 seconds
+    //             ->show();
+            
+    //         } catch (\Exception $e) {
+    //             Log::error("BPJS Claim Error: " . $e->getMessage());
+    //             LivewireAlert::title('Klaim gagal dibuat!')
+    //             ->error()
+    //             ->text('Terjadi kegagalan saat penyimpanan file. Silahkan cek kembali kelengkapan data!')
+    //             ->timer(2400) // Dismisses after 3 seconds
+    //             ->show();
+    //         }
+    // }
+
     public function submit(PdfMergerService $pdfMergeService)
     {
         $this->validate();
-        $folderPath = $this->generateFolderPath();
-        try {
-                $tempPaths = [];
-                foreach ($this->scanned_docs as $doc) {
-                    $tempPaths[] = $doc->store('temp', 'local'); // Simpan sementara di local disk
-                }
-                $patientName = trim(explode(',', $this->patient_name)[0]);
-                $upperCasePatientName = Str::upper($patientName);
-                $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
-            
-                $finalPath = $pdfMergeService->mergePdfs($tempPaths, $outputPath);
-                BpjsClaim::create([
-                    'no_rkm_medis' => $this->no_rm, // Track RM number
-                    'no_kartu_bpjs' => $this->no_kartu_bpjs,
-                    'no_sep' => $this->no_sep,
-                    'jenis_rawatan' => $this->jenis_rawatan,
-                    'tanggal_rawatan' => $this->tanggal_rawatan,
-                    'patient_name' => $this->patient_name,
-                    'file_path' => $finalPath,
-                ]);
 
-                // Cleanup
-                foreach ($tempPaths as $path) {
-                    Storage::delete($path);
-                }
-                // Hapus isi form
-                $this->reset();
-                // Use Laravel SweetAlert2
-                LivewireAlert::title('Klaim berhasil dibuat!')
+        $folderPath = $this->generateFolderPath();
+
+        try {
+            // Step 1: Store files temporarily for merging
+            $tempPaths = [];
+            foreach ($this->scanned_docs as $doc) {
+                $tempPaths[] = $doc->store('temp', 'public');
+            }
+
+            // Step 2: Prepare final PDF output path
+            $patientName = trim(explode(',', $this->patient_name)[0]);
+            $upperCasePatientName = Str::upper($patientName);
+            $outputPath = "bpjs-claims/{$folderPath}/" . $upperCasePatientName . '.pdf';
+
+            foreach ($this->scanned_docs as $index => $doc) {
+                // Simpan file ke temp dan ambil full path-nya
+                $storedPath = $doc->store('temp', 'public');
+                $fullPath = storage_path('app/public/' . $storedPath);
+            
+                // Putar file fisik (yang akan di-merge)
+                $this->rotatePdf($fullPath, $this->rotations[$index] ?? 0);
+            
+                // Simpan path-nya untuk merge
+                $tempPaths[] = $storedPath;
+            }
+            // Step 3: Merge all PDFs
+            $mergedPath = $pdfMergeService->mergePdfs($this->rotatedPaths, $outputPath);
+
+            // Step 4: Save claim data
+            $claim = BpjsClaim::create([
+                'no_rkm_medis' => $this->no_rm,
+                'no_kartu_bpjs' => $this->no_kartu_bpjs,
+                'no_sep' => $this->no_sep,
+                'jenis_rawatan' => $this->jenis_rawatan,
+                'tanggal_rawatan' => $this->tanggal_rawatan,
+                'patient_name' => $this->patient_name,
+                // 'file_path' => $finalPath, // optional
+            ]);
+
+            // Step 5: Save each uploaded file with order
+            foreach ($this->scanned_docs as $index => $file) {
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
+                $file->storeAs('claims', $filename, 'public');
+
+                ClaimDocument::create([
+                    'bpjs_claims_id' => $claim->id,
+                    'filename' => $filename,
+                    'order' => $index,
+                ]);
+            }
+
+            // Step 6: Clean up temp files
+            foreach ($tempPaths as $path) {
+                Storage::disk('public')->delete($path);
+            }
+
+            // Step 7: Reset form and notify success
+            $this->reset();
+
+            LivewireAlert::title('Klaim berhasil dibuat!')
                 ->success()
                 ->text('Folder Klaim berhasil ditambahkan!')
-                ->timer(2400) // Dismisses after 3 seconds
+                ->timer(2400)
                 ->show();
-            
-            } catch (\Exception $e) {
-                Log::error("BPJS Claim Error: " . $e->getMessage());
-                LivewireAlert::title('Klaim gagal dibuat!')
+
+        } catch (\Exception $e) {
+            Log::error("BPJS Claim Error: " . $e->getMessage());
+
+            LivewireAlert::title('Klaim gagal dibuat!')
                 ->error()
                 ->text('Terjadi kegagalan saat penyimpanan file. Silahkan cek kembali kelengkapan data!')
-                ->timer(2400) // Dismisses after 3 seconds
+                ->timer(2400)
                 ->show();
-            }
+        }
     }
 
     protected function generateFolderPath()

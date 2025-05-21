@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d61338350e2f1dafa26527b6cb1fdb7",
+    "content-hash": "b98c1ac4a92708cde9d23cb8d0af44b1",
     "packages": [
         {
             "name": "brick/math",
@@ -134,6 +134,47 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "czproject/pdf-rotate",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/czproject/pdf-rotate.git",
+                "reference": "b4b6cf0870f2125e8ab1fb84eaf63cbfe693eb33"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/czproject/pdf-rotate/zipball/b4b6cf0870f2125e8ab1fb84eaf63cbfe693eb33",
+                "reference": "b4b6cf0870f2125e8ab1fb84eaf63cbfe693eb33",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "setasign/fpdi-fpdf": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Jan Pecha",
+                    "homepage": "https://www.janpecha.cz/"
+                }
+            ],
+            "description": "Rotation of PDF pages.",
+            "support": {
+                "issues": "https://github.com/czproject/pdf-rotate/issues",
+                "source": "https://github.com/czproject/pdf-rotate/tree/v2.0.1"
+            },
+            "time": "2022-12-02T09:39:02+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -3678,6 +3719,49 @@
                 }
             ],
             "time": "2025-02-05T13:22:35+00:00"
+        },
+        {
+            "name": "setasign/fpdi-fpdf",
+            "version": "v2.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Setasign/FPDI-FPDF.git",
+                "reference": "f2fdc44e4d5247a3bb55ed2c2c1396ef05c02357"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Setasign/FPDI-FPDF/zipball/f2fdc44e4d5247a3bb55ed2c2c1396ef05c02357",
+                "reference": "f2fdc44e4d5247a3bb55ed2c2c1396ef05c02357",
+                "shasum": ""
+            },
+            "require": {
+                "setasign/fpdf": "^1.8.2",
+                "setasign/fpdi": "^2.3"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jan Slabon",
+                    "email": "jan.slabon@setasign.com",
+                    "homepage": "https://www.setasign.com"
+                }
+            ],
+            "description": "Kind of metadata package for dependencies of the latest versions of FPDI and FPDF.",
+            "homepage": "https://www.setasign.com/fpdi",
+            "keywords": [
+                "fpdf",
+                "fpdi",
+                "pdf"
+            ],
+            "support": {
+                "source": "https://github.com/Setasign/FPDI-FPDF/tree/v2.3.0"
+            },
+            "abandoned": true,
+            "time": "2020-02-19T12:21:53+00:00"
         },
         {
             "name": "sweetalert2/laravel",

@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
-use setasign\Fpdi\Fpdi;
+use App\Libraries\RotatableFPDI;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -16,71 +16,62 @@ class PdfMergerService {
      * @return string Path to the merged PDF file.
      * @throws \Exception
      */
+
     public function mergePdfs(array $pdfPaths, string $outputPath): string
     {
         try {
-            $pdf = new Fpdi();
-    
+            $pdf = new RotatableFPDI();
+
             foreach ($pdfPaths as $pdfPath) {
-                // Support both storage and Livewire temp files
-                if (Storage::disk('local')->exists($pdfPath)) {
-                    $fullPath = Storage::disk('local')->path($pdfPath);
-                } elseif (file_exists(storage_path('app/livewire-tmp/' . $pdfPath))) {
-                    $fullPath = storage_path('app/livewire-tmp/' . $pdfPath);
-                } else {
-                    throw new \Exception("PDF file not found: {$pdfPath}");
-                }
-    
-                // Get page count
+                $fullPath = Storage::disk('public')->exists($pdfPath)
+                    ? Storage::disk('public')->path($pdfPath)
+                    : storage_path('app/livewire-tmp/' . $pdfPath); // fallback
+
                 $pageCount = $pdf->setSourceFile($fullPath);
                 if ($pageCount === 0) {
-                    throw new \Exception("Failed to read PDF file: {$pdfPath}");
+                    throw new \Exception("Gagal membaca halaman dari PDF: {$pdfPath}");
                 }
-    
-                // Import pages
-                for ($i = 1; $i <= $pageCount; $i++) {
-                    $templateId = $pdf->importPage($i);
+
+                for ($pageNumber = 1; $pageNumber <= $pageCount; $pageNumber++) {
+                    $templateId = $pdf->importPage($pageNumber);
                     $size = $pdf->getTemplateSize($templateId);
                     $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
+
                     $pdf->AddPage($orientation, [$size['width'], $size['height']]);
                     $pdf->useTemplate($templateId);
                 }
             }
-    
-            // Ensure output directory exists
+
+            // Simpan ke file sementara
             $outputFullPath = Storage::disk('shared')->path($outputPath);
             $outputDir = dirname($outputFullPath);
             if (!file_exists($outputDir)) {
                 mkdir($outputDir, 0755, true);
             }
-    
-            // Save to temporary file first
+
             $tempPath = storage_path('app/temp_merged_' . md5(time()) . '.pdf');
             $pdf->Output($tempPath, 'F');
-    
-            // **🔍 Size Check (Important)**
+
             if (filesize($tempPath) < 1024) {
-                unlink($tempPath); // Clean up corrupted file
-                throw new \Exception("Failed to merge PDFs: Merged PDF is too small - likely corrupt");
+                unlink($tempPath);
+                throw new \Exception("PDF hasil terlalu kecil — kemungkinan gagal saat merge.");
             }
-    
-            // Move to final location
+
             Storage::disk('shared')->put($outputPath, file_get_contents($tempPath));
             unlink($tempPath);
-    
+
             return $outputPath;
-            
+
         } catch (\Exception $e) {
-            Log::error('PDF Merge Failed', [
+            Log::error('Gagal Menggabungkan PDF', [
                 'error' => $e->getMessage(),
                 'files' => $pdfPaths,
                 'trace' => $e->getTraceAsString()
             ]);
-            
-            throw new \Exception("Failed to merge PDFs: " . $e->getMessage());
+
+            throw new \Exception("Gagal menggabungkan PDF: " . $e->getMessage());
         }
     }
-    
 
-  
+     
 }

@@ -87,9 +87,6 @@
                         frameborder="0">
                     </iframe>
                 </div>
-
-
-
                 <!-- File Name -->
                 <div class="flex-1 truncate text-sm text-gray-100">
                     {{ $doc->getClientOriginalName() }}
@@ -105,6 +102,9 @@
                         wire:click.prevent="moveDown({{ $index }})" />
                     @endif
 
+                    <flux:button icon="arrow-uturn-right" size="xs" variant="ghost" wire:click.prevent="rotateFile({{ $index }})"   title="Putar PDF">
+                        {{ $rotations[$index] ?? 0 }}°
+                    </flux:button>
                     <flux:button icon="trash" size="xs" variant="subtle" class="text-red-400"
                         wire:click.prevent="removeFile({{ $index }})" />
                 </div>
@@ -127,8 +127,8 @@
 
                 <!-- Modal Content -->
                 <div class="flex-1 min-h-0 relative">
-                    @if($currentPreviewUrl)
-                    <iframe src="{{ $currentPreviewUrl }}" class="w-full h-full border-0" frameborder="0"
+                    @if($previewUrls[$index])
+                    <iframe src="{{ $previewUrls[$index] }}" class="w-full h-full border-0" transform="rotate-{{ $rotations[$index] }}" frameborder="0"
                         style="min-height: 80vh;">
                     </iframe>
                     @endif
