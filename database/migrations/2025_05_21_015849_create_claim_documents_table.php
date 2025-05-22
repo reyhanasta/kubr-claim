@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('bpjs_claims_id')->constrained()->onDelete('cascade'); // relasi ke tabel klaim (opsional)
             $table->string('filename');
             $table->integer('order');
+            $table->string('disk')->default('shared'); // Default to 'shared'
+
             $table->timestamps();
         });
     }

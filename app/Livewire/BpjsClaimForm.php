@@ -397,7 +397,7 @@ class BpjsClaimForm extends Component
             $finalPath = $pdfMergeService->mergePdfs($this->rotatedPaths, $outputPath);
 
             // Step 4: Save claim data
-            $claim = $this->createClaimRecord($finalPath);
+            $claim = $this->createClaimRecord();
 
             // Step 5: Save each uploaded file with order
             foreach ($this->scanned_docs as $index => $file) {
@@ -416,7 +416,7 @@ class BpjsClaimForm extends Component
                 // ]);
 
                 // PERBAIKAN 16: Simpan ke shared disk
-                $this->storeClaimDocuments($claim);
+                $this->storeClaimDocuments($claim,$finalPath);
             }
 
             // Step 6: Clean up temp files
@@ -465,7 +465,7 @@ class BpjsClaimForm extends Component
         return "bpjs-claims/{$folderPath}/" . Str::upper($patientName) . '.pdf';
     }
 
-    protected function createClaimRecord(string $filePath): BpjsClaim
+    protected function createClaimRecord(): BpjsClaim
     {
         return BpjsClaim::create([
             'no_rkm_medis' => $this->no_rm,
@@ -474,12 +474,10 @@ class BpjsClaimForm extends Component
             'jenis_rawatan' => $this->jenis_rawatan,
             'tanggal_rawatan' => $this->tanggal_rawatan,
             'patient_name' => $this->patient_name,
-            'file_path' => $filePath,
-            'disk' => Storage::disk('shared')->path($filePath),
         ]);
     }
 
-    protected function storeClaimDocuments(BpjsClaim $claim)
+    protected function storeClaimDocuments(BpjsClaim $claim,$finalPath)
     {
         Storage::disk('public')->makeDirectory('claims');
 
@@ -491,6 +489,7 @@ class BpjsClaimForm extends Component
                 'bpjs_claims_id' => $claim->id,
                 'filename' => $filename,
                 'order' => $index,
+                'disk' => Storage::disk('shared')->path($finalPath),
             ]);
         }
     }
