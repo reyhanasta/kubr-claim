@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
+use setasign\Fpdi\Fpdi;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use setasign\Fpdi\Fpdi;
 
 class PdfMergerService 
 {
@@ -16,121 +17,183 @@ class PdfMergerService
      * @return string Path to the merged PDF file (relative path)
      * @throws \Exception
      */
-    public function mergePdfs(array $pdfPaths, string $outputPath): string
-    {
+
+    protected int $minFileSize = 100;
+    protected int $maxRetries = 3;
+    public function mergePdfs(array $pdfPaths, string $outputPath): string{
+        $logContext = [
+            'correlation_id' =>  Str::uuid(),
+            'output_path' => $outputPath,
+            'file_count' => count($pdfPaths),
+            'initiated_at' => now()->toDateTimeString()
+        ];
+
+        Log::info('PDF merge process started', $logContext);
+
         try {
-            // Validasi input
+            // 1. Input validation
+            Log::debug('Validating input PDF paths');
             if (empty($pdfPaths)) {
+                Log::error('Empty PDF paths array received');
                 throw new \Exception("Tidak ada file PDF untuk digabungkan");
             }
 
             $pdf = new Fpdi();
             $processedFiles = 0;
 
-            foreach ($pdfPaths as $index => $pdfPath) {
-                try {
-                    // Pastikan path adalah string dan bukan objek UploadedFile
-                    if (is_object($pdfPath)) {
-                        Log::warning("Received object instead of path at index {$index}", [
-                            'type' => get_class($pdfPath)
-                        ]);
-                        continue;
-                    }
+            // 2. File processing
+            Log::info('Starting PDF files processing', [
+                'total_files' => count($pdfPaths)
+            ]);
+            $this->processPdfFiles($pdf, $pdfPaths, $processedFiles);
 
-                    // Buat full path ke file
-                    $fullPath = storage_path('app/public/' . $pdfPath);
-                    
-                    // Cek apakah file ada
-                    if (!file_exists($fullPath)) {
-                        Log::warning("File tidak ditemukan: {$fullPath}");
-                        continue;
-                    }
-
-                    // Cek apakah file bisa dibaca dan ukurannya valid
-                    if (!is_readable($fullPath) || filesize($fullPath) < 100) {
-                        Log::warning("File tidak dapat dibaca atau terlalu kecil: {$fullPath}");
-                        continue;
-                    }
-
-                    Log::info("Processing PDF file", [
-                        'path' => $pdfPath,
-                        'full_path' => $fullPath,
-                        'size' => filesize($fullPath)
-                    ]);
-
-                    // Set source file dan dapatkan jumlah halaman
-                    $pageCount = $pdf->setSourceFile($fullPath);
-                    
-                    if ($pageCount === 0) {
-                        Log::warning("Tidak ada halaman ditemukan dalam PDF: {$pdfPath}");
-                        continue;
-                    }
-
-                    // Import setiap halaman
-                    for ($pageNumber = 1; $pageNumber <= $pageCount; $pageNumber++) {
-                        try {
-                            $templateId = $pdf->importPage($pageNumber);
-                            $size = $pdf->getTemplateSize($templateId);
-                            
-                            // Tentukan orientasi berdasarkan ukuran
-                            $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
-                            
-                            // Tambah halaman baru dengan ukuran yang sesuai
-                            $pdf->AddPage($orientation, [$size['width'], $size['height']]);
-                            $pdf->useTemplate($templateId);
-                            
-                        } catch (\Exception $pageError) {
-                            Log::error("Error processing page {$pageNumber} from {$pdfPath}", [
-                                'error' => $pageError->getMessage()
-                            ]);
-                            // Lanjutkan ke halaman berikutnya
-                            continue;
-                        }
-                    }
-
-                    $processedFiles++;
-                    Log::info("Successfully processed PDF", [
-                        'file' => $pdfPath,
-                        'pages' => $pageCount
-                    ]);
-
-                } catch (\Exception $fileError) {
-                    Log::error("Error processing file {$pdfPath}", [
-                        'error' => $fileError->getMessage(),
-                        'trace' => $fileError->getTraceAsString()
-                    ]);
-                    // Lanjutkan ke file berikutnya
-                    continue;
-                }
-            }
-
-            // Cek apakah ada file yang berhasil diproses
+            // 3. Processed files check
+            Log::debug('Checking processed files count', [
+                'processed_files' => $processedFiles
+            ]);
             if ($processedFiles === 0) {
+                Log::error('No files were successfully processed', [
+                    'attempted_files' => count($pdfPaths)
+                ]);
                 throw new \Exception("Tidak ada file PDF yang berhasil diproses");
             }
 
-            // Pastikan direktori output ada di shared storage
-            $outputDir = dirname($outputPath);
-            if ($outputDir !== '.' && !Storage::disk('shared')->exists($outputDir)) {
-                if (!Storage::disk('shared')->makeDirectory($outputDir)) {
-                    throw new \Exception("Gagal membuat direktori output di shared storage: {$outputDir}");
-                }
-            }
-
-            // Simpan PDF hasil merge ke file sementara dulu
+            // 4. Directory preparation
+            Log::info('Preparing output directory', [
+                'output_path' => $outputPath
+            ]);
+            $this->directoryExists($outputPath);
+            
+            // 5. Temporary file creation
             $tempPath = storage_path('app/temp_merged_' . uniqid() . '.pdf');
+            Log::info('Creating temporary merged file', [
+                'temp_path' => $tempPath
+            ]);
             $pdf->Output($tempPath, 'F');
 
-            // Validasi hasil merge
+            // 6. Merge validation
+            Log::debug('Validating merged output', [
+                'temp_path' => $tempPath,
+                'file_exists' => file_exists($tempPath),
+                'file_size' => file_exists($tempPath) ? filesize($tempPath) : 0
+            ]);
             if (!file_exists($tempPath) || filesize($tempPath) < 1024) {
+                Log::error('Merged PDF validation failed', [
+                    'exists' => file_exists($tempPath),
+                    'size' => file_exists($tempPath) ? filesize($tempPath) : 0,
+                    'threshold' => 1024
+                ]);
                 if (file_exists($tempPath)) {
                     unlink($tempPath);
                 }
                 throw new \Exception("PDF hasil merge terlalu kecil atau gagal dibuat");
             }
 
-            // Simpan ke shared storage dengan retry mechanism
-            $maxRetries = 3;
+            // 7. Final save operation
+            Log::info('Saving to shared storage', [
+                'temp_path' => $tempPath,
+                'output_path' => $outputPath
+            ]);
+            $this->saveSharedStorage($tempPath, $outputPath);
+
+            Log::info('PDF merge completed successfully', [
+                'output_path' => $outputPath,
+                'processed_files' => $processedFiles,
+                'final_size' => Storage::disk('shared')->size($outputPath),
+                'duration_seconds' => now()->diffInSeconds($logContext['initiated_at'])
+            ]);
+
+            return $outputPath;
+
+        } catch (\Exception $e) {
+            Log::error('PDF merge process failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'failed_at' => now()->toDateTimeString(),
+                'duration_seconds' => now()->diffInSeconds($logContext['initiated_at'])
+            ]);
+            
+            if (isset($tempPath) && file_exists($tempPath)) {
+                Log::debug('Cleaning up temporary file after failure', [
+                    'temp_path' => $tempPath
+                ]);
+                unlink($tempPath);
+            }
+            
+            throw new \Exception("Gagal menggabungkan PDF: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Process each PDF file and add it to the merged PDF
+     *
+     * @param Fpdi $pdf
+     * @param array $pdfPaths
+     * @param int $processedFiles
+     * @return void
+     */
+    public function processPdfFiles(Fpdi $pdf, array $pdfPaths, int &$processedFiles): void
+    {
+        foreach ($pdfPaths as $path) {
+            if (Storage::disk('public')->exists($path)) {
+                $filePath = Storage::disk('public')->path($path);
+                if (filesize($filePath) < $this->minFileSize) {
+                    Log::warning("File terlalu kecil untuk diproses: {$path}");
+                    continue;
+                }
+
+                try {
+                    $pageCount = $pdf->setSourceFile($filePath);
+                    for ($i = 1; $i <= $pageCount; $i++) {
+                        $tpage = $pdf->importPage($i);
+                        $size = $pdf->getTemplateSize($tpage);
+                        $orientation = isset($size['orientation']) ? $size['orientation'] : ($size['width'] > $size['height'] ? 'L' : 'P');
+                        $pdf->AddPage($orientation, [$size['width'], $size['height']]);
+                        $pdf->useTemplate($tpage);
+                    }
+                    Log::info("File berhasil diproses: {$path}");
+                    $processedFiles++;
+                } catch (\Exception $e) {
+                    Log::error("Gagal memproses file: {$path}", [
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            } else {
+                Log::warning("File tidak ditemukan: {$path}");
+            }
+        }
+       
+    }
+
+    /**
+     * Check if the directory exists, if not create it
+     *
+     * @param string $path
+     * @return void
+     */
+    public function directoryExists(string $path): void
+    {
+        $directory = dirname($path);
+        if (!Storage::disk('shared')->exists($directory)) {
+            try{
+                Storage::disk('shared')->makeDirectory($directory);
+                Log::info("Directory created: {$directory}");
+            }catch (\Exception $e) {
+                throw new \Exception("Gagal membuat direktori output di shared storage: {$directory}");
+            }
+           
+        }
+    }
+
+    /**
+     * Save the merged PDF to shared storage with retry mechanism
+     *
+     * @param string $tempPath
+     * @param string $outputPath
+     * @return void
+     */
+    public function saveSharedStorage($tempPath, $outputPath): void{
+          $maxRetries = 3;
             $retryCount = 0;
             $saved = false;
             
@@ -165,59 +228,13 @@ class PdfMergerService
 
             Log::info("PDF merge completed successfully", [
                 'output_path' => $outputPath,
-                'processed_files' => $processedFiles,
+                'temp_path' => $tempPath,
                 'shared_storage_path' => Storage::disk('shared')->path($outputPath),
                 'final_size' => Storage::disk('shared')->size($outputPath)
             ]);
-
-            return $outputPath;
-
-        } catch (\Exception $e) {
-            Log::error('Gagal menggabungkan PDF', [
-                'error' => $e->getMessage(),
-                'input_files' => $pdfPaths,
-                'output_path' => $outputPath,
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            throw new \Exception("Gagal menggabungkan PDF: " . $e->getMessage());
-        }
     }
 
-    /**
-     * Validate PDF file
-     *
-     * @param string $pdfPath
-     * @return bool
-     */
-    private function validatePdfFile(string $pdfPath): bool
-    {
-        $fullPath = storage_path('app/public/' . $pdfPath);
-        
-        if (!file_exists($fullPath)) {
-            return false;
-        }
-
-        if (!is_readable($fullPath)) {
-            return false;
-        }
-
-        if (filesize($fullPath) < 100) {
-            return false;
-        }
-
-        // Cek header PDF
-        $handle = fopen($fullPath, 'rb');
-        if (!$handle) {
-            return false;
-        }
-
-        $header = fread($handle, 4);
-        fclose($handle);
-
-        return $header === '%PDF';
-    }
-
+  
     /**
      * Clean up temporary files
      *

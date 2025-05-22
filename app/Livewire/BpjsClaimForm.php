@@ -54,8 +54,9 @@ class BpjsClaimForm extends Component
             'scanned_docs.*.mimes' => 'File harus berformat PDF, JPG, atau PNG.',
             'scanned_docs.*.max' => 'File tidak boleh lebih dari 2MB.',
         ];
-    
-        // PERBAIKAN 1: Menggunakan getter untuk currentPreviewUrl
+     /* ====================
+       PREVIEW METHODS
+       ==================== */
     public function getCurrentPreviewUrlProperty()
     {
         if ($this->currentPreviewIndex !== null && isset($this->previewUrls[$this->currentPreviewIndex])) {
@@ -78,8 +79,11 @@ class BpjsClaimForm extends Component
         $this->currentPreviewIndex = null;
     }
 
-    public function updatedScannedDocs()
-    {
+    /* ====================
+       FILE ORDERING METHODS
+       ==================== */
+
+    public function updatedScannedDocs(){
         $this->validateOnly('scanned_docs.*');
 
         $this->previewUrls = [];
@@ -116,8 +120,11 @@ class BpjsClaimForm extends Component
         // PERBAIKAN 4: Gunakan updatedScannedDocs untuk konsistensi
         $this->updatedScannedDocs();
     }
-    public function rotateFile($index)
-    {
+
+    /* ====================
+       ROTATE METHODS
+       ==================== */
+    public function rotateFile($index){
          // Always rotate by exactly 90 degrees
         $rotationDegrees = 90;
 
@@ -150,8 +157,7 @@ class BpjsClaimForm extends Component
         return false;
 
     }
-    public function rotatePdf($filePath, $rotation )
-    {
+    public function rotatePdf($filePath, $rotation ){
         // Log rotation attempt
         Log::debug('PDF Rotation - Starting rotation', [
             'file_path' => $filePath,
@@ -204,8 +210,13 @@ class BpjsClaimForm extends Component
         }
     }
 
-    public function clearAllFiles()
-    {
+    /* ====================
+       CLEAR PDF METHODS
+       ==================== */
+        /**
+     * Clear all files
+     */
+    public function clearAllFiles(){
         LivewireAlert::title('Apakah yakin ingin menghapus semua file?')
         ->asConfirm()
         ->onConfirm('clearAllFilesProgress')
@@ -220,42 +231,19 @@ class BpjsClaimForm extends Component
         }
     }
     
+      $this->resetFileProperties();
+    }
+
+  
+    protected function resetFileProperties()
+    {
         $this->scanned_docs = [];
         $this->previewUrls = [];
         $this->fileOrder = [];
         $this->rotatedPaths = [];
         $this->rotations = [];
-
-        // Optional: reset preview state too
         $this->showPreviewModal = false;
         $this->currentPreviewIndex = null;
-    }
-
-
-    public function moveUp($index)
-    {
-        if ($index > 0) {
-           // PERBAIKAN 8: Perbarui semua array terkait
-           foreach (['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'] as $arrayName) {
-            if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index - 1])) {
-                [$this->{$arrayName}[$index - 1], $this->{$arrayName}[$index]] =
-                    [$this->{$arrayName}[$index], $this->{$arrayName}[$index - 1]];
-            }
-        }
-        }
-    }
-
-    public function moveDown($index)
-    {
-        if ($index < count($this->scanned_docs) - 1) {
-            // PERBAIKAN 9: Perbarui semua array terkait (sama seperti moveUp)
-            foreach (['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'] as $arrayName) {
-                if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index + 1])) {
-                    [$this->{$arrayName}[$index + 1], $this->{$arrayName}[$index]] =
-                        [$this->{$arrayName}[$index], $this->{$arrayName}[$index + 1]];
-                }
-            }
-        }
     }
     
     public function removeFile($index){
@@ -324,6 +312,43 @@ class BpjsClaimForm extends Component
         }
     }
 
+  /* ====================
+       FILE ORDERING METHODS
+       ==================== */
+     /**
+     * Swap positions of two files
+     */
+    public function moveUp($index)
+    {
+        if ($index > 0) {
+           // PERBAIKAN 8: Perbarui semua array terkait
+           foreach (['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'] as $arrayName) {
+            if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index - 1])) {
+                [$this->{$arrayName}[$index - 1], $this->{$arrayName}[$index]] =
+                    [$this->{$arrayName}[$index], $this->{$arrayName}[$index - 1]];
+            }
+        }
+        }
+    }
+
+    public function moveDown($index)
+    {
+        if ($index < count($this->scanned_docs) - 1) {
+            // PERBAIKAN 9: Perbarui semua array terkait (sama seperti moveUp)
+            foreach (['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'] as $arrayName) {
+                if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index + 1])) {
+                    [$this->{$arrayName}[$index + 1], $this->{$arrayName}[$index]] =
+                        [$this->{$arrayName}[$index], $this->{$arrayName}[$index + 1]
+                    ];
+                }
+            }
+        }
+    }
+
+     /* ====================
+       PATIENT METHODS
+       ==================== */
+
     public function searchPatient()
     {
         // PERBAIKAN 12: Aktifkan kembali validasi
@@ -347,6 +372,10 @@ class BpjsClaimForm extends Component
             ->show();
         }
     }
+
+    /* ====================
+       FORM SUBMISSION
+       ==================== */
    
     public function submit(PdfMergerService $pdfMergeService)
     {
@@ -355,14 +384,10 @@ class BpjsClaimForm extends Component
         $folderPath = $this->generateFolderPath();
 
         try {
+            $outputPath = $this->generateOutputPath($folderPath);
             // PERBAIKAN 13: Perbaikan logika merge files dan pastikan direktori tujuan ada
-            $outputDir = "bpjs-claims/{$folderPath}";
-            // Storage::disk('public')->makeDirectory($outputDir);
-
             // Prepare final PDF output path
-            $patientName = trim(explode(',', $this->patient_name)[0]);
-            $upperCasePatientName = Str::upper($patientName);
-            $outputPath = "{$outputDir}/" . $upperCasePatientName . '.pdf';
+            Storage::disk('public')->makeDirectory($outputPath);
             
             // Use rotatedPaths yang sudah diproses sebelumnya
             if (empty($this->rotatedPaths)) {
@@ -372,16 +397,7 @@ class BpjsClaimForm extends Component
             $finalPath = $pdfMergeService->mergePdfs($this->rotatedPaths, $outputPath);
 
             // Step 4: Save claim data
-            $claim = BpjsClaim::create([
-                'no_rkm_medis' => $this->no_rm,
-                'no_kartu_bpjs' => $this->no_kartu_bpjs,
-                'no_sep' => $this->no_sep,
-                'jenis_rawatan' => $this->jenis_rawatan,
-                'tanggal_rawatan' => $this->tanggal_rawatan,
-                'patient_name' => $this->patient_name,
-                'file_path' => $finalPath, // Added back
-                'disk' => Storage::disk('shared')->path($finalPath),
-            ]);
+            $claim = $this->createClaimRecord($finalPath);
 
             // Step 5: Save each uploaded file with order
             foreach ($this->scanned_docs as $index => $file) {
@@ -393,21 +409,18 @@ class BpjsClaimForm extends Component
                 $filename = uniqid() . '_' . $file->getClientOriginalName();
                 $file->storeAs('claims', $filename, 'public');
 
-                ClaimDocument::create([
-                    'bpjs_claims_id' => $claim->id,
-                    'filename' => $filename,
-                    'order' => $index,
-                ]);
+                // ClaimDocument::create([
+                //     'bpjs_claims_id' => $claim->id,
+                //     'filename' => $filename,
+                //     'order' => $index,
+                // ]);
+
+                // PERBAIKAN 16: Simpan ke shared disk
+                $this->storeClaimDocuments($claim);
             }
 
             // Step 6: Clean up temp files
-            // PERBAIKAN 15: Aktifkan pembersihan file temporary
-            foreach ($this->rotatedPaths as $path) {
-                if (Storage::disk('public')->exists($path)) {
-                    Storage::disk('public')->delete($path);
-                }
-            }
-
+            $this->cleanUpTempFiles();
             // Step 7: Reset form and notify success
             $this->reset();
 
@@ -444,6 +457,49 @@ class BpjsClaimForm extends Component
         $jenisRawatan = $this->jenis_rawatan === 'RAWAT JALAN' ? 'RJ' : 'RI';
 
         return "{$month} REGULER {$year}/{$jenisRawatan}/{$day}/{$this->no_sep}";
+    }
+
+    protected function generateOutputPath(string $folderPath): string
+    {
+        $patientName = trim(explode(',', $this->patient_name)[0]);
+        return "bpjs-claims/{$folderPath}/" . Str::upper($patientName) . '.pdf';
+    }
+
+    protected function createClaimRecord(string $filePath): BpjsClaim
+    {
+        return BpjsClaim::create([
+            'no_rkm_medis' => $this->no_rm,
+            'no_kartu_bpjs' => $this->no_kartu_bpjs,
+            'no_sep' => $this->no_sep,
+            'jenis_rawatan' => $this->jenis_rawatan,
+            'tanggal_rawatan' => $this->tanggal_rawatan,
+            'patient_name' => $this->patient_name,
+            'file_path' => $filePath,
+            'disk' => Storage::disk('shared')->path($filePath),
+        ]);
+    }
+
+    protected function storeClaimDocuments(BpjsClaim $claim)
+    {
+        Storage::disk('public')->makeDirectory('claims');
+
+        foreach ($this->scanned_docs as $index => $file) {
+            $filename = uniqid() . '_' . $file->getClientOriginalName();
+            $file->storeAs('claims', $filename, 'public');
+
+            ClaimDocument::create([
+                'bpjs_claims_id' => $claim->id,
+                'filename' => $filename,
+                'order' => $index,
+            ]);
+        }
+    }
+
+    protected function cleanUpTempFiles()
+    {
+        foreach ($this->rotatedPaths as $path) {
+            Storage::disk('public')->delete($path);
+        }
     }
 
 
