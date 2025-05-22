@@ -62,7 +62,8 @@ class PdfMergerService
             Log::info('Preparing output directory', [
                 'output_path' => $outputPath
             ]);
-            $this->directoryExists($outputPath);
+
+            $this->makeDirectory($outputPath);
             
             // 5. Temporary file creation
             $tempPath = storage_path('app/temp_merged_' . uniqid() . '.pdf');
@@ -94,6 +95,7 @@ class PdfMergerService
                 'temp_path' => $tempPath,
                 'output_path' => $outputPath
             ]);
+
             $this->saveSharedStorage($tempPath, $outputPath);
 
             Log::info('PDF merge completed successfully', [
@@ -171,7 +173,7 @@ class PdfMergerService
      * @param string $path
      * @return void
      */
-    public function directoryExists(string $path): void
+    public function makeDirectory(string $path): void
     {
         $directory = dirname($path);
         if (!Storage::disk('shared')->exists($directory)) {
@@ -193,7 +195,7 @@ class PdfMergerService
      * @return void
      */
     public function saveSharedStorage($tempPath, $outputPath): void{
-          $maxRetries = 3;
+            $maxRetries = 3;
             $retryCount = 0;
             $saved = false;
             

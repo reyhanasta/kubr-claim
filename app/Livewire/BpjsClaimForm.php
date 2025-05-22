@@ -312,7 +312,7 @@ class BpjsClaimForm extends Component
         }
     }
 
-  /* ====================
+    /* ====================
        FILE ORDERING METHODS
        ==================== */
      /**
@@ -387,7 +387,7 @@ class BpjsClaimForm extends Component
             $outputPath = $this->generateOutputPath($folderPath);
             // PERBAIKAN 13: Perbaikan logika merge files dan pastikan direktori tujuan ada
             // Prepare final PDF output path
-            Storage::disk('public')->makeDirectory($outputPath);
+            // Storage::disk('public')->makeDirectory($outputPath);
             
             // Use rotatedPaths yang sudah diproses sebelumnya
             if (empty($this->rotatedPaths)) {
@@ -399,25 +399,8 @@ class BpjsClaimForm extends Component
             // Step 4: Save claim data
             $claim = $this->createClaimRecord();
 
-            // Step 5: Save each uploaded file with order
-            foreach ($this->scanned_docs as $index => $file) {
-                // PERBAIKAN 14: Pastikan direktori claims ada
-                if (!Storage::disk('public')->exists('claims')) {
-                    Storage::disk('public')->makeDirectory('claims');
-                }
-                
-                $filename = uniqid() . '_' . $file->getClientOriginalName();
-                $file->storeAs('claims', $filename, 'public');
-
-                // ClaimDocument::create([
-                //     'bpjs_claims_id' => $claim->id,
-                //     'filename' => $filename,
-                //     'order' => $index,
-                // ]);
-
-                // PERBAIKAN 16: Simpan ke shared disk
-                $this->storeClaimDocuments($claim,$finalPath);
-            }
+            // PERBAIKAN 16: Simpan ke shared disk
+            $this->storeClaimDocuments($claim,$finalPath);
 
             // Step 6: Clean up temp files
             $this->cleanUpTempFiles();
@@ -479,11 +462,11 @@ class BpjsClaimForm extends Component
 
     protected function storeClaimDocuments(BpjsClaim $claim,$finalPath)
     {
-        Storage::disk('public')->makeDirectory('claims');
+        Storage::disk('public')->makeDirectory('raw-documents');
 
         foreach ($this->scanned_docs as $index => $file) {
             $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->storeAs('claims', $filename, 'public');
+            $file->storeAs('raw-documents', $filename, 'public');
 
             ClaimDocument::create([
                 'bpjs_claims_id' => $claim->id,

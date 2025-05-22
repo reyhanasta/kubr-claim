@@ -150,7 +150,7 @@
                 <div class="flex-1 min-h-0 relative">
                     @if($currentPreviewIndex !== null && isset($previewUrls[$currentPreviewIndex]))
                     <div class="w-full h-full"
-                        style="transform: rotate({{ ($rotations[$currentPreviewIndex] ?? 0) }}deg); transform-origin: center center; transition: transform 0.3s ease;">
+                        style="transform: rotate({{ $rotations[$currentPreviewIndex] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
                         <iframe src="{{ $previewUrls[$currentPreviewIndex] }}" class="w-full h-full border-0"
                             frameborder="0" style="min-height: 80vh;">
                         </iframe>
