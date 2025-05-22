@@ -84,7 +84,7 @@ class BpjsClaimForm extends Component
 
         $this->previewUrls = [];
         $this->rotatedPaths = [];
-        
+       
 
         foreach ($this->scanned_docs as $index => $doc) {
             $filename = uniqid() . '_' . $doc->getClientOriginalName();
@@ -118,35 +118,87 @@ class BpjsClaimForm extends Component
     }
     public function rotateFile($index)
     {
-        // Rotate clockwise by 90°, loop back to 0 after 270
-        $this->rotations[$index] = ($this->rotations[$index] ?? 0) + 90;
-        if ($this->rotations[$index] >= 360) {
-            $this->rotations[$index] = 0;
-        }
+         // Always rotate by exactly 90 degrees
+        $rotationDegrees = 90;
 
-        // PERBAIKAN 5: Terapkan rotasi secara langsung ke file jika sudah disimpan
+        // Track visual state (0, 90, 180, 270)
+        $this->rotations[$index] = (($this->rotations[$index] ?? 0) + 90) % 360;
+        
+        // Log the rotation action
+        Log::info("Applying 90° rotation to file index: {$index}");
+
+        // Apply rotation directly to file if already saved
         if (isset($this->rotatedPaths[$index])) {
             $fullPath = storage_path('app/public/' . $this->rotatedPaths[$index]);
+            
+            Log::debug('Rotation - Attempting to rotate physical file', [
+                'index' => $index,
+                'path' => $this->rotatedPaths[$index],
+                'full_path' => $fullPath,
+                'file_exists' => file_exists($fullPath),
+            ]);
+
             if (file_exists($fullPath)) {
-                $this->rotatePdf($fullPath, $this->rotations[$index]);
+                $rotationResult = $this->rotatePdf($fullPath, $rotationDegrees);
+                
+                Log::debug('Rotation - Physical file rotation attempted', [
+                    'result' => $rotationResult ? 'success' : 'failed',
+                    'applied_rotation' => $this->rotations[$index],
+                ]);
             }
         }
+        return false;
+
     }
-    public function rotatePdf($filePath, $rotation)
+    public function rotatePdf($filePath, $rotation )
     {
-         // PERBAIKAN 6: Validasi parameter dan pastikan file ada
-         if (!in_array($rotation, [0, 90, 180, 270]) || !file_exists($filePath)) {
+        // Log rotation attempt
+        Log::debug('PDF Rotation - Starting rotation', [
+            'file_path' => $filePath,
+            'rotation' => $rotation,
+            'file_exists' => file_exists($filePath),
+            'file_size' => filesize($filePath),
+        ]);
+
+        // Validate parameters
+        if (!in_array($rotation, [0, 90, 180, 270])) {
+            Log::warning('PDF Rotation - Invalid rotation value', [
+                'requested_rotation' => $rotation,
+                'allowed_values' => [0, 90, 180, 270],
+            ]);
             return false;
         }
+
+        if (!file_exists($filePath)) {
+            Log::warning('PDF Rotation - File does not exist', [
+                'file_path' => $filePath,
+            ]);
+            return false;
+        }
+
         try {
+            Log::debug('PDF Rotation - Attempting to rotate with PdfRotate', [
+                'rotation_degrees' => $rotation,
+            ]);
+
             $rotator = new PdfRotate();
-            $rotator->rotatePdf($filePath, $filePath, $rotation);
+            // Add pre-rotation debug
+            Log::debug('Before rotation', [
+                'rotator_class' => get_class($rotator),
+                'methods' => get_class_methods($rotator),
+            ]);
+            // Rotate the PDF
+            $rotator->rotatePdf($filePath, $filePath, 90);
+           
+            Log::info('PDF Rotation - Success');
             return true;
+            
         } catch (\Exception $e) {
-            Log::error('Failed to rotate PDF', [
-                'path' => $filePath,
-                'rotation' => $rotation,
-                'error' => $e->getMessage()
+             Log::error('PDF Rotation - Exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
             ]);
             return false;
         }
@@ -316,7 +368,6 @@ class BpjsClaimForm extends Component
             if (empty($this->rotatedPaths)) {
                 throw new \Exception("No files available to merge");
             }
-            
             // Step 3: Merge all PDFs
             $finalPath = $pdfMergeService->mergePdfs($this->rotatedPaths, $outputPath);
 
@@ -329,6 +380,7 @@ class BpjsClaimForm extends Component
                 'tanggal_rawatan' => $this->tanggal_rawatan,
                 'patient_name' => $this->patient_name,
                 'file_path' => $finalPath, // Added back
+                'disk' => Storage::disk('shared')->path($finalPath),
             ]);
 
             // Step 5: Save each uploaded file with order
