@@ -31,6 +31,7 @@ class BpjsClaimForm extends Component
     public $rotatedPaths = [];
     public $showPreviewModal = false;
     public $currentPreviewIndex = null;
+    
 
     public $new_docs = [];
     
@@ -104,14 +105,12 @@ class BpjsClaimForm extends Component
         $this->rotations = [];
         $this->rotatedPaths = [];
         $this->previewUrls = [];
-        $newTempFilePaths = [];
        
-
         foreach ($this->scanned_docs as $index => $doc) {
             $originalClientFilename = $doc->getClientOriginalName() ?? 'unknown_file'; // Handle jika null
             $filename = Str::uuid()->toString() . '_' . $originalClientFilename;
             $storedPath = $doc->storeAs('temp', $filename, 'public'); // Ini menyimpan file fisik
-            $fullPath = storage_path('app/public/' . $storedPath);
+          
 
             Log::info("updatedScannedDocs: File [{$index}] '{$originalClientFilename}' disimpan ke '{$storedPath}'.");
 
@@ -121,7 +120,7 @@ class BpjsClaimForm extends Component
             $this->rotations[$index] = $rotationForThisDoc; // Bangun ulang $this->rotations dengan benar
 
             // Rotate PDF if needed
-            $rotation = $this->rotations[$index] ?? 0;
+            // $rotation = $this->rotations[$index] ?? 0;
             // if ($rotation !== 0) {
             //     $this->rotatePdf($fullPath, $rotation);
             // }
@@ -150,7 +149,7 @@ class BpjsClaimForm extends Component
     public function rotateFile($index){
          // Always rotate by exactly 90 degrees
         $rotationDegrees = 90;
-
+        //  $rotationDegrees = $this->rotations[$index];
         // Track visual state (0, 90, 180, 270)
         $this->rotations[$index] = (($this->rotations[$index] ?? 0) + 90) % 360;
         
@@ -216,6 +215,7 @@ class BpjsClaimForm extends Component
                 'rotator_class' => get_class($rotator),
                 'methods' => get_class_methods($rotator),
             ]);
+
             // Rotate the PDF
             $rotator->rotatePdf($filePath, $filePath, (int)$rotation);
            
@@ -253,7 +253,6 @@ class BpjsClaimForm extends Component
             Storage::disk('public')->delete($path);
         }
     }
-    
       $this->resetFileProperties();
     }
 
@@ -345,65 +344,36 @@ class BpjsClaimForm extends Component
     {
         if ($index > 0) {
            // PERBAIKAN 8: Perbarui semua array terkait
-           foreach (['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'] as $arrayName) {
-            if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index - 1])) {
-                [$this->{$arrayName}[$index - 1], $this->{$arrayName}[$index]] =
-                    [$this->{$arrayName}[$index], $this->{$arrayName}[$index - 1]];
+            foreach (['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'] as $arrayName) {
+                if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index - 1])) {
+                    [$this->{$arrayName}[$index - 1], $this->{$arrayName}[$index]] = [$this->{$arrayName}[$index], $this->{$arrayName}[$index - 1]];
+                    $this->rotations[$index - 1] = 0; // Reset rotation for the swapped file
                     Log::debug('File objects after swap:', $this->scanned_docs); // Untuk melihat urutan objek file
                     Log::debug('Rotated paths after swap:', $this->rotatedPaths);
                     Log::debug('Rotations array after swap:', $this->rotations);
                     Log::debug('Preview URLs after swap:', $this->previewUrls);
+                } else {
+                Log::warning("--- moveUp: Inner 'if' (isset) for '$arrayName' FAILED. Index $index or " . ($index - 1) . " (or $index+1) might not be set. Skipping swap for '$arrayName'. ---"); // 5. Log jika isset gagal
             }
-        }
+            }
         }
     }
 
-  public function moveDown($index) // Atau moveUp($index)
-{
-    Log::info("--- Function moveDown CALLED with index: $index ---"); // 1. Log paling atas
+  public function moveDown($index) {
 
     // Sesuaikan kondisi ini jika Anda menguji moveUp
     if ($index < count($this->scanned_docs) - 1) { 
-        Log::info("--- moveDown: Outer 'if' condition MET. Index: $index, File count: " . count($this->scanned_docs) . " ---"); // 2. Log setelah if terluar
 
         foreach (['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'] as $arrayName) {
-            Log::info("--- moveDown: Loop for arrayName: '$arrayName' ---"); // 3. Log untuk setiap iterasi arrayName
-
-            // Khusus untuk 'rotations', cek kondisi array-nya
-            if ($arrayName === 'rotations') {
-                if (!property_exists($this, 'rotations') || !is_array($this->rotations)) {
-                    Log::warning("--- moveDown: Property 'rotations' does not exist or is not an array! ---");
-                    Log::warning("Current value of this->rotations: " . print_r($this->rotations ?? 'NOT SET', true));
-                    continue; // Lanjut ke $arrayName berikutnya jika 'rotations' bermasalah
-                }
-                Log::info("--- moveDown: 'rotations' property IS an array. Size: " . count($this->rotations) . " ---");
-                Log::info("--- moveDown: 'rotations' array keys: " . print_r(array_keys($this->rotations), true) . " ---");
-                Log::info("--- moveDown: 'rotations' array values: " . print_r($this->rotations, true) . " ---");
-                Log::info("--- moveDown: Checking isset for rotations at index $index: " . (isset($this->rotations[$index]) ? 'SET' : 'NOT SET') . " ---");
-                
-                // Sesuaikan $index + 1 menjadi $index - 1 jika ini di moveUp
-                $nextIndex = $index + 1; 
-                Log::info("--- moveDown: Checking isset for rotations at index $nextIndex: " . (isset($this->rotations[$nextIndex]) ? 'SET' : 'NOT SET') . " ---");
-            }
-
             // Sesuaikan kondisi ini untuk $index-1 jika di moveUp
             if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index + 1])) {
-                Log::info("--- moveDown: Inner 'if' (isset) for '$arrayName' MET. Proceeding to swap. ---"); // 4. Log sebelum swap
-
-                // Log spesifik untuk rotations (yang Anda coba sebelumnya) BISA DIMASUKKAN DI SINI
-                if ($arrayName === 'rotations') {
-                    Log::info("--- moveDown: BEFORE SWAP 'rotations': Index $index value: " . print_r($this->{$arrayName}[$index], true) . ", Index " . ($index + 1) . " value: " . print_r($this->{$arrayName}[$index + 1], true));
-                }
-
-                // Baris pertukaran
                 // Sesuaikan ini untuk $index-1 jika di moveUp
-                [$this->{$arrayName}[$index + 1], $this->{$arrayName}[$index]] =
-                    [$this->{$arrayName}[$index], $this->{$arrayName}[$index + 1]];
-
-                if ($arrayName === 'rotations') {
-                    Log::info("--- moveDown: AFTER SWAP 'rotations': Index $index value: " . print_r($this->{$arrayName}[$index], true) . ", Index " . ($index + 1) . " value: " . print_r($this->{$arrayName}[$index + 1], true));
-                }
-
+                [$this->{$arrayName}[$index + 1], $this->{$arrayName}[$index]] = [$this->{$arrayName}[$index], $this->{$arrayName}[$index + 1]];
+                $this->rotations[$index + 1] = 0; // Reset rotation for the swapped file
+                Log::debug('File objects after swap:', $this->scanned_docs); // Untuk melihat urutan objek file
+                Log::debug('Rotated paths after swap:', $this->rotatedPaths);
+                Log::debug('Rotations array after swap:', $this->rotations);
+                Log::debug('Preview URLs after swap:', $this->previewUrls);
             } else {
                 Log::warning("--- moveDown: Inner 'if' (isset) for '$arrayName' FAILED. Index $index or " . ($index + 1) . " (or $index-1) might not be set. Skipping swap for '$arrayName'. ---"); // 5. Log jika isset gagal
             }

@@ -84,7 +84,7 @@
                 <div
                     class="w-64 h-80 overflow-hidden border border-gray-500 rounded bg-white flex-shrink-0 shadow-sm relative">
                     <div class="w-full h-full"
-                        style=" rotate({{ $rotations[$index] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
+                        style="transform: rotate({{ $rotations[$index] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
                         <iframe src="{{ $previewUrls[$index] }}#toolbar=0&navpanes=0&scrollbar=0" class="w-full h-full"
                             frameborder="0">
                         </iframe>
@@ -124,42 +124,7 @@
         </div>
         @endif
 
-        <!-- Preview Modal with Rotation Support -->
-        @if($showPreviewModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4 overflow-auto"
-            wire:click.self="$set('showPreviewModal', false)">
-            <div class="relative bg-gray-800 rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
-                <!-- Modal Header -->
-                <div class="flex-shrink-0 flex justify-between items-center px-6 py-4 border-b border-gray-600">
-                    <flux:heading size="md" level="3" class="text-xl font-semibold text-amber-300">
-                        PDF Preview {{ $currentPreviewIndex !== null ? '- ' . ($rotations[$currentPreviewIndex] ?? 0) .
-                        '°' : '' }}
-                    </flux:heading>
-                    <div class="flex items-center gap-4">
-                        @if($currentPreviewIndex !== null)
-                        <flux:button icon="arrow-uturn-right" variant="ghost"
-                            wire:click="rotateFile({{ $currentPreviewIndex }})" title="Putar PDF">
-                            Putar
-                        </flux:button>
-                        @endif
-                        <flux:button icon="x-mark" variant="subtle" wire:click="closePreviewModal" />
-                    </div>
-                </div>
 
-                <!-- Modal Content with Rotation -->
-                <div class="flex-1 min-h-0 relative">
-                    @if($currentPreviewIndex !== null && isset($previewUrls[$currentPreviewIndex]))
-                    <div class="w-full h-full"
-                        style="transform: rotate({{ $rotations[$currentPreviewIndex] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
-                        <iframe src="{{ $previewUrls[$currentPreviewIndex] }}" class="w-full h-full border-0"
-                            frameborder="0" style="min-height: 80vh;">
-                        </iframe>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-        @endif
 
         <!-- Submit Button -->
         <div class="flex justify-between items-center">
