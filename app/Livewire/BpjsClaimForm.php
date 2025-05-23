@@ -5,14 +5,15 @@ namespace App\Livewire;
 use App\Models\Patient;
 use Livewire\Component;
 use App\Models\BpjsClaim;
+use Spatie\PdfToText\Pdf;
 use Illuminate\Support\Str;
 use App\Models\ClaimDocument;
 use Livewire\WithFileUploads;
 use App\Services\PdfMergerService;
+use CzProject\PdfRotate\PdfRotate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
-use CzProject\PdfRotate\PdfRotate;
 
 class BpjsClaimForm extends Component
 {
@@ -79,6 +80,22 @@ class BpjsClaimForm extends Component
         $this->showPreviewModal = false;
         $this->currentPreviewIndex = null;
     }
+
+    // public function readPdfwithSpatie($index)
+    // {
+    //     if (isset($this->scanned_docs[$index])) {
+    //         Log::info('Start:', ['index' => $index]);
+    //         Log::info('File:', ['file' => $this->scanned_docs[$index]]);
+    //         Log::info('File Type:', ['type' => gettype($this->scanned_docs[$index])]);
+    //         Log::info('Path:', ['path' => $this->scanned_docs[$index]->getRealPath()]);
+    //         $file = $this->scanned_docs[$index];
+    //         $filename= $file->getClientOriginalName();
+    //         Log::info('File Name:', ['filename' => $filename]);
+    //         $path = $file->getRealPath();
+    //         $pdf = Pdf::getText($filename,$path);
+    //         Log::info('PDF Content:', ['content' => $pdf]);
+    //     }
+    // }
 
     /* ====================
        FILE ORDERING METHODS
@@ -347,11 +364,11 @@ class BpjsClaimForm extends Component
             foreach (['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'] as $arrayName) {
                 if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index - 1])) {
                     [$this->{$arrayName}[$index - 1], $this->{$arrayName}[$index]] = [$this->{$arrayName}[$index], $this->{$arrayName}[$index - 1]];
-                    $this->rotations[$index - 1] = 0; // Reset rotation for the swapped file
                     Log::debug('File objects after swap:', $this->scanned_docs); // Untuk melihat urutan objek file
                     Log::debug('Rotated paths after swap:', $this->rotatedPaths);
                     Log::debug('Rotations array after swap:', $this->rotations);
                     Log::debug('Preview URLs after swap:', $this->previewUrls);
+                    $this->rotations[$index - 1] = 0; // Reset rotation for the swapped file
                 } else {
                 Log::warning("--- moveUp: Inner 'if' (isset) for '$arrayName' FAILED. Index $index or " . ($index - 1) . " (or $index+1) might not be set. Skipping swap for '$arrayName'. ---"); // 5. Log jika isset gagal
             }
@@ -369,11 +386,11 @@ class BpjsClaimForm extends Component
             if (isset($this->{$arrayName}[$index]) && isset($this->{$arrayName}[$index + 1])) {
                 // Sesuaikan ini untuk $index-1 jika di moveUp
                 [$this->{$arrayName}[$index + 1], $this->{$arrayName}[$index]] = [$this->{$arrayName}[$index], $this->{$arrayName}[$index + 1]];
-                $this->rotations[$index + 1] = 0; // Reset rotation for the swapped file
                 Log::debug('File objects after swap:', $this->scanned_docs); // Untuk melihat urutan objek file
                 Log::debug('Rotated paths after swap:', $this->rotatedPaths);
                 Log::debug('Rotations array after swap:', $this->rotations);
                 Log::debug('Preview URLs after swap:', $this->previewUrls);
+                $this->rotations[$index + 1] = 0; // Reset rotation for the swapped file
             } else {
                 Log::warning("--- moveDown: Inner 'if' (isset) for '$arrayName' FAILED. Index $index or " . ($index + 1) . " (or $index-1) might not be set. Skipping swap for '$arrayName'. ---"); // 5. Log jika isset gagal
             }
