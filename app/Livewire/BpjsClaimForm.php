@@ -81,21 +81,6 @@ class BpjsClaimForm extends Component
         $this->currentPreviewIndex = null;
     }
 
-    // public function readPdfwithSpatie($index)
-    // {
-    //     if (isset($this->scanned_docs[$index])) {
-    //         Log::info('Start:', ['index' => $index]);
-    //         Log::info('File:', ['file' => $this->scanned_docs[$index]]);
-    //         Log::info('File Type:', ['type' => gettype($this->scanned_docs[$index])]);
-    //         Log::info('Path:', ['path' => $this->scanned_docs[$index]->getRealPath()]);
-    //         $file = $this->scanned_docs[$index];
-    //         $filename= $file->getClientOriginalName();
-    //         Log::info('File Name:', ['filename' => $filename]);
-    //         $path = $file->getRealPath();
-    //         $pdf = Pdf::getText($filename,$path);
-    //         Log::info('PDF Content:', ['content' => $pdf]);
-    //     }
-    // }
 
     /* ====================
        FILE ORDERING METHODS
