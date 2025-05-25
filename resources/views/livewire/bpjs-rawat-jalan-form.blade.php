@@ -74,7 +74,7 @@
                 </div>
             </div>
             <!-- Additional Info Section -->
-            <div class="grid grid-cols-4 gap-6">
+            <div class="grid grid-cols-3 gap-6">
                 <!-- Nomor SEP -->
                 <div class="col-span-2">
                     <flux:input type="text" icon="document-text" wire:model.debounce.500ms="sep_number"
@@ -86,6 +86,27 @@
                     <flux:input type="date" wire:model="sep_date" placeholder="Tanggal SEP" label="Tanggal SEP"
                         badge="Wajib diisi" />
                 </div>
+            </div>
+            <!-- Additional Files (Awal Medis & Billing) -->
+            <div id="add-files" class="grid grid-cols-2 gap-6">
+                <!-- Awal Medis -->
+                <div class="col-span-1">
+                    <flux:input type="file" label="File Awal Medis" wire:model="new_docs.awal_medis"
+                        accept=".pdf,.jpg,.png" placeholder="Unggah File Awal Medis" />
+                </div>
+                <!-- Awwal Medis Preview -->
+                <div class="col-span-1">
+
+                </div>
+                <div class="col-span-1">
+                    <flux:input type="file" label="File Awal Medis" wire:model="new_docs.awal_medis"
+                        accept=".pdf,.jpg,.png" placeholder="Unggah File Awal Medis" />
+                </div>
+                <!-- Awwal Medis Preview -->
+                <div class="col-span-1">
+
+                </div>
+
             </div>
             <div class="flex justify-between items-center">
                 <div wire:dirty class="text-amber-300 italic">
@@ -103,6 +124,8 @@
                     </flux:button>
                 </div>
 
+
+
             </div>
         </form>
 
@@ -110,7 +133,7 @@
     </div>
     @endif
     <!-- Loading Overlays -->
-    <div wire:loading wire:target="scanned_docs"
+    <div wire:loading.flex wire:target="scanned_docs"
         class="fixed inset-0 z-100 bg-neutral-900/60 flex items-center justify-center backdrop-blur-sm">
         <div class="flex flex-col items-center gap-4 text-center animate-fade-in">
             <svg class="h-12 w-12 animate-spin text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -122,7 +145,7 @@
         </div>
     </div>
 
-    <div wire:loading wire:target="new_docs"
+    <div wire:loading.flex wire:target="new_docs"
         class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center backdrop-blur-sm">
         <div class="flex flex-col items-center gap-4 text-center">
             <svg class="h-10 w-10 animate-spin text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none"
