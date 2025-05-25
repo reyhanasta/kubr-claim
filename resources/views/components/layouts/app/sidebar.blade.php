@@ -24,6 +24,9 @@
                 <flux:navlist.item icon="eye" :href="route('bpjs-rawat-jalan')"
                     :current="request()->routeIs('bpjs-rawat-jalan')" wire:navigate>{{ __('BPJS Rajal') }}
                 </flux:navlist.item>
+                <flux:navlist.item icon="eye" :href="route('bpjs-rajal-form')"
+                    :current="request()->routeIs('bpjs-rajal-form')" wire:navigate>{{ __('BPJS Rajal Form') }}
+                </flux:navlist.item>
             </flux:navlist.group>
         </flux:navlist>
 

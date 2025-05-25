@@ -25,4 +25,5 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('bpjs-claim-form', \App\Livewire\BpjsClaimForm::class)->middleware(['auth', 'verified'])->name('bpjs-claim-form');
 Route::get('bpjs-rawat-jalan', \App\Livewire\BpjsRawatJalan::class)->middleware(['auth', 'verified'])->name('bpjs-rawat-jalan');
+Route::get('bpjs-rajal-form', \App\Livewire\BpjsRawatJalanForm::class)->middleware(['auth', 'verified'])->name('bpjs-rajal-form');
 require __DIR__.'/auth.php';
