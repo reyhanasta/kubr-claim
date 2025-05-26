@@ -32,9 +32,8 @@ class BpjsClaimForm extends Component
     public $rotatedPaths = [];
     public $showPreviewModal = false;
     public $currentPreviewIndex = null;
-    
+    public $new_docs = []; // For new file uploads
 
-    public $new_docs = [];
     
      protected $rules = [
         'no_rm' => 'required|exists:pasien,no_rkm_medis',
@@ -56,6 +55,7 @@ class BpjsClaimForm extends Component
             'scanned_docs.*.mimes' => 'File harus berformat PDF, JPG, atau PNG.',
             'scanned_docs.*.max' => 'File tidak boleh lebih dari 2MB.',
         ];
+
      /* ====================
        PREVIEW METHODS
        ==================== */
@@ -126,11 +126,13 @@ class BpjsClaimForm extends Component
             // if ($rotation !== 0) {
             //     $this->rotatePdf($fullPath, $rotation);
             // }
+            
     
              // Simpan untuk preview dan merge
             $this->rotatedPaths[] = $storedPath;
             $this->previewUrls[$index] = Storage::url($storedPath);
         }
+        
     }
 
     public function updatedNewDocs()
@@ -523,7 +525,6 @@ class BpjsClaimForm extends Component
             Storage::disk('public')->delete($path);
         }
     }
-
 
     public function render()
     {

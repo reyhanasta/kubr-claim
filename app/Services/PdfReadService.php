@@ -14,6 +14,7 @@ class PdfReadService
      */
     public function getPdfTextwithSpatie($file)
     {
+       
         $text = Pdf::getText($file->getRealPath(), Env::get('PDFTOTEXT_PATH'));
         return $text;
     }

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('no_rm')->nullable();
             $table->string('patient_name')->nullable();
             $table->string('no_kartu_bpjs')->nullable();
-            $table->string('no_sep')->unique();
+            $table->string('no_sep')->nullable();
             $table->string('jenis_rawatan')->nullable();
             $table->date('tanggal_rawatan')->nullable();
             $table->timestamps();
