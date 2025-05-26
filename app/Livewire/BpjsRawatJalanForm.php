@@ -18,27 +18,34 @@ use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
 class BpjsRawatJalanForm extends Component
 {
     use WithFileUploads;
-    public $scanned_docs = []; // For scanned documents
+    /**
+     * Summary of scanned_docs
+     * @var array
+     */
+    public $scanned_docs = ['sepFile'=>'','resumeFile'=>'','billingFile'=>'']; // For scanned documents
     public $new_docs = []; // For new file uploads
-    public $awal_medis=[];
-    public $scanned_docs_count = 0;
+    public $rotations = []; // maps index => degrees (e.g., 90, 180, etc.)  
+    public $rotatedPaths = [];
+
+    public $sepFile; // For SEP file upload
+    public $resumeFile; // For resume file upload
+    public $billingFile; // For billing file upload
+
+    /**
+     * Summary of medical records
+     * @var 
+     */
     public $patient_name; 
     public $sep_date;
     public $sep_number;
     public $bpjs_serial_number;
     public $medical_record_number;
-    
+    public $treatment = 'RJ'; // Default to 'RAWAT JALAN'
     public $pdfText;
-    public $rmIcon = 'magnifying-glass';
-    public $rotations = []; // maps index => degrees (e.g., 90, 180, etc.)  
-    public $no_kartu_bpjs = '';
-    public $jenis_rawatan = 'RAWAT JALAN'; // Default to 'RAWAT JALAN'
     public $previewUrls = [];
-    public $fileOrder = [];
-    public $rotatedPaths = [];
     public $showPreviewModal = false;
     public $currentPreviewIndex = null;
-
+    public $rmIcon = 'magnifying-glass';
 
     protected $rules = [
         'scanned_docs.*' => 'required|file|mimes:pdf|max:2048', // 2MB max
@@ -85,7 +92,10 @@ class BpjsRawatJalanForm extends Component
     public function updatedScannedDocs(){
         $this->validateOnly('scanned_docs.*');
         Log::info('updatedScannedDocs: Mulai memproses...');
-
+        Log::debug('updatedScannedDocs: Dokumen yang akan diproses:', [
+            'count' => count($this->scanned_docs),
+            'files' => array_map(fn($doc) => $doc->getClientOriginalName(), $this->scanned_docs)
+        ]);
         $currentRotationsState = $this->rotations;
 
         // 2. Bersihkan file fisik LAMA yang sebelumnya ada di $this->rotatedPaths.
@@ -132,34 +142,79 @@ class BpjsRawatJalanForm extends Component
     public function updatedNewDocs()
     {
         Log::info('updatedNewDocs: Mulai memproses dokumen baru...');
-        foreach ($this->new_docs as $doc) {
-            $this->scanned_docs[] = $doc;
+        foreach ($this->new_docs as $index => $doc) {
+            $this->scanned_docs[$index] = $doc; // Tambahkan dokumen baru ke scanned_docs
+            Log::debug('updatedNewDocs: Dokumen baru ditambahkan ke scanned_docs.', [
+                'doc_name' => $doc->getClientOriginalName(),
+                'size' => $doc->getSize(),
+                'type' => $doc->getMimeType(),
+            ]);
         }
 
-        $this->new_docs = [];
+        $this->new_docs = []; // Reset new_docs setelah diproses
+        Log::info('updatedNewDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
+            'total_docs' => count($this->scanned_docs),
+        ]);
 
         // PERBAIKAN 4: Gunakan updatedScannedDocs untuk konsistensi
-        Log::debug('Isi New Docs:', ['new_docs' => $this->new_docs]);
         $this->updatedScannedDocs();
         Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
     }
-
-
-    public function pdfProcessing (PdfReadService $pdfReadService)
+    public function updatedSepFile(PdfReadService $pdfReadService)
     {
-       
-            $this->validateOnly('scanned_docs.*');
-            Log::info('Processing scanned documents...');
-            
-                $this->pdfText = $pdfReadService->getPdfTextwithSpatie($this->scanned_docs[0] ?? null);
-                $data = $pdfReadService->extractPdf($this->pdfText);
-                $this->fill($data);
-          
-            Log::info(
-                "SEP: File processed successfully.",
-                ['scanned_docs' => $this->scanned_docs[0],'sep_number' => $this->sep_number, 'bpjs_serial_number' => $this->bpjs_serial_number]);
+        Log::info('updatedSepFile: Processing...');
+        $this->scanned_docs['sepFile'] = $this->sepFile; // Tambahkan SEP file ke scanned_docs
+        Log::debug('updatedSepFile: SEP file added to scanned_docs.', [
+            'file_name' => $this->sepFile->getClientOriginalName(),
+            'size' => $this->sepFile->getSize(),
+            'type' => $this->sepFile->getMimeType(),
+        ]);
+         Log::info('updatedNewDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
+            'total_docs' => count($this->scanned_docs),
+        ]);
+        Log::info('Processing scanned documents...');
+        $this->pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
+        $data = $pdfReadService->extractPdf($this->pdfText);
+        $this->fill($data);
+        Log::info('PDF text extracted successfully.', [
+                'sep_number' => $this->sep_number,
+                'bpjs_serial_number' => $this->bpjs_serial_number,
+                'medical_record_number' => $this->medical_record_number,
+                'patient_name' => $this->patient_name,
+        ]);
+        $this->updatedScannedDocs();
+        Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
+    }
+    public function updatedResumeFile()
+    {
+        Log::info('resumeFile to scannedDocs: Processing...');
+        $this->scanned_docs['resumeFile'] = $this->resumeFile; // Tambahkan SEP file ke scanned_docs
+        Log::debug('resumeFile: Resume file added to scanned_docs.', [
+            'file_name' => $this->resumeFile->getClientOriginalName(),
+            'size' => $this->resumeFile->getSize(),
+            'type' => $this->resumeFile->getMimeType(),
+        ]);
+         Log::info('updatedScannedDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
+            'total_docs' => count($this->scanned_docs),
+        ]);
+        $this->updatedScannedDocs();
+         Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
         
-
+    }
+    public function updatedBillingFile()
+    {
+        Log::info('updatedSepFile: Processing...');
+        $this->scanned_docs['billingFile'] = $this->billingFile; // Tambahkan SEP file ke scanned_docs
+        Log::debug('updatedSepFile: Billing file added to scanned_docs.', [
+            'file_name' => $this->billingFile->getClientOriginalName(),
+            'size' => $this->billingFile->getSize(),
+            'type' => $this->billingFile->getMimeType(),
+        ]);
+         Log::info('updatedNewDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
+            'total_docs' => count($this->scanned_docs),
+        ]);
+        $this->updatedScannedDocs();
+        Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
     }
 
     public function submit(PdfMergerService $pdfMergeService, GenerateFolderService $generateFolderService)
@@ -236,71 +291,7 @@ class BpjsRawatJalanForm extends Component
             ]);
         }
     }
-    public function removeFile($index){
-        try {
-            // Check if the file exists in scanned_docs
-            if (!isset($this->scanned_docs[$index])) {
-                Log::error('File not found in scanned_docs', ['index' => $index]);
-                return;
-            }
-
-            $fileToRemove = $this->scanned_docs[$index];
-            
-            // PERBAIKAN 10: Perbaikan pengecekan tipe objek
-            $isUploadedFile = is_object($fileToRemove) && method_exists($fileToRemove, 'getRealPath');
-            
-            // Get the correct file name
-            $filename = $isUploadedFile ? basename($fileToRemove->getRealPath()) : basename($fileToRemove);
-            
-            // PERBAIKAN 11: Hapus file rotated jika ada
-            if (isset($this->rotatedPaths[$index]) && Storage::disk('public')->exists($this->rotatedPaths[$index])) {
-                Storage::disk('public')->delete($this->rotatedPaths[$index]);
-            }
-            
-            // Remove the file from arrays
-            unset($this->scanned_docs[$index]);
-            unset($this->previewUrls[$index]);
-            unset($this->rotatedPaths[$index]);
-            unset($this->rotations[$index]);
-            unset($this->fileOrder[$index]);
-
-            // Reindex to prevent ordering issues
-            $this->scanned_docs = array_values($this->scanned_docs);
-            $this->previewUrls = array_values($this->previewUrls);
-            $this->rotatedPaths = array_values($this->rotatedPaths);
-            $this->rotations = array_values($this->rotations);
-            $this->fileOrder = array_keys($this->scanned_docs);
-
-            // Clean up Livewire temp files
-            if ($isUploadedFile && file_exists($fileToRemove->getRealPath())) {
-                unlink($fileToRemove->getRealPath());
-                Log::info('Successfully deleted Livewire temporary file', ['filename' => $filename]);
-            }
-
-            // Also attempt to remove from public storage if applicable
-            $sharedPath = 'shared/' . $filename;
-            if (Storage::disk('shared')->exists($sharedPath)) {
-                Storage::disk('shared')->delete($sharedPath);
-                Log::info('Successfully deleted from shared storage', ['path' => $sharedPath]);
-            }
-
-            // Clean up Livewire temp directory (if not yet moved to shared)
-            $livewireTempPath = storage_path('app/livewire-tmp/' . $filename);
-            if (file_exists($livewireTempPath)) {
-                unlink($livewireTempPath);
-                Log::info('Successfully deleted from Livewire temp', ['path' => $livewireTempPath]);
-            }
-
-            Log::info('File removal completed successfully', $index);
-        } catch (\Exception $e) {
-            Log::error('Error in removeFile', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'index' => $index,
-            ]);
-            session()->flash('error', 'Failed to remove the file. Please try again.');
-        }
-    }
+    
     /* ====================
        ROTATE METHODS
        ==================== */
@@ -393,9 +384,6 @@ class BpjsRawatJalanForm extends Component
   
     public function render()
     {
-        if($this->scanned_docs[0] ?? null) {
-            $this->pdfProcessing(new PdfReadService());
-        }
         return view('livewire.bpjs-rawat-jalan-form');
     }
 }

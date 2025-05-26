@@ -6,7 +6,7 @@
             <flux:subheading size="md" class="text-gray-200">Please fill in the patient's details below.
             </flux:subheading>
         </div>
-        @if(empty($scanned_docs))
+        @if(empty($sepFile))
         <div class="max-w-4xl mx-auto p-8">
             <div aria-labelledby="file-upload-heading" class="bg-white p-6 rounded-lg shadow-md mb-8">
                 <h3 id="file-upload-heading" class="text-lg font-medium text-gray-900 mb-4">
@@ -33,7 +33,7 @@
                                 <label for="file_upload_input_livewire"
                                     class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                     <span>Unggah file</span>
-                                    <input id="file_upload_input_livewire" wire:model="scanned_docs" type="file"
+                                    <input id="file_upload_input_livewire" wire:model="sepFile" type="file"
                                         class="sr-only" accept=".pdf">
                                 </label>
                                 {{-- <p class="pl-1">atau seret dan lepas</p> --}}
@@ -49,7 +49,7 @@
 
         @endif
 
-        @if (!empty($scanned_docs))
+        @if (!empty($sepFile))
         <div class="max-w-4xl mx-auto p-8 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
             <form wire:submit.prevent="submit" wire:loading.attr="disabled" wire:target="submit" class="space-y-4">
                 <!-- Patient Info Section -->
@@ -89,15 +89,18 @@
                 <div id="add-files" class=" gap-6">
                     <!-- Awal Medis -->
                     <div class="">
+                        <flux:input type="file" label="File Awal Medis" wire:model="resumeFile" accept=".pdf"
+                            placeholder="Unggah File Awal Medis" />
+                        {{ $scanned_docs['resume'] ?? '' }}
                         <!-- Awal Medis Preview -->
-                        @if($new_docs['resume'] ?? false)
+                        @if($scanned_docs['resume'] ?? false)
                         <div class="flex items-center gap-4 p-4 bg-gray-700 border border-gray-600 rounded-lg">
                             <!-- Inline PDF Preview with rotation support -->
                             <div
                                 class="w-64 h-80 overflow-hidden border border-gray-500 rounded bg-white flex-shrink-0 shadow-sm relative">
                                 <div class="w-full h-full"
-                                    style="transform: rotate({{ $rotations[1] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
-                                    <iframe src="{{ $previewUrls[1] }}#toolbar=0&navpanes=0&scrollbar=0"
+                                    style="transform: rotate({{ $rotations['resume'] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
+                                    <iframe src="{{ $previewUrls['resume'] }}#toolbar=0&navpanes=0&scrollbar=0"
                                         class="w-full h-full" frameborder="0">
                                     </iframe>
                                 </div>
@@ -109,27 +112,21 @@
                             </div>
                             <!-- Rotation Controls -->
                             <flux:button icon="arrow-uturn-right" size="xs" variant="ghost"
-                                wire:click.prevent="rotateFile('resume')" title="Putar PDF">
+                                wire:click.prevent="rotateFile()" title="Putar PDF">
 
                             </flux:button>
 
-                            <flux:button icon="eye" size="xs" variant="ghost" wire:click.prevent="previewFile('resume')"
+                            <flux:button icon="eye" size="xs" variant="ghost" wire:click.prevent="previewFile(1)"
                                 title="Preview" />
-
-                            <flux:button icon="trash" size="xs" variant="subtle" class="text-red-400"
-                                wire:click.prevent="removeFile('resume')" title="Hapus file" />
                         </div>
-                        @else
-                        <flux:input type="file" label="File Awal Medis" wire:model="new_docs.resume" accept=".pdf"
-                            placeholder="Unggah File Awal Medis" />
                         @endif
                     </div>
                     <!-- Awal Medis Preview -->
                 </div>
 
                 <div class="col-span-1">
-                    <flux:input type="file" label="File Billing" wire:model="scanned_docs.billing"
-                        accept=".pdf,.jpg,.png" placeholder="Unggah File Billing" />
+                    <flux:input type="file" label="File Billing" wire:model="billingFile" accept=".pdf,.jpg,.png"
+                        placeholder="Unggah File Billing" />
                 </div>
                 <!-- Awal Medis Preview -->
                 <div class="col-span-1">
@@ -157,7 +154,7 @@
     </div>
 
     <!-- Loading Overlays -->
-    <div wire:loading.flex wire:target="scanned_docs,scanned_docs.resume,scanned_docs.billing"
+    <div wire:loading.flex wire:target="sepFile,resumeFile,billingFile"
         class="fixed inset-0 z-100 bg-neutral-900/60 flex items-center justify-center backdrop-blur-sm">
         <div class="flex flex-col items-center gap-4 text-center animate-fade-in">
             <svg class="h-12 w-12 animate-spin text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none"
