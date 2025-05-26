@@ -96,8 +96,8 @@
                             <div
                                 class="w-64 h-80 overflow-hidden border border-gray-500 rounded bg-white flex-shrink-0 shadow-sm relative">
                                 <div class="w-full h-full"
-                                    style="transform: rotate({{ $rotations['resume'] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
-                                    <iframe src="{{ $previewUrls['resume'] }}#toolbar=0&navpanes=0&scrollbar=0"
+                                    style="transform: rotate({{ $rotations[1] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
+                                    <iframe src="{{ $previewUrls[1] }}#toolbar=0&navpanes=0&scrollbar=0"
                                         class="w-full h-full" frameborder="0">
                                     </iframe>
                                 </div>

@@ -131,7 +131,7 @@ class BpjsRawatJalanForm extends Component
 
     public function updatedNewDocs()
     {
-        
+        Log::info('updatedNewDocs: Mulai memproses dokumen baru...');
         foreach ($this->new_docs as $doc) {
             $this->scanned_docs[] = $doc;
         }
@@ -139,7 +139,9 @@ class BpjsRawatJalanForm extends Component
         $this->new_docs = [];
 
         // PERBAIKAN 4: Gunakan updatedScannedDocs untuk konsistensi
+        Log::debug('Isi New Docs:', ['new_docs' => $this->new_docs]);
         $this->updatedScannedDocs();
+        Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
     }
 
 
@@ -289,7 +291,7 @@ class BpjsRawatJalanForm extends Component
                 Log::info('Successfully deleted from Livewire temp', ['path' => $livewireTempPath]);
             }
 
-            Log::info('File removal completed successfully');
+            Log::info('File removal completed successfully', $index);
         } catch (\Exception $e) {
             Log::error('Error in removeFile', [
                 'error' => $e->getMessage(),
@@ -391,7 +393,7 @@ class BpjsRawatJalanForm extends Component
   
     public function render()
     {
-        if($this->scanned_docs){
+        if($this->scanned_docs[0] ?? null) {
             $this->pdfProcessing(new PdfReadService());
         }
         return view('livewire.bpjs-rawat-jalan-form');
