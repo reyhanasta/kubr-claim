@@ -138,85 +138,62 @@ class BpjsRawatJalanForm extends Component
         }
         Log::info('updatedScannedDocs: Proses selesai. Rotated paths:', ['rotatedPaths' => $this->rotatedPaths]);
     }
-
-    public function updatedNewDocs()
-    {
-        Log::info('updatedNewDocs: Mulai memproses dokumen baru...');
-        foreach ($this->new_docs as $index => $doc) {
-            $this->scanned_docs[$index] = $doc; // Tambahkan dokumen baru ke scanned_docs
-            Log::debug('updatedNewDocs: Dokumen baru ditambahkan ke scanned_docs.', [
-                'doc_name' => $doc->getClientOriginalName(),
-                'size' => $doc->getSize(),
-                'type' => $doc->getMimeType(),
-            ]);
-        }
-
-        $this->new_docs = []; // Reset new_docs setelah diproses
-        Log::info('updatedNewDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
-            'total_docs' => count($this->scanned_docs),
-        ]);
-
-        // PERBAIKAN 4: Gunakan updatedScannedDocs untuk konsistensi
-        $this->updatedScannedDocs();
-        Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
-    }
-    public function updatedSepFile(PdfReadService $pdfReadService)
-    {
-        Log::info('updatedSepFile: Processing...');
-        $this->scanned_docs['sepFile'] = $this->sepFile; // Tambahkan SEP file ke scanned_docs
-        Log::debug('updatedSepFile: SEP file added to scanned_docs.', [
-            'file_name' => $this->sepFile->getClientOriginalName(),
-            'size' => $this->sepFile->getSize(),
-            'type' => $this->sepFile->getMimeType(),
-        ]);
-         Log::info('updatedNewDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
-            'total_docs' => count($this->scanned_docs),
-        ]);
-        Log::info('Processing scanned documents...');
-        $this->pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
-        $data = $pdfReadService->extractPdf($this->pdfText);
-        $this->fill($data);
-        Log::info('PDF text extracted successfully.', [
+    /* ====================
+       PDF READ METHODS
+       ==================== */
+       public function readPdfFile($pdfReadService) {
+            Log::info('updatedSepFile: Processing...');
+            Log::info('Processing scanned documents...');
+            $this->pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
+            $data = $pdfReadService->extractPdf($this->pdfText);
+            $this->fill($data);
+            Log::info('PDF text extracted successfully.', [
                 'sep_number' => $this->sep_number,
                 'bpjs_serial_number' => $this->bpjs_serial_number,
                 'medical_record_number' => $this->medical_record_number,
                 'patient_name' => $this->patient_name,
-        ]);
-        $this->updatedScannedDocs();
+            ]);
+       }
+    /* ====================
+       FILE UPLOAD METHODS
+       ==================== */
+    public function updatedSepFile(PdfReadService $pdfReadService)
+    {
+        $this->validateOnly('sepFile'); // Validasi file SEP
+        $this->readPdfFile($pdfReadService); // Baca file PDF SEP
+        $this->processingDocuments('sepFile',$this->sepFile); // Proses dokumen billing
+        
         Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
     }
     public function updatedResumeFile()
     {
         Log::info('resumeFile to scannedDocs: Processing...');
-        $this->scanned_docs['resumeFile'] = $this->resumeFile; // Tambahkan SEP file ke scanned_docs
-        Log::debug('resumeFile: Resume file added to scanned_docs.', [
-            'file_name' => $this->resumeFile->getClientOriginalName(),
-            'size' => $this->resumeFile->getSize(),
-            'type' => $this->resumeFile->getMimeType(),
-        ]);
-         Log::info('updatedScannedDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
-            'total_docs' => count($this->scanned_docs),
-        ]);
-        $this->updatedScannedDocs();
-         Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
+        $this->processingDocuments('resumeFile',$this->resumeFile); // Proses dokumen billing
         
     }
     public function updatedBillingFile()
     {
         Log::info('updatedSepFile: Processing...');
-        $this->scanned_docs['billingFile'] = $this->billingFile; // Tambahkan SEP file ke scanned_docs
+        $this->processingDocuments('billingFile',$this->billingFile); // Proses dokumen billing
+    }
+    protected function processingDocuments($index, $file){
+        $this->scanned_docs[$index] = $file; // Tambahkan SEP file ke scanned_docs
         Log::debug('updatedSepFile: Billing file added to scanned_docs.', [
-            'file_name' => $this->billingFile->getClientOriginalName(),
-            'size' => $this->billingFile->getSize(),
-            'type' => $this->billingFile->getMimeType(),
+            'file_name' => $file->getClientOriginalName(),
+            'size' => $file->getSize(),
+            'type' => $file->getMimeType(),
         ]);
          Log::info('updatedNewDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
             'total_docs' => count($this->scanned_docs),
         ]);
         $this->updatedScannedDocs();
         Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
+
     }
 
+    /* ====================
+       SUBMIT METHODS
+       ==================== */
     public function submit(PdfMergerService $pdfMergeService, GenerateFolderService $generateFolderService)
     {
         $this->validate();
