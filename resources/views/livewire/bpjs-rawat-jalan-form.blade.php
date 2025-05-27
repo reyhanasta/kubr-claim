@@ -47,6 +47,11 @@
         </div>
         {{-- Bagian Unggah File Awal --}}
 
+        @else
+        {{-- Buat Preview File Pdf Dari File Yang Diupload --}}
+        <div class="max-w-4xl mx-auto p-8">
+
+        </div>
         @endif
 
         @if (!empty($sepFile))
@@ -120,8 +125,8 @@
 
                     <!-- BPJS Number - Fresh Teal -->
                     <div
-                        class="group bg-gray-800 p-4 rounded-xl shadow-lg border-l-4 border-teal-400 hover:bg-gray-750 transition-all duration-200 relative overflow-hidden">
-                        <div class="flex items-start gap-3">
+                        class="group bg-gray-800 p-4 pr-5 rounded-xl shadow-lg border-l-4 border-teal-400 hover:bg-gray-750 transition-all duration-200 relative overflow-hidden">
+                        <div class="flex items-start gap-3 ">
                             <div class="bg-teal-900/30 p-2 rounded-lg">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-400"
                                     viewBox="0 0 20 20" fill="currentColor">
