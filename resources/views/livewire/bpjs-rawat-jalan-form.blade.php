@@ -198,7 +198,7 @@
             <div wire:transition.opacity class="max-w-4xl mx-auto p-6 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
                 <div class="flex items-center gap-2">
                     <flux:icon.archive-box variant="solid" class="dark:text-sky-200" />
-                    <h1 class="text-2xl font-bold">Input Dokumen File Klaim</h1>
+                    <h1 class="text-2xl font-bold">-Input Dokumen File Klaim-</h1>
                 </div>
                 <hr class="mt-4 mb-10 ">
                 <!-- File Upload Section -->
