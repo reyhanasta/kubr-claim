@@ -177,7 +177,7 @@
             <div>
                 <flux:button variant="primary" type="submit" icon="arrow-down-tray"
                     class="active:scale-110 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-md hover:bg-emerald-500 hover:shadow-emerald-500/30 focus:outline-none focus:ring-4 focus:ring-emerald-500">
-                    Simpan
+                    Simpan Dokumen
                 </flux:button>
             </div>
 

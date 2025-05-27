@@ -1,7 +1,7 @@
 <div>
     <div>
         <!-- Header -->
-        <div class=" mb-5 text-center">
+        <div class="mb-5 text-center">
             <flux:heading size="xl" level="1" class="text-amber">BPJS Claim Submission</flux:heading>
             <flux:subheading size="md" class="text-gray-200">Please fill in the patient's details below.
             </flux:subheading>
@@ -50,108 +50,231 @@
         @endif
 
         @if (!empty($sepFile))
-        <div class="max-w-4xl mx-auto p-8 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
-            <form wire:submit.prevent="submit" wire:loading.attr="disabled" wire:target="submit" class="space-y-4">
-                <!-- Patient Info Section -->
-                <div class="grid grid-cols-4 gap-6">
-                    <!-- Nomor RM -->
-                    <div class="col-span-1">
-                        <flux:input name="medical_record_number" label="Nomor RM" type="text"
-                            wire:model="medical_record_number" icon:trailing="{{ $rmIcon }}" placeholder="Nomor RM" {{--
-                            wire:change="searchPatient" --}} badge="Wajib diisi" />
-                    </div>
-                    <!-- Nama Pasien -->
-                    <div class="col-span-2">
-                        <flux:input type="text" variant="filled" icon="user" wire:model.debounce.500ms="patient_name"
-                            readonly class="cursor-not-allowed mt-1.5" label="Nama Pasien"
-                            placeholder="Terisi Otomatis" />
-                    </div>
-                    <div class="col-span-1">
-                        <flux:input type="text" variant="filled" icon="credit-card"
-                            wire:model.debounce.500ms="bpjs_serial_number" readonly class="cursor-not-allowed mt-1.5"
-                            label="Nomor Kartu BPJS" placeholder="Terisi Otomatis" copyable />
-                    </div>
-                </div>
-                <!-- Additional Info Section -->
-                <div class="grid grid-cols-3 gap-6">
-                    <!-- Nomor SEP -->
-                    <div class="col-span-2">
-                        <flux:input type="text" icon="document-text" wire:model.debounce.500ms="sep_number"
-                            placeholder="Nomor SEP" label="Nomor SEP" badge="Wajib diisi" readonly />
-                    </div>
-                    <!-- Tanggal Dokumen -->
-                    <div>
-                        <flux:input type="date" wire:model="sep_date" placeholder="Tanggal SEP" label="Tanggal SEP"
-                            badge="Wajib diisi" />
-                    </div>
-                </div>
-                <!-- Additional Files (Awal Medis & Billing) -->
-                <div id="add-files" class=" gap-6">
-                    <!-- Awal Medis -->
-                    <div class="">
-                        <flux:input type="file" label="File Awal Medis" wire:model="resumeFile" accept=".pdf"
-                            placeholder="Unggah File Awal Medis" />
-                        {{ $scanned_docs['resume'] ?? '' }}
-                        <!-- Awal Medis Preview -->
-                        @if($scanned_docs['resume'] ?? false)
-                        <div class="flex items-center gap-4 p-4 bg-gray-700 border border-gray-600 rounded-lg">
-                            <!-- Inline PDF Preview with rotation support -->
-                            <div
-                                class="w-64 h-80 overflow-hidden border border-gray-500 rounded bg-white flex-shrink-0 shadow-sm relative">
-                                <div class="w-full h-full"
-                                    style="transform: rotate({{ $rotations['resume'] ?? 0 }}deg); transform-origin: center center; transition: transform 0.3s ease;">
-                                    <iframe src="{{ $previewUrls['resume'] }}#toolbar=0&navpanes=0&scrollbar=0"
-                                        class="w-full h-full" frameborder="0">
-                                    </iframe>
+        <form wire:submit.prevent="submit" wire:loading.attr="disabled" wire:target="submit" class="space-y-6">
+            <!-- Patient Info Section -->
+            <div class="max-w-4xl mx-auto p-6 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
+                <h1 class="text-2xl font-bold">
+                    Data Pasien</h1>
+                <hr class="my-4">
+                <!-- SIMRS Data Display -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+                    <!-- Medical Record - Vibrant Blue -->
+                    <div
+                        class="group  bg-gray-800 p-4 rounded-xl shadow-lg border-l-4 border-blue-400 hover:bg-gray-750 transition-all duration-200 relative overflow-hidden">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-blue-900/30 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path
+                                        d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-1">Nomor
+                                    RM</label>
+                                <div class="text-white font-mono text-lg font-medium tracking-tight">
+                                    {{ $simrs_rm_number }}
                                 </div>
                             </div>
+                        </div>
+                        <div
+                            class="absolute -bottom-2 -right-2 text-blue-400 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                    </div>
 
-                            <!-- File Name -->
-                            <div class="flex-1 truncate text-sm text-gray-100">
-                                {{ $scanned_docs['resume']->getClientOriginalName() }}
+                    <!-- Patient Name - Energetic Orange -->
+                    <div
+                        class="group md:col-span-2 bg-gray-800 p-4 rounded-xl shadow-lg border-l-4 border-orange-400 hover:bg-gray-750 transition-all duration-200 relative overflow-hidden">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-orange-900/30 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-orange-400"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                        clip-rule="evenodd" />
+                                </svg>
                             </div>
-                            <!-- Rotation Controls -->
-                            <flux:button icon="arrow-uturn-right" size="xs" variant="ghost"
-                                wire:click.prevent="rotateFile()" title="Putar PDF">
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-orange-300 uppercase tracking-wider mb-1">Nama
+                                    Pasien SIMRS</label>
+                                <div class="text-white text-lg font-medium">
+                                    {{ $patient_name }}
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="absolute -bottom-2 -right-2 text-orange-400 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                    </div>
 
-                            </flux:button>
+                    <!-- BPJS Number - Fresh Teal -->
+                    <div
+                        class="group bg-gray-800 p-4 rounded-xl shadow-lg border-l-4 border-teal-400 hover:bg-gray-750 transition-all duration-200 relative overflow-hidden">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-teal-900/30 p-2 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-teal-400"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-semibold text-teal-300 uppercase tracking-wider mb-1">Nomor
+                                    Kartu </label>
+                                <div class="text-white font-mono text-lg font-medium tracking-tight">
+                                    {{ $bpjs_serial_number }}
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="absolute -bottom-2 -right-2 text-teal-400 opacity-10 group-hover:opacity-20 transition-opacity duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                @if($patientValidated == false)
+                <!-- SEP Input Section -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <flux:input name="medical_record_number" label="Nomor RM SEP" type="text"
+                            wire:model="medical_record_number" icon:trailing="{{ $rmIcon }}" placeholder="Nomor RM" />
+                    </div>
+                    <div class="md:col-span-2">
+                        <flux:input type="text" variant="filled" icon="user" wire:model.debounce.500ms="patient_name"
+                            readonly class="cursor-not-allowed" label="Nama Pasien SEP" placeholder="Terisi Otomatis" />
+                    </div>
+                    <div>
+                        <flux:input type="text" variant="filled" icon="credit-card"
+                            wire:model.debounce.500ms="bpjs_serial_number" readonly class="cursor-not-allowed"
+                            label="Nomor Kartu BPJS SEP" placeholder="Terisi Otomatis" copyable />
+                    </div>
+                </div>
+                @endif
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                    <div class="col-span-1">
+                        <flux:input type="text" icon="document-text" wire:model.debounce.500ms="sep_number"
+                            placeholder="Nomor SEP" label="Nomor SEP"
+                            description="Nomor SEP yang akan digunakan untuk klaim" />
+                    </div>
+                    <div class="col-span-1">
+                        <flux:input type="date" wire:model="sep_date" placeholder="Tanggal SEP" label="Tanggal SEP"
+                            description="Tanggal SEP yang akan digunakan untuk klaim" />
+                    </div>
+                </div>
+                <div class="flex justify-end mt-4">
+                    @if($confirmPatient == false)
+                    <flux:button variant="primary" wire:click.prevent="$set('confirmPatient', true)"
+                        class="w-full md:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors duration-200 shadow hover:shadow-lg"
+                        icon="check-circle">
+                        Validasi
+                    </flux:button>
+                    @endif
+                </div>
+            </div>
+            @if($confirmPatient)
+            <!-- SEP Details Section -->
+            <div wire:transition.opacity class="max-w-4xl mx-auto p-6 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
+                <div class="flex items-center gap-2">
+                    <flux:icon.archive-box variant="solid" class="dark:text-sky-200" />
+                    <h1 class="text-2xl font-bold">Input Dokumen File Klaim</h1>
+                </div>
+                <hr class="mt-4 mb-10 ">
+                <!-- File Upload Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+                    <!-- Medical Resume File -->
+                    <div>
+                        <flux:field>
+                            <flux:label>
+                                <flux:icon.document-text variant="solid" class="dark:text-pink-400 mr-1.5" /> File Awal
+                                Medis
+                            </flux:label>
+                            <flux:description>This will be publicly displayed.</flux:description>
+                            <flux:input type="file" wire:model="resumeFile" accept=".pdf"
+                                placeholder="Unggah File Awal Medis" />
+                        </flux:field>
 
-                            <flux:button icon="eye" size="xs" variant="ghost" wire:click.prevent="previewFile(1)"
-                                title="Preview" />
+
+                        @if($scanned_docs['resume'] ?? false)
+                        <div class="mt-4 p-3 bg-gray-600 rounded-lg border border-gray-500">
+                            <div class="flex items-start gap-3">
+                                <!-- PDF Preview -->
+                                <div class="relative w-40 h-52 flex-shrink-0">
+                                    <div class="w-full h-full transform rotate-{{ $rotations['resume'] ?? 0 }} transition-transform duration-300"
+                                        style="transform-origin: center">
+                                        <iframe src="{{ $previewUrls['resume'] }}#toolbar=0&navpanes=0&scrollbar=0"
+                                            class="w-full h-full border border-gray-500 rounded bg-white"
+                                            frameborder="0">
+                                        </iframe>
+                                    </div>
+                                </div>
+
+                                <!-- File Info -->
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-100 truncate">
+                                        {{ $scanned_docs['resume']->getClientOriginalName() }}
+                                    </p>
+                                    <div class="mt-2 flex gap-2">
+                                        <flux:button icon="arrow-uturn-right" size="xs" variant="ghost"
+                                            wire:click.prevent="rotateFile('resume')" title="Putar PDF" />
+                                        <flux:button icon="eye" size="xs" variant="ghost"
+                                            wire:click.prevent="previewFile('resume')" title="Preview" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         @endif
                     </div>
-                    <!-- Awal Medis Preview -->
-                </div>
 
-                <div class="col-span-1">
-                    <flux:input type="file" label="File Billing" wire:model="billingFile" accept=".pdf,.jpg,.png"
-                        placeholder="Unggah File Billing" />
-                </div>
-                <!-- Awal Medis Preview -->
-                <div class="col-span-1">
-
-                </div>
-                <div class="flex justify-between items-center">
-                    <div wire:dirty class="text-amber-300 italic">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-1" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        Perubahan belum tersimpan...
-                    </div>
+                    <!-- Billing File -->
                     <div>
-                        <flux:button variant="primary" type="submit" icon="arrow-down-tray"
-                            class="active:scale-110 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg transition-all duration-300 ease-in-out shadow-md hover:bg-emerald-500 hover:shadow-emerald-500/30 focus:outline-none focus:ring-4 focus:ring-emerald-500">
-                            Simpan
-                        </flux:button>
+                        <flux:field>
+                            <flux:label>
+                                <flux:icon.document-currency-dollar variant="solid"
+                                    class="dark:text-amber-300 mr-1.5" />
+                                File
+                                Awal Medis
+                            </flux:label>
+                            <flux:description>This will be publicly displayed.</flux:description>
+                            <flux:input type="file" wire:model="billingFile" accept=".pdf,.jpg,.png"
+                                placeholder="Unggah File Billing" />
+                        </flux:field>
+
+
+                        <!-- Similar preview can be added for billing file -->
                     </div>
                 </div>
-            </form>
-        </div>
+
+                <!-- Form Actions -->
+                <div class="flex md:flex-row justify-between items-center mt-10">
+
+                    <flux:button variant="primary" type="submit" icon="arrow-down-tray"
+                        class="w-full px-12 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors duration-200 shadow hover:shadow-lg">
+                        Simpan Dokumen
+                    </flux:button>
+                </div>
+            </div>
+            @endif
+        </form>
         @endif
     </div>
+
 
     <!-- Loading Overlays -->
     <div wire:loading.flex wire:target="sepFile,resumeFile,billingFile"
@@ -165,20 +288,7 @@
             <p class="text-amber-100 font-semibold text-lg">Memproses file PDF, mohon tunggu...</p>
         </div>
     </div>
-
-    <div wire:loading.flex wire:target="new_docs"
-        class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-        <div class="flex flex-col items-center gap-4 text-center">
-            <svg class="h-10 w-10 animate-spin text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-            </svg>
-            <p class="text-amber-100 font-medium text-md">Menambahkan file tambahan...</p>
-        </div>
-    </div>
-
-    <div wire:loading wire:target="submit"
+    {{-- <div wire:loading wire:target="submit"
         class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center backdrop-blur-sm">
         <div class="flex flex-col items-center gap-4 text-center">
             <svg class="h-12 w-12 animate-spin text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -188,5 +298,5 @@
             </svg>
             <p class="text-emerald-100 font-semibold text-lg">Menyimpan klaim BPJS...</p>
         </div>
-    </div>
+    </div> --}}
 </div>

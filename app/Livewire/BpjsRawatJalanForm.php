@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use CzProject\PdfRotate\PdfRotate;
+use App\Models\Patient;
 use Livewire\Component;
 use App\Models\BpjsClaim;
 use Illuminate\Support\Str;
@@ -10,6 +10,7 @@ use App\Models\ClaimDocument;
 use Livewire\WithFileUploads;
 use App\Services\PdfReadService;
 use App\Services\PdfMergerService;
+use CzProject\PdfRotate\PdfRotate;
 use Illuminate\Support\Facades\Log;
 use App\Services\GenerateFolderService;
 use Illuminate\Support\Facades\Storage;
@@ -40,6 +41,11 @@ class BpjsRawatJalanForm extends Component
     public $sep_number;
     public $bpjs_serial_number;
     public $medical_record_number;
+    public $confirmPatient = false;
+    public $patientValidated = false;
+    public $simrs_rm_number = '';
+    public $simrs_patient_name = '';
+    public $simrs_bpjs_serial_number = '';
     public $treatment = 'RJ'; // Default to 'RAWAT JALAN'
     public $pdfText;
     public $previewUrls = [];
@@ -48,7 +54,7 @@ class BpjsRawatJalanForm extends Component
     public $rmIcon = 'magnifying-glass';
 
     protected $rules = [
-        'scanned_docs.*' => 'required|file|mimes:pdf|max:2048', // 2MB max
+        'scanned_docs.*' => 'required|file|mimes:pdf|max:2048' // 2MB max
     ];
 
      protected $messages = [
@@ -62,7 +68,12 @@ class BpjsRawatJalanForm extends Component
             'scanned_docs.*.file' => 'File harus berformat PDF, JPG, atau PNG.',
             'scanned_docs.*.mimes' => 'File harus berformat PDF, JPG, atau PNG.',
             'scanned_docs.*.max' => 'File tidak boleh lebih dari 2MB.',
-        ];
+    ];
+
+    public function confirmPatient(){
+        Log::info('confirmPatient: Processing...');
+        $this->confirmPatient = true;
+    }
 
     /* ====================
        PREVIEW METHODS
@@ -147,12 +158,49 @@ class BpjsRawatJalanForm extends Component
             $this->pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
             $data = $pdfReadService->extractPdf($this->pdfText);
             $this->fill($data);
+            $this->simrs_rm_number = $this->medical_record_number;
             Log::info('PDF text extracted successfully.', [
                 'sep_number' => $this->sep_number,
                 'bpjs_serial_number' => $this->bpjs_serial_number,
                 'medical_record_number' => $this->medical_record_number,
                 'patient_name' => $this->patient_name,
             ]);
+            $this->searchPatient();
+       }
+       public function searchPatient(){
+            Log::info('searchPatient: Processing...');
+            $this->validateOnly('simrs_rm_number');
+            $patient = Patient::where('no_rkm_medis', $this->simrs_rm_number)->first();
+            if ($patient) {
+                //Validasi nama pasien
+                $this->simrs_patient_name = trim($patient->nm_pasien);
+                $this->simrs_bpjs_serial_number = trim($patient->no_peserta);
+                Log::info('searchPatient: Validasi nama pasien...');
+                Log::info('searchPatient: Nama pasien:', ['simrs_patient_name' => $this->simrs_patient_name, 'patient_name' => $this->patient_name]);
+                $this->validatePatientData();
+                Log::info('searchPatient: Patient validated:', ['patientValidated' => $this->patientValidated]);
+            }else{
+                $this->simrs_patient_name = '-';
+                $this->simrs_bpjs_serial_number = '-';
+                LivewireAlert::title('Pasien tidak ditemukan!')
+                ->error()
+                ->text('Pasient tidak ditemukan di SIMRS')
+                ->toast()
+                ->position('top-end')
+                ->timer(6000) // Dismisses after 3 seconds
+                ->show();
+            }
+       }
+       public function validatePatientData(){
+            $patientContaint = Str::contains($this->simrs_patient_name, $this->patient_name);
+            $medicalRecord = Str::contains($this->simrs_rm_number, $this->medical_record_number);
+            switch($patientContaint && $medicalRecord){
+                case true:
+                    $this->patientValidated = true;
+                    break;
+                case false:
+                    $this->patientValidated = false;
+            }
        }
     /* ====================
        FILE UPLOAD METHODS
@@ -163,7 +211,6 @@ class BpjsRawatJalanForm extends Component
         $this->readPdfFile($pdfReadService); // Baca file PDF SEP
         $this->processingDocuments('sepFile',$this->sepFile); // Proses dokumen billing
         
-        Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
     }
     public function updatedResumeFile()
     {
