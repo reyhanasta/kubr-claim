@@ -23,7 +23,7 @@ class BpjsRawatJalanForm extends Component
      * Summary of scanned_docs
      * @var array
      */
-    public $scanned_docs = ['sepFile'=>'','resumeFile'=>'','billingFile'=>'']; // For scanned documents
+    public $scanned_docs = ['sepFile'=>'filled','resumeFile'=>'','billingFile'=>'']; // For scanned documents
     public $new_docs = []; // For new file uploads
     public $rotatedPaths = [];
     public $previewUrls = [];
@@ -51,6 +51,7 @@ class BpjsRawatJalanForm extends Component
     public $showPreviewModal = false;
     public $currentPreviewIndex = null;
     public $rmIcon = 'magnifying-glass';
+    public $rotations = [];
 
     protected $rules = [
         'scanned_docs.*' => 'required|file|mimes:pdf|max:2048' // 2MB max
@@ -99,7 +100,7 @@ class BpjsRawatJalanForm extends Component
         $this->currentPreviewIndex = null;
     }
 
-    public function updatedScannedDocs(){
+    public function updateUploadedDocuments(){
         $this->validateOnly('scanned_docs.*');
         Log::info('updatedScannedDocs: Mulai memproses...');
         Log::debug('updatedScannedDocs: Dokumen yang akan diproses:', [
@@ -120,9 +121,9 @@ class BpjsRawatJalanForm extends Component
 
         // 3. Reset properti yang akan dibangun ulang.
         //    $this->rotations akan dibangun ulang untuk memastikan sinkronisasi sempurna dengan $scanned_docs.
-        $this->rotations = [];
-        $this->rotatedPaths = [];
-        $this->previewUrls = [];
+        
+      
+        // $this->previewUrls = [];
        
         foreach ($this->scanned_docs as $index => $doc) {
             $originalClientFilename = $doc->getClientOriginalName() ?? 'unknown_file'; // Handle jika null
@@ -146,7 +147,10 @@ class BpjsRawatJalanForm extends Component
             $this->rotatedPaths[] = $storedPath;
             $this->previewUrls[$index] = Storage::url($storedPath);
         }
-        Log::info('updatedScannedDocs: Proses selesai. Rotated paths:', ['rotatedPaths' => $this->rotatedPaths]);
+            Log::debug('scanned_docs', ['scanned_docs' => $this->scanned_docs,'scanned_docs_count' => count($this->scanned_docs)]);
+            Log::debug('sepFile', ['sepFile' => $this->sepFile]);
+            Log::debug('scannedDocs', ['scannedDocs' => $this->scanned_docs['sepFile']]);
+            Log::info('updatedScannedDocs: Proses selesai. Rotated paths:', ['rotatedPaths' => $this->rotatedPaths]);
     }
     /* ====================
        PDF READ METHODS
@@ -248,7 +252,7 @@ class BpjsRawatJalanForm extends Component
          Log::info('updatedNewDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
             'total_docs' => count($this->scanned_docs),
         ]);
-        $this->updatedScannedDocs();
+        $this->updateUploadedDocuments();
         Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
 
     }
@@ -280,7 +284,7 @@ class BpjsRawatJalanForm extends Component
             $this->storeClaimDocuments($claim,$finalPath);
 
             // Step 6: Clean up temp files
-            $pdfMergeService->cleanUpTempFiles($this->rotatedPaths);
+            $this->cleanUpAfterSubmit($pdfMergeService);
             // Step 7: Reset form and notify success
             $this->reset();
 
@@ -302,7 +306,13 @@ class BpjsRawatJalanForm extends Component
                 ->show();
         }
     }
-    
+    protected function cleanUpAfterSubmit($pdfMergeService){
+        $this->rotations = [];
+        $this->rotatedPaths = [];
+        $this->previewUrls = [];
+        $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
+
+    }
     protected function createClaimRecord(): BpjsClaim
     {
         return BpjsClaim::create([
