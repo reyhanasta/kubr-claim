@@ -25,8 +25,8 @@ class BpjsRawatJalanForm extends Component
      */
     public $scanned_docs = ['sepFile'=>'','resumeFile'=>'','billingFile'=>'']; // For scanned documents
     public $new_docs = []; // For new file uploads
-    public $rotations = []; // maps index => degrees (e.g., 90, 180, etc.)  
     public $rotatedPaths = [];
+    public $previewUrls = [];
 
     public $sepFile; // For SEP file upload
     public $resumeFile; // For resume file upload
@@ -48,7 +48,6 @@ class BpjsRawatJalanForm extends Component
     public $simrs_bpjs_serial_number = '';
     public $treatment = 'RJ'; // Default to 'RAWAT JALAN'
     public $pdfText;
-    public $previewUrls = [];
     public $showPreviewModal = false;
     public $currentPreviewIndex = null;
     public $rmIcon = 'magnifying-glass';
@@ -209,8 +208,24 @@ class BpjsRawatJalanForm extends Component
     {
         $this->validateOnly('sepFile'); // Validasi file SEP
         $this->readPdfFile($pdfReadService); // Baca file PDF SEP
-        $this->processingDocuments('sepFile',$this->sepFile); // Proses dokumen billing
         
+        // Process the SEP file for preview
+        if ($this->sepFile) {
+            $filename = uniqid() . '_' . $this->sepFile->getClientOriginalName();
+            $storedPath = $this->sepFile->storeAs('temp', $filename, 'public');
+            
+            // Store preview URL
+            $this->previewUrls[0] = Storage::url($storedPath);
+            
+            // Add to scanned docs
+            $this->scanned_docs['sepFile'] = $this->sepFile;
+            $this->rotatedPaths[0] = $storedPath;
+            
+            Log::info('SEP File processed for preview', [
+                'filename' => $filename,
+                'stored_path' => $storedPath
+            ]);
+        }
     }
     public function updatedResumeFile()
     {
@@ -319,38 +334,27 @@ class BpjsRawatJalanForm extends Component
     /* ====================
        ROTATE METHODS
        ==================== */
-    public function rotateFile($index){
-         // Always rotate by exactly 90 degrees
+    public function rotateFile($index)
+    {
+        // Always rotate by exactly 90 degrees
         $rotationDegrees = 90;
-        //  $rotationDegrees = $this->rotations[$index];
-        // Track visual state (0, 90, 180, 270)
-        $this->rotations[$index] = (($this->rotations[$index] ?? 0) + 90) % 360;
         
-        // Log the rotation action
-        Log::info("Applying 90° rotation to file index: {$index}");
+        // Track visual state (0, 90, 180, 270)
+        $key = $index === 0 ? 'sepFile' : $index;
+        $this->rotations[$key] = (($this->rotations[$key] ?? 0) + 90) % 360;
+        
+        Log::info("Applying 90° rotation to file index: {$index}", [
+            'new_rotation' => $this->rotations[$key]
+        ]);
 
-        // Apply rotation directly to file if already saved
+        // Apply rotation to physical file if needed
         if (isset($this->rotatedPaths[$index])) {
             $fullPath = storage_path('app/public/' . $this->rotatedPaths[$index]);
             
-            Log::debug('Rotation - Attempting to rotate physical file', [
-                'index' => $index,
-                'path' => $this->rotatedPaths[$index],
-                'full_path' => $fullPath,
-                'file_exists' => file_exists($fullPath),
-            ]);
-
             if (file_exists($fullPath)) {
-                $rotationResult = $this->rotatePdf($fullPath, $rotationDegrees);
-                
-                Log::debug('Rotation - Physical file rotation attempted', [
-                    'result' => $rotationResult ? 'success' : 'failed',
-                    'applied_rotation' => $this->rotations[$index],
-                ]);
+                $this->rotatePdf($fullPath, $rotationDegrees);
             }
         }
-        return false;
-
     }
     public function rotatePdf($filePath, $rotation ){
         // Log rotation attempt

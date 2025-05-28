@@ -1,7 +1,7 @@
 <div>
     <div>
         <!-- Header -->
-        <div class="mb-5 text-center">
+        <div class="mb-3 text-center">
             <flux:heading size="xl" level="1" class="text-amber">BPJS Claim Submission</flux:heading>
             <flux:subheading size="md" class="text-gray-200">Please fill in the patient's details below.
             </flux:subheading>
@@ -50,12 +50,26 @@
         @else
         {{-- Buat Preview File Pdf Dari File Yang Diupload --}}
         <div class="max-w-4xl mx-auto p-8">
+            <div class="bg-gray-700 p-6 rounded-xl shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-white">
+                        <flux:icon.document-text variant="solid" class="inline-block mr-2 text-amber-400" />
+                        Preview SEP
+                    </h3>
+                </div>
 
+                <!-- PDF Preview for 3-section format (similar to A5 proportions) -->
+                <div class="w-full bg-white rounded-lg overflow-hidden shadow-lg relative" style="padding-top: 47%">
+                    <iframe src="{{ $previewUrls[0] ?? '' }}#toolbar=0&navpanes=0&scrollbar=0"
+                        class="absolute top-0 left-0 w-full h-full" frameborder="0">
+                    </iframe>
+                </div>
+            </div>
         </div>
         @endif
 
         @if (!empty($sepFile))
-        <form wire:submit.prevent="submit" wire:loading.attr="disabled" wire:target="submit" class="space-y-6">
+        <form wire:submit.prevent="submit" wire:target="submit" class="space-y-6">
             <!-- Patient Info Section -->
             <div class="max-w-4xl mx-auto p-6 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
                 <h1 class="text-2xl font-bold">
@@ -198,7 +212,7 @@
             <div wire:transition.opacity class="max-w-4xl mx-auto p-6 bg-gray-700 text-gray-100 rounded-xl shadow-lg">
                 <div class="flex items-center gap-2">
                     <flux:icon.archive-box variant="solid" class="dark:text-sky-200" />
-                    <h1 class="text-2xl font-bold">-Input Dokumen File Klaim-</h1>
+                    <h1 class="text-2xl font-bold">Input Dokumen File Klaim</h1>
                 </div>
                 <hr class="mt-4 mb-10 ">
                 <!-- File Upload Section -->
@@ -208,14 +222,12 @@
                         <flux:field>
                             <flux:label>
                                 <flux:icon.document-text variant="solid" class="dark:text-pink-400 mr-1.5" /> File Awal
-                                Medis
+                                Medis IGD
                             </flux:label>
-                            <flux:description>This will be publicly displayed.</flux:description>
+                            <flux:description>File Awal Medis IGD yang akan digunakan untuk klaim</flux:description>
                             <flux:input type="file" wire:model="resumeFile" accept=".pdf"
                                 placeholder="Unggah File Awal Medis" />
                         </flux:field>
-
-
                         @if($scanned_docs['resume'] ?? false)
                         <div class="mt-4 p-3 bg-gray-600 rounded-lg border border-gray-500">
                             <div class="flex items-start gap-3">
@@ -253,10 +265,10 @@
                             <flux:label>
                                 <flux:icon.document-currency-dollar variant="solid"
                                     class="dark:text-amber-300 mr-1.5" />
-                                File
-                                Awal Medis
+                                Billing Rawat Jalan
                             </flux:label>
-                            <flux:description>This will be publicly displayed.</flux:description>
+                            <flux:description>File Billing Rawat Jalan yang akan digunakan untuk klaim
+                            </flux:description>
                             <flux:input type="file" wire:model="billingFile" accept=".pdf,.jpg,.png"
                                 placeholder="Unggah File Billing" />
                         </flux:field>
@@ -265,11 +277,9 @@
                         <!-- Similar preview can be added for billing file -->
                     </div>
                 </div>
-
                 <!-- Form Actions -->
                 <div class="flex md:flex-row justify-between items-center mt-10">
-
-                    <flux:button variant="primary" type="submit" icon="arrow-down-tray"
+                    <flux:button wire:click="submit" variant="primary" icon="arrow-down-tray"
                         class="w-full px-12 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors duration-200 shadow hover:shadow-lg">
                         Simpan Dokumen
                     </flux:button>
