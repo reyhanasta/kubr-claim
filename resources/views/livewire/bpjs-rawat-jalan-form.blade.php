@@ -1,4 +1,7 @@
 <div>
+    <div wire:offline>
+        This device is currently offline.
+    </div>
     <div>
         <!-- Header -->
         <div class="mb-3 text-center">
@@ -6,7 +9,7 @@
             <flux:subheading size="md" class="text-gray-200">Please fill in the patient's details below.
             </flux:subheading>
         </div>
-        @if (!empty($sepFile))
+        @if($showUploadedData == true)
         <div class="max-w-4xl mx-auto p-2 rounded-xl shadow-lg">
             <!-- PDF Preview for 3-section format (similar to A5 proportions) -->
             <div class="w-full bg-white rounded-lg overflow-hidden shadow-lg relative" style="padding-top: 34%">
@@ -245,7 +248,6 @@
             </div>
         </div>
         @endif
-
     </div>
 
 

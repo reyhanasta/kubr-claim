@@ -23,7 +23,7 @@ class BpjsRawatJalanForm extends Component
      * Summary of scanned_docs
      * @var array
      */
-    public $scanned_docs = ['sepFile'=>'filled','resumeFile'=>'','billingFile'=>'']; // For scanned documents
+    public $scanned_docs = ['sepFile'=>'','resumeFile'=>'','billingFile'=>'']; // For scanned documents
     public $new_docs = []; // For new file uploads
     public $rotatedPaths = [];
     public $previewUrls = [];
@@ -49,6 +49,7 @@ class BpjsRawatJalanForm extends Component
     public $treatment = 'RJ'; // Default to 'RAWAT JALAN'
     public $pdfText;
     public $showPreviewModal = false;
+    public $showUploadedData = false;
     public $currentPreviewIndex = null;
     public $rmIcon = 'magnifying-glass';
     public $rotations = [];
@@ -160,15 +161,28 @@ class BpjsRawatJalanForm extends Component
             Log::info('Processing scanned documents...');
             $this->pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
             $data = $pdfReadService->extractPdf($this->pdfText);
-            $this->fill($data);
-            $this->simrs_rm_number = $this->medical_record_number;
-            Log::info('PDF text extracted successfully.', [
-                'sep_number' => $this->sep_number,
-                'bpjs_serial_number' => $this->bpjs_serial_number,
-                'medical_record_number' => $this->medical_record_number,
-                'patient_name' => $this->patient_name,
-            ]);
-            $this->searchPatient();
+            switch($data == null){
+                case true:
+                LivewireAlert::title('Format dokumen tidak dikenali!')
+                ->error()
+                ->text('Silahkan upload ulang file SEP')
+                ->timer(10000) // Dismisses after 10 seconds
+                ->show();
+                break;
+                case false:
+                $this->fill($data);
+                $this->simrs_rm_number = $this->medical_record_number;
+                Log::info('PDF text extracted successfully.', [
+                    'sep_number' => $this->sep_number,
+                    'bpjs_serial_number' => $this->bpjs_serial_number,
+                    'medical_record_number' => $this->medical_record_number,
+                    'patient_name' => $this->patient_name,
+                ]);
+                $this->showUploadedData = true;
+                $this->searchPatient();
+                break;
+            }
+           
        }
        public function searchPatient(){
             Log::info('searchPatient: Processing...');
@@ -224,6 +238,7 @@ class BpjsRawatJalanForm extends Component
             // Add to scanned docs
             $this->scanned_docs['sepFile'] = $this->sepFile;
             $this->rotatedPaths[0] = $storedPath;
+            
             
             Log::info('SEP File processed for preview', [
                 'filename' => $filename,
@@ -285,8 +300,6 @@ class BpjsRawatJalanForm extends Component
 
             // Step 6: Clean up temp files
             $this->cleanUpAfterSubmit($pdfMergeService);
-            // Step 7: Reset form and notify success
-            $this->reset();
 
             LivewireAlert::title('Klaim berhasil dibuat!')
                 ->success()
@@ -307,11 +320,8 @@ class BpjsRawatJalanForm extends Component
         }
     }
     protected function cleanUpAfterSubmit($pdfMergeService){
-        $this->rotations = [];
-        $this->rotatedPaths = [];
-        $this->previewUrls = [];
         $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
-
+        $this->reset();
     }
     protected function createClaimRecord(): BpjsClaim
     {
@@ -422,6 +432,13 @@ class BpjsRawatJalanForm extends Component
   
     public function render()
     {
+        Log::info('render: Rendering component', [
+            'rotatedPaths' => $this->rotatedPaths,
+            'scanned_docs' => $this->scanned_docs,
+            'sepFile' => $this->sepFile,
+            'resumeFile' => $this->resumeFile,
+            'billingFile' => $this->billingFile,
+        ]);
         return view('livewire.bpjs-rawat-jalan-form');
     }
 }

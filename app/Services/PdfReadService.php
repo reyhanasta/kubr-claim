@@ -14,7 +14,7 @@ class PdfReadService
      */
     public function getPdfTextwithSpatie($file)
     {
-       
+        
         $text = Pdf::getText($file->getRealPath(), Env::get('PDFTOTEXT_PATH'));
         return $text;
     }
@@ -27,7 +27,7 @@ class PdfReadService
             No\.Kartu\s*:\s*(\d+)\s*\(\s*MR\.?\s*(\d+)\s*\)\s+
             Nama\sPeserta\s*:\s*([^\n]+)
         /x';  // x flag for readability
-        
+       
         if (preg_match($pattern, $text, $matches)) {
             return [
                 'sep_number' => trim($matches[1]),
@@ -38,6 +38,8 @@ class PdfReadService
             ];
         }
         
-        throw new \Exception("Format dokumen tidak dikenali");
+      
+        //redirect to bpjs-rawat-jalan-form
+        
     }
 }
