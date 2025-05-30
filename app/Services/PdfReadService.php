@@ -37,9 +37,6 @@ class PdfReadService
                 'patient_name' => trim($matches[5])
             ];
         }
-        
-      
-        //redirect to bpjs-rawat-jalan-form
-        
+        return null;
     }
 }

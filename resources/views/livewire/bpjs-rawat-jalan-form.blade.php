@@ -148,9 +148,7 @@
                 </div>
                 <div class="flex justify-end mt-4">
                     @if($confirmPatient == false)
-                    <flux:button variant="primary" wire:click.prevent="$set('confirmPatient', true)"
-                        class="w-full md:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors duration-200 shadow hover:shadow-lg"
-                        icon="check-circle">
+                    <flux:button wire:click="confirmPatientTrue" variant="primary" class="bg-" icon="check-circle">
                         Validasi
                     </flux:button>
                     @endif
@@ -205,8 +203,14 @@
                         Simpan Dokumen
                     </flux:button>
                 </div>
-            </div>
-            @endif
+                <div class="flex justify-end mt-4">
+                    <flux:button wire:click="cancelForm" variant="danger" icon="x-circle"
+                        class="w-full px-12 bg-red-600 hover:bg-red-500 text-white font-medium rounded-lg transition-colors duration-200 shadow hover:shadow-lg">
+                        Batal
+                    </flux:button>
+                </div>
+
+                @endif
         </form>
         @else
         <div class="max-w-4xl mx-auto p-8">
@@ -214,7 +218,6 @@
                 <h3 id="file-upload-heading" class="text-lg font-medium text-gray-900 mb-4">
                     <i class="fas fa-file-upload mr-2 text-blue-500"></i>Unggah Dokumen Klaim (PDF)
                 </h3>
-
                 <div class="space-y-4">
                     <label for="file_upload_input" class="block text-sm font-medium text-gray-700 mb-2">Pilih file
                         PDF:</label>
@@ -229,14 +232,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                             </svg>
-
-
                             <div class="flex text-sm text-gray-600">
                                 <label for="file_upload_input_livewire"
                                     class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                     <span>Unggah file</span>
+
                                     <input id="file_upload_input_livewire" wire:model="sepFile" type="file"
                                         class="sr-only" accept=".pdf">
+
                                 </label>
                                 {{-- <p class="pl-1">atau seret dan lepas</p> --}}
                                 <p class="pl-1">di sini</p>
@@ -249,8 +252,6 @@
         </div>
         @endif
     </div>
-
-
     <!-- Loading Overlays -->
     <div wire:loading.flex wire:target="sepFile,resumeFile,billingFile"
         class="fixed inset-0 z-100 bg-neutral-900/60 flex items-center justify-center backdrop-blur-sm">
@@ -261,17 +262,18 @@
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
             <p class="text-amber-100 font-semibold text-lg">Memproses file PDF, mohon tunggu...</p>
+
         </div>
     </div>
-    {{-- <div wire:loading wire:target="submit"
-        class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center backdrop-blur-sm">
-        <div class="flex flex-col items-center gap-4 text-center">
-            <svg class="h-12 w-12 animate-spin text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+    <div wire:loading.flex wire:target="cancelForm"
+        class="fixed inset-0 z-100 bg-neutral-900/60 flex items-center justify-center backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4 text-center animate-fade-in">
+            <svg class="h-12 w-12 animate-spin text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
-            <p class="text-emerald-100 font-semibold text-lg">Menyimpan klaim BPJS...</p>
+            <p class="text-red-100 font-semibold text-lg">Membatalkan dokumen...</p>
         </div>
-    </div> --}}
+    </div>
 </div>

@@ -32,6 +32,10 @@ class BpjsRawatJalanForm extends Component
     public $resumeFile; // For resume file upload
     public $billingFile; // For billing file upload
 
+    public $uploading = false;
+    public $progress = 0;
+    public $isProcessing = false;
+
     /**
      * Summary of medical records
      * @var 
@@ -70,8 +74,25 @@ class BpjsRawatJalanForm extends Component
             'scanned_docs.*.mimes' => 'File harus berformat PDF, JPG, atau PNG.',
             'scanned_docs.*.max' => 'File tidak boleh lebih dari 2MB.',
     ];
+    
 
-    public function confirmPatient(){
+    protected $listeners = [
+        'cancelUploadTimeout' => 'handleUploadTimeout'
+    ];
+
+    public function handleUploadTimeout()
+    {
+        if ($this->uploading) {
+            $this->cancelUpload();
+            LivewireAlert::title('Waktu pemrosesan terlalu lama!')
+                ->error()
+                ->text('File tidak dapat diproses, silakan coba lagi')
+                ->timer(5000)
+                ->show();
+        }
+    }
+
+    public function confirmPatientTrue(){
         Log::info('confirmPatient: Processing...');
         $this->confirmPatient = true;
     }
@@ -163,7 +184,7 @@ class BpjsRawatJalanForm extends Component
             $data = $pdfReadService->extractPdf($this->pdfText);
             switch($data == null){
                 case true:
-                LivewireAlert::title('Format dokumen tidak dikenali!')
+                LivewireAlert::title('Format dokumen salah!')
                 ->error()
                 ->text('Silahkan upload ulang file SEP')
                 ->timer(10000) // Dismisses after 10 seconds
@@ -224,26 +245,38 @@ class BpjsRawatJalanForm extends Component
        ==================== */
     public function updatedSepFile(PdfReadService $pdfReadService)
     {
-        $this->validateOnly('sepFile'); // Validasi file SEP
-        $this->readPdfFile($pdfReadService); // Baca file PDF SEP
-        
-        // Process the SEP file for preview
-        if ($this->sepFile) {
-            $filename = uniqid() . '_' . $this->sepFile->getClientOriginalName();
-            $storedPath = $this->sepFile->storeAs('temp', $filename, 'public');
+        try {
+            $this->uploading = true;
+            $this->validateOnly('sepFile'); // Validasi file SEP
+            $this->readPdfFile($pdfReadService); // Baca file PDF SEP
             
-            // Store preview URL
-            $this->previewUrls[0] = Storage::url($storedPath);
-            
-            // Add to scanned docs
-            $this->scanned_docs['sepFile'] = $this->sepFile;
-            $this->rotatedPaths[0] = $storedPath;
-            
-            
-            Log::info('SEP File processed for preview', [
-                'filename' => $filename,
-                'stored_path' => $storedPath
-            ]);
+            // Process the SEP file for preview
+            if ($this->sepFile) {
+                $filename = uniqid() . '_' . $this->sepFile->getClientOriginalName();
+                $storedPath = $this->sepFile->storeAs('temp', $filename, 'public');
+                
+                // Store preview URL
+                $this->previewUrls[0] = Storage::url($storedPath);
+                
+                // Add to scanned docs
+                $this->scanned_docs['sepFile'] = $this->sepFile;
+                $this->rotatedPaths[0] = $storedPath;
+                
+                Log::info('SEP File processed for preview', [
+                    'filename' => $filename,
+                    'stored_path' => $storedPath
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('File processing error: ' . $e->getMessage());
+            $this->cancelUpload();
+            LivewireAlert::title('Gagal memproses file!')
+                ->error()
+                ->text('Terjadi kesalahan saat memproses file')
+                ->timer(5000)
+                ->show();
+        } finally {
+            $this->uploading = false;
         }
     }
     public function updatedResumeFile()
@@ -270,6 +303,50 @@ class BpjsRawatJalanForm extends Component
         $this->updateUploadedDocuments();
         Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
 
+    }
+
+    public function cancelForm(){
+        Log::info('resetAll: Resetting all data...');
+        $this->reset(
+            'scanned_docs',
+            'new_docs',
+            'rotatedPaths',
+            'previewUrls'
+        );
+        return redirect(request()->header('Referer'));
+    }
+
+    public function cancelUpload()
+    {
+        Log::info('cancelUpload: Canceling file upload...');
+        $this->uploading = false;
+        
+        // Reset file upload related properties
+        $this->reset([
+            'sepFile',
+            'resumeFile',
+            'billingFile',
+            'scanned_docs',
+            'previewUrls',
+            'rotatedPaths',
+            'showUploadedData'
+        ]);
+
+        // Clean up any temporary files
+        foreach ($this->rotatedPaths as $path) {
+            if (Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+                Log::info("cancelUpload: Deleted temporary file: {$path}");
+            }
+        }
+
+        LivewireAlert::toast()
+            ->warning()
+            ->title('Upload dibatalkan')
+            ->text('Proses upload file dibatalkan')
+            ->position('top-end')
+            ->timer(3000)
+            ->show();
     }
 
     /* ====================
@@ -321,7 +398,12 @@ class BpjsRawatJalanForm extends Component
     }
     protected function cleanUpAfterSubmit($pdfMergeService){
         $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
-        $this->reset();
+        $this->reset(
+            'scanned_docs',
+            'new_docs',
+            'rotatedPaths',
+            'previewUrls'
+        );
     }
     protected function createClaimRecord(): BpjsClaim
     {
