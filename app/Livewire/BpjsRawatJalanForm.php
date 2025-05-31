@@ -27,11 +27,9 @@ class BpjsRawatJalanForm extends Component
     public $new_docs = []; // For new file uploads
     public $rotatedPaths = [];
     public $previewUrls = [];
-
     public $sepFile; // For SEP file upload
     public $resumeFile; // For resume file upload
     public $billingFile; // For billing file upload
-
     public $uploading = false;
     public $progress = 0;
     public $isProcessing = false;
@@ -377,6 +375,7 @@ class BpjsRawatJalanForm extends Component
 
             // Step 6: Clean up temp files
             $this->cleanUpAfterSubmit($pdfMergeService);
+            Log::info('submit: Klaim berhasil dibuat!',['showUploadedData' => $this->showUploadedData]);
 
             LivewireAlert::title('Klaim berhasil dibuat!')
                 ->success()
@@ -398,12 +397,7 @@ class BpjsRawatJalanForm extends Component
     }
     protected function cleanUpAfterSubmit($pdfMergeService){
         $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
-        $this->reset(
-            'scanned_docs',
-            'new_docs',
-            'rotatedPaths',
-            'previewUrls'
-        );
+        $this->reset();
     }
     protected function createClaimRecord(): BpjsClaim
     {
@@ -520,6 +514,7 @@ class BpjsRawatJalanForm extends Component
             'sepFile' => $this->sepFile,
             'resumeFile' => $this->resumeFile,
             'billingFile' => $this->billingFile,
+            'previewUrls' => $this->previewUrls,
         ]);
         return view('livewire.bpjs-rawat-jalan-form');
     }
