@@ -375,13 +375,14 @@ class BpjsRawatJalanForm extends Component
 
             // Step 6: Clean up temp files
             $this->cleanUpAfterSubmit($pdfMergeService);
+
             Log::info('submit: Klaim berhasil dibuat!',['showUploadedData' => $this->showUploadedData]);
 
             LivewireAlert::title('Klaim berhasil dibuat!')
-                ->success()
-                ->text('Folder Klaim berhasil ditambahkan!')
-                ->timer(2400)
-                ->show();
+                    ->text('Apakah ingin menambahkan klaim LIP ?')
+                    ->asConfirm()
+                    ->onConfirm('redirectToLIP')
+                    ->show();
 
         } catch (\Exception $e) {
             Log::error("BPJS Claim Error: " . $e->getMessage(), [
@@ -395,6 +396,10 @@ class BpjsRawatJalanForm extends Component
                 ->show();
         }
     }
+    public function inputLIP(){
+        return redirect()->route('bpjs-rajal-lip');
+    }
+
     protected function cleanUpAfterSubmit($pdfMergeService){
         $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
         $this->reset();

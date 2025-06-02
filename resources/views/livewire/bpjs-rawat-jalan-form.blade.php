@@ -195,8 +195,6 @@
                                 <flux:input type="file" wire:model="billingFile" accept=".pdf,.jpg,.png"
                                     placeholder="Unggah File Billing" />
                             </flux:field>
-
-
                             <!-- Similar preview can be added for billing file -->
                         </div>
                     </div>

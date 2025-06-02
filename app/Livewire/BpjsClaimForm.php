@@ -449,11 +449,17 @@ class BpjsClaimForm extends Component
             // Step 7: Reset form and notify success
             $this->reset();
 
-            LivewireAlert::title('Klaim berhasil dibuat!')
-                ->success()
-                ->text('Folder Klaim berhasil ditambahkan!')
-                ->timer(2400)
-                ->show();
+            // LivewireAlert::title('Klaim berhasil dibuat!')
+            //     ->success()
+            //     ->text('Folder Klaim berhasil ditambahkan!')
+            //     ->timer(4000)
+            //     ->show();
+            // LivewireAlert::title('Klaim berhasil dibuat!')
+            //         ->text('Apakah ingin menambahkan klaim lain?')
+            //         ->asConfirm()
+            //         ->onConfirm('redirectToClaim')
+            //         ->onDeny('redirectToClaim')
+            //         ->show();
 
         } catch (\Exception $e) {
             Log::error("BPJS Claim Error: " . $e->getMessage(), [
