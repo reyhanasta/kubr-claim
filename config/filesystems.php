@@ -46,7 +46,7 @@ return [
         ],
         'shared' => [
         'driver' => 'local',
-         'root' => '/mnt/shared_bpjs', 
+        'root' => '/mnt/shared_bpjs', 
         // 'root' => '//192.168.18.67/Users/Public/Upload', // Path to mounted shared folder
             'permissions' => [
                 'file' => [

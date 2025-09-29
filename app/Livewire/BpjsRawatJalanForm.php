@@ -198,35 +198,12 @@ class BpjsRawatJalanForm extends Component
                     'patient_name' => $this->patient_name,
                 ]);
                 $this->showUploadedData = true;
-                $this->searchPatient();
+                // $this->searchPatient();
                 break;
             }
            
        }
-       public function searchPatient(){
-            Log::info('searchPatient: Processing...');
-            $this->validateOnly('simrs_rm_number');
-            $patient = Patient::where('no_rkm_medis', $this->simrs_rm_number)->first();
-            if ($patient) {
-                //Validasi nama pasien
-                $this->simrs_patient_name = trim($patient->nm_pasien);
-                $this->simrs_bpjs_serial_number = trim($patient->no_peserta);
-                Log::info('searchPatient: Validasi nama pasien...');
-                Log::info('searchPatient: Nama pasien:', ['simrs_patient_name' => $this->simrs_patient_name, 'patient_name' => $this->patient_name]);
-                $this->validatePatientData();
-                Log::info('searchPatient: Patient validated:', ['patientValidated' => $this->patientValidated]);
-            }else{
-                $this->simrs_patient_name = '-';
-                $this->simrs_bpjs_serial_number = '-';
-                LivewireAlert::title('Pasien tidak ditemukan!')
-                ->error()
-                ->text('Pasient tidak ditemukan di SIMRS')
-                ->toast()
-                ->position('top-end')
-                ->timer(6000) // Dismisses after 3 seconds
-                ->show();
-            }
-       }
+       
        public function validatePatientData(){
             $patientContaint = Str::contains($this->simrs_patient_name, $this->patient_name);
             $medicalRecord = Str::contains($this->simrs_rm_number, $this->medical_record_number);
@@ -378,10 +355,14 @@ class BpjsRawatJalanForm extends Component
 
             Log::info('submit: Klaim berhasil dibuat!',['showUploadedData' => $this->showUploadedData]);
 
+            // LivewireAlert::title('Klaim berhasil dibuat!')
+            //         ->text('Apakah ingin menambahkan klaim LIP ?')
+            //         ->confirm()
+            //         ->onConfirm('inputLIP')
+            //         ->show();
             LivewireAlert::title('Klaim berhasil dibuat!')
-                    ->text('Apakah ingin menambahkan klaim LIP ?')
-                    ->asConfirm()
-                    ->onConfirm('redirectToLIP')
+                    ->text('Folder berhasil dibuat di shared drive')
+                    ->success()
                     ->show();
 
         } catch (\Exception $e) {
@@ -523,4 +504,33 @@ class BpjsRawatJalanForm extends Component
         ]);
         return view('livewire.bpjs-rawat-jalan-form');
     }
+
+     /* ====================
+       ABANDONED METHODS
+       ==================== */
+
+    // public function searchPatient(){
+    //         Log::info('searchPatient: Processing...');
+    //         $this->validateOnly('simrs_rm_number');
+    //         $patient = Patient::where('no_rkm_medis', $this->simrs_rm_number)->first();
+    //         if ($patient) {
+    //             //Validasi nama pasien
+    //             $this->simrs_patient_name = trim($patient->nm_pasien);
+    //             $this->simrs_bpjs_serial_number = trim($patient->no_peserta);
+    //             Log::info('searchPatient: Validasi nama pasien...');
+    //             Log::info('searchPatient: Nama pasien:', ['simrs_patient_name' => $this->simrs_patient_name, 'patient_name' => $this->patient_name]);
+    //             $this->validatePatientData();
+    //             Log::info('searchPatient: Patient validated:', ['patientValidated' => $this->patientValidated]);
+    //         }else{
+    //             $this->simrs_patient_name = '-';
+    //             $this->simrs_bpjs_serial_number = '-';
+    //             LivewireAlert::title('Pasien tidak ditemukan!')
+    //             ->error()
+    //             ->text('Pasient tidak ditemukan di SIMRS')
+    //             ->toast()
+    //             ->position('top-end')
+    //             ->timer(6000) // Dismisses after 3 seconds
+    //             ->show();
+    //         }
+    // }
 }

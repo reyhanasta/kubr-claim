@@ -18,21 +18,21 @@
             <flux:navlist.group :heading="__('Platform')" class="grid">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                <flux:navlist.item icon="bold" :href="route('bpjs-claim-form')"
-                    :current="request()->routeIs('bpjs-claim-form')" wire:navigate>{{ __('BPJS Claim Form') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="eye" :href="route('bpjs-rawat-jalan')"
-                    :current="request()->routeIs('bpjs-rawat-jalan')" wire:navigate>{{ __('BPJS Rajal') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="eye" :href="route('bpjs-rajal-form')"
+                <flux:navlist.item icon="clipboard-document-check" :href="route('bpjs-rajal-form')"
                     :current="request()->routeIs('bpjs-rajal-form')" wire:navigate>{{ __('BPJS Rajal Form') }}
                 </flux:navlist.item>
+                <flux:navlist.item icon="bold" :href="route('bpjs-claim-form')"
+                    :current="request()->routeIs('bpjs-claim-form')" wire:navigate>{{ __('BPJS Claim Form (BETA)') }}
+                </flux:navlist.item>
+                {{-- <flux:navlist.item icon="eye" :href="route('bpjs-rawat-jalan')"
+                    :current="request()->routeIs('bpjs-rawat-jalan')" wire:navigate>{{ __('BPJS Rajal') }}
+                </flux:navlist.item> --}}
             </flux:navlist.group>
         </flux:navlist>
 
         <flux:spacer />
 
-        <flux:navlist variant="outline">
+        {{-- <flux:navlist variant="outline">
             <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit"
                 target="_blank">
                 {{ __('Repository') }}
@@ -42,7 +42,7 @@
                 target="_blank">
                 {{ __('Documentation') }}
             </flux:navlist.item>
-        </flux:navlist>
+        </flux:navlist> --}}
 
         <!-- Desktop User Menu -->
         <flux:dropdown position="bottom" align="start">
