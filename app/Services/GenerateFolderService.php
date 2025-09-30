@@ -15,7 +15,7 @@ class GenerateFolderService
         \Carbon\Carbon::setLocale('id');
 
         $date = \Carbon\Carbon::parse($sep_date); // Use user-provided date
-        $month = $date->format('m') ."_". strtoupper($date->translatedFormat('F')); // e.g., "April 2025"
+        $month = $date->format('m') ." ". strtoupper($date->translatedFormat('F')); // e.g., "April 2025"
         $year = $date->format('Y'); // e.g., "April 2025"
         $day = $date->format('d'); // "4"
 
