@@ -330,7 +330,6 @@ class BpjsRawatJalanForm extends Component
     public function submit(PdfMergerService $pdfMergeService, GenerateFolderService $generateFolderService)
     {
         $this->validate();
-
         try {
             $outputPath = $generateFolderService->generateOutputPath($this->sep_date,$this->sep_number,$this->patient_name);
             // PERBAIKAN 13: Perbaikan logika merge files dan pastikan direktori tujuan ada
@@ -341,6 +340,10 @@ class BpjsRawatJalanForm extends Component
             if (empty($this->rotatedPaths)) {
                 throw new \Exception("No files available to merge");
             }
+            Log::info('submit: Starting PDF merge process...', [
+                'files_to_merge' => $this->rotatedPaths,
+                'output_path' => $outputPath
+            ]);
             // Step 3: Merge all PDFs
             $finalPath = $pdfMergeService->mergePdfs($this->rotatedPaths, $outputPath);
 
@@ -394,6 +397,7 @@ class BpjsRawatJalanForm extends Component
             'jenis_rawatan' => 'RJ', // Default to 'RJ' for Rawat Jalan
             'tanggal_rawatan' => $this->sep_date,
             'patient_name' => $this->patient_name,
+            
         ]);
     }
     protected function storeClaimDocuments(BpjsClaim $claim,$finalPath)
