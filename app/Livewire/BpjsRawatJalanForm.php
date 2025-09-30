@@ -23,7 +23,7 @@ class BpjsRawatJalanForm extends Component
      * Summary of scanned_docs
      * @var array
      */
-    public $scanned_docs = ['sepFile'=>'','resumeFile'=>'','billingFile'=>'']; // For scanned documents
+    public $scanned_docs = ['sepFile'=>'','billingFile'=>'','resumeFile'=>'']; // For scanned documents
     public $new_docs = []; // For new file uploads
     public $rotatedPaths = [];
     public $previewUrls = [];

@@ -46,8 +46,9 @@ return [
         ],
         'shared' => [
         'driver' => 'local',
-        'root' => '/mnt/shared_bpjs', 
-        // 'root' => '//192.168.18.67/Users/Public/Upload', // Path to mounted shared folder
+        // 'root' => '/mnt/shared_bpjs', 
+        'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
+        // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
             'permissions' => [
                 'file' => [
                     'public' => 0664,
