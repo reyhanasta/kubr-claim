@@ -43,6 +43,7 @@ class BpjsRawatJalanForm extends Component
     public $sep_number;
     public $bpjs_serial_number;
     public $medical_record_number;
+    public $patient_class; // tambahan untuk kelas pasien
     public $confirmPatient = false;
     public $patientValidated = false;
     public $simrs_rm_number = '';
@@ -180,6 +181,7 @@ class BpjsRawatJalanForm extends Component
             Log::info('Processing scanned documents...');
             $this->pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
             $data = $pdfReadService->extractPdf($this->pdfText);
+            dd($data);
             switch($data == null){
                 case true:
                 LivewireAlert::title('Format dokumen salah!')
@@ -196,6 +198,7 @@ class BpjsRawatJalanForm extends Component
                     'bpjs_serial_number' => $this->bpjs_serial_number,
                     'medical_record_number' => $this->medical_record_number,
                     'patient_name' => $this->patient_name,
+                    'patient_class'=> $this->patient_class
                 ]);
                 $this->showUploadedData = true;
                 // $this->searchPatient();
