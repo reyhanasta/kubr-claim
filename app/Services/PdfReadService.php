@@ -89,17 +89,9 @@ class PdfReadService
                 $data['patient_class'] = trim($m[0]);
             }
 
-        if (preg_match('/Jns\.?\s*Rawat\s*\n\s*:\s*([^\n\r]+)/i', $text, $m)) {
-            $data['care_type'] = trim($m[1]); // hasil: R.Jalan
-        }
-
-        preg_match_all('/Jns[^\n]{0,50}/', $text, $matches);
-print_r($matches);
-
-
+        // if (preg_match('/Jns\.?\s*Rawat\s*\n\s*:\s*([^\n\r]+)/i', $text, $m)) {
+        //     $data['care_type'] = trim($m[1]); // hasil: R.Jalan
+        // }
         return $data ?: null;
     }
-
-
-
 }

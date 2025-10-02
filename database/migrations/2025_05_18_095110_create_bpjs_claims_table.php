@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('bpjs_claims', function (Blueprint $table) {
             $table->id();
             $table->string('no_rm')->nullable();
-            $table->string('patient_name')->nullable();
-            $table->string('no_kartu_bpjs')->nullable();
-            $table->string('no_sep')->nullable()->unique();
-            $table->string('jenis_rawatan')->nullable();
+            $table->string('patient_name');
+            $table->string('no_kartu_bpjs');
+            $table->string('no_sep')->unique();
+            $table->string('jenis_rawatan');
+            $table->string('kelas_rawatan');
             $table->string('file_path')->nullable();
             $table->date('tanggal_rawatan')->nullable();
             $table->timestamps();

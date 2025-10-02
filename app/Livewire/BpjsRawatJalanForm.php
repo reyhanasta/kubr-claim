@@ -148,8 +148,9 @@ class BpjsRawatJalanForm extends Component
        
         foreach ($this->scanned_docs as $index => $doc) {
             $originalClientFilename = $doc->getClientOriginalName() ?? 'unknown_file'; // Handle jika null
-            $filename = Str::uuid()->toString() . '_' . $originalClientFilename;
-            $storedPath = $doc->storeAs('temp', $filename, 'public'); // Ini menyimpan file fisik
+            // $filename = Str::uuid()->toString() . '_' . $originalClientFilename;
+            // $storedPath = $doc->storeAs('temp', $filename, 'public'); // Ini menyimpan file fisik
+            $storedPath = $doc->store('temp', 'public'); 
           
             Log::info("updatedScannedDocs: File [{$index}] '{$originalClientFilename}' disimpan ke '{$storedPath}'.");
 
@@ -181,7 +182,7 @@ class BpjsRawatJalanForm extends Component
             Log::info('Processing scanned documents...');
             $this->pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
             $data = $pdfReadService->extractPdf($this->pdfText);
-            dd($data);
+            // dd($data);
             switch($data == null){
                 case true:
                 LivewireAlert::title('Format dokumen salah!')
@@ -257,31 +258,43 @@ class BpjsRawatJalanForm extends Component
             $this->uploading = false;
         }
     }
+    
     public function updatedResumeFile()
     {
-        Log::info('resumeFile to scannedDocs: Processing...');
-        $this->processingDocuments('resumeFile',$this->resumeFile); // Proses dokumen billing
-        
+        if ($this->resumeFile) {
+            $filename = uniqid() . '_' . $this->resumeFile->getClientOriginalName();
+            $storedPath = $this->resumeFile->storeAs('temp', $filename, 'public');
+
+            $this->scanned_docs['resumeFile'] = $this->resumeFile;
+            $this->rotatedPaths['resumeFile'] = $storedPath;
+            $this->previewUrls['resumeFile'] = Storage::url($storedPath);
+            $this->rotations['resumeFile'] = 0;
+
+            Log::info("Resume file uploaded", [
+                'filename' => $filename,
+                'path' => $storedPath,
+            ]);
+        }
     }
+
     public function updatedBillingFile()
     {
-        Log::info('updatedSepFile: Processing...');
-        $this->processingDocuments('billingFile',$this->billingFile); // Proses dokumen billing
-    }
-    protected function processingDocuments($index, $file){
-        $this->scanned_docs[$index] = $file; // Tambahkan SEP file ke scanned_docs
-        Log::debug('updatedSepFile: Billing file added to scanned_docs.', [
-            'file_name' => $file->getClientOriginalName(),
-            'size' => $file->getSize(),
-            'type' => $file->getMimeType(),
-        ]);
-         Log::info('updatedNewDocs: Dokumen baru telah ditambahkan ke scanned_docs.', [
-            'total_docs' => count($this->scanned_docs),
-        ]);
-        $this->updateUploadedDocuments();
-        Log::info('updatedNewDocs: Dokumen baru diproses dan ditambahkan ke scanned_docs.',$this->scanned_docs);
+        if ($this->billingFile) {
+            $filename = uniqid() . '_' . $this->billingFile->getClientOriginalName();
+            $storedPath = $this->billingFile->storeAs('temp', $filename, 'public');
 
+            $this->scanned_docs['billingFile'] = $this->billingFile;
+            $this->rotatedPaths['billingFile'] = $storedPath;
+            $this->previewUrls['billingFile'] = Storage::url($storedPath);
+            $this->rotations['billingFile'] = 0;
+
+            Log::info("Billing file uploaded", [
+                'filename' => $filename,
+                'path' => $storedPath,
+            ]);
+        }
     }
+
 
     public function cancelForm(){
         Log::info('resetAll: Resetting all data...');
@@ -400,6 +413,7 @@ class BpjsRawatJalanForm extends Component
             'jenis_rawatan' => 'RJ', // Default to 'RJ' for Rawat Jalan
             'tanggal_rawatan' => $this->sep_date,
             'patient_name' => $this->patient_name,
+            'patient_class' => $this->patient_class,
             
         ]);
     }
