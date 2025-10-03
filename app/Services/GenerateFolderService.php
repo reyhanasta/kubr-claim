@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class GenerateFolderService 
 {
     
-    public function generateOutputPath(string $sep_date,$sep_number,$patient_name): string
+    public function generateOutputPath(string $sep_date,$sep_number): string
     {
          // Set the locale to Indonesian
         \Carbon\Carbon::setLocale('id');
@@ -23,7 +23,9 @@ class GenerateFolderService
         $jenisRawatan = 'RJ'; // Default to 'RJ' for Rawat Jalan
 
         $folderPath =  "{$month} REGULER {$year}/{$jenisRawatan}/{$day}/{$sep_number}";
-        $patientName = trim(explode(',', $patient_name)[0]);
-        return "{$year}/{$folderPath}/" . Str::upper($patientName) . '.pdf';
+        // $patientName = trim(explode(',', $patient_name)[0]);
+        // return "{$year}/{$folderPath}/" . Str::upper($patientName) . '.pdf';
+
+        return "{$year}/{$folderPath}/";
     }
 }

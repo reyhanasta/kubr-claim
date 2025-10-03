@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Patient;
 use Livewire\Component;
 use App\Models\BpjsClaim;
+use Illuminate\Support\Str;
 use App\Models\ClaimDocument;
 use Livewire\WithFileUploads;
 use App\Services\PdfReadService;
@@ -83,8 +84,6 @@ class BpjsRawatJalanForm extends Component
             ? $this->previewUrls[$this->currentPreviewIndex]
             : '';
     }
-
-    
 
     /* ====================
        FILE UPLOAD
@@ -177,7 +176,6 @@ class BpjsRawatJalanForm extends Component
         }
     }
 
-
     public function cancelUpload()
     {
         $this->uploading = false;
@@ -198,20 +196,21 @@ class BpjsRawatJalanForm extends Component
             ->show();
     }
 
-    //  public function cancelForm()
-    // {
-    //     $this->reset(
-    //         'scanned_docs',
-    //         'rotatedPaths',
-    //         'previewUrls',
-    //         'sepFile',
-    //         'resumeFile',
-    //         'billingFile',
-    //         'fileLIP',
-    //         'showUploadedData'
-    //     );
-    //     return redirect(request()->header('Referer'));
-    // }
+     public function cancelForm()
+    {
+        $this->reset(
+            'scanned_docs',
+            'rotatedPaths',
+            'previewUrls',
+            'sepFile',
+            'resumeFile',
+            'billingFile',
+            'fileLIP',
+            'showUploadedData'
+        );
+        return redirect(request()->header('Referer'));
+        
+    }
 
     /* ====================
        SUBMIT
@@ -221,26 +220,27 @@ class BpjsRawatJalanForm extends Component
         $this->validate();
 
         try {
-            $outputPath = $generateFolderService->generateOutputPath($this->sep_date, $this->sep_number, $this->patient_name);
-
+            $outputDir = $generateFolderService->generateOutputPath($this->sep_date, $this->sep_number);
+            $pdfOutputPath = $outputDir . Str::upper($this->patient_name) . '.pdf';
             // Urutan fix: SEP -> Billing -> Resume
             $orderedFiles = [];
             if (!empty($this->rotatedPaths['sepFile'])) $orderedFiles[] = $this->rotatedPaths['sepFile'];
             if (!empty($this->rotatedPaths['billingFile'])) $orderedFiles[] = $this->rotatedPaths['billingFile'];
             if (!empty($this->rotatedPaths['resumeFile'])) $orderedFiles[] = $this->rotatedPaths['resumeFile'];
-
+            
             if (empty($orderedFiles)) throw new \Exception("Tidak ada file yang bisa digabungkan");
-
-            $finalPath = $pdfMergeService->mergePdfs($orderedFiles, $outputPath);
-            dd($finalPath,$outputPath);
-
+            
+            $finalPath = $pdfMergeService->mergePdfs($orderedFiles, $pdfOutputPath);
+            
             $claim = $this->createClaimRecord();
             $this->storeClaimDocuments($claim, $finalPath);
             // Simpan LIP kalau ada
             if (!empty($this->fileLIP)) {
-                $lipFilename = 'LIP_' . $this->sep_number . '.pdf';
-                $lipPath = $this->fileLIP->storeAs($outputPath, $lipFilename, 'public');
-
+                $lipFilename = 'LIP.pdf';
+                $lipPath = dirname($pdfOutputPath) . '/' . $lipFilename;
+                
+                 // Simpan file ke shared storage
+                $this->fileLIP->storeAs(dirname($pdfOutputPath), $lipFilename, 'shared');
                 ClaimDocument::create([
                     'bpjs_claims_id' => $claim->id,
                     'filename' => $lipFilename,
