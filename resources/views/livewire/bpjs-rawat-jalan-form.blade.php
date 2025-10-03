@@ -16,7 +16,7 @@
 
         {{-- Jika sudah upload SEP --}}
         @if($showUploadedData)
-            <div class="max-w-4xl mx-auto p-2 rounded-xl shadow-lg">
+            <div class="max-w-5xl mx-auto p-2 rounded-xl shadow-lg">
                 <!-- PDF Preview SEP -->
                 <div class="w-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg relative"
                     style="padding-top: 34%">
@@ -29,7 +29,7 @@
             <div wire:submit.prevent="submit" wire:target="submit" class="space-y-4">
                 <!-- Patient Info Section -->
                 <div
-                    class="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl shadow-lg">
+                    class="max-w-5xl mx-auto p-6 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-b-xl shadow-lg">
                     <h1 class="text-2xl font-bold">Data Pasien</h1>
                     <hr class="my-4 border-gray-300 dark:border-gray-600">
 
@@ -61,17 +61,19 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
                         <flux:input type="text" icon="document-text" wire:model="sep_number" placeholder="Nomor SEP"
                             label="Nomor SEP" />
                         <flux:input type="date" wire:model="sep_date" placeholder="Tanggal SEP" label="Tanggal SEP" />
                         <flux:input type="text" wire:model="patient_class" placeholder="Kelas Pasien"
                             label="Kelas Pasien" />
+                        <flux:input type="text" wire:model="jenis_rawatan" placeholder="Jenis Rawatan"
+                            label="Jenis Rawatan" />
                     </div>
                 </div>
 
                 <!-- Upload File Resume & Billing -->
-                <div class="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
+                <div class="max-w-5xl mx-auto p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
                     <h1 class="text-2xl font-bold mb-4">Input Dokumen Penunjang</h1>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
@@ -125,7 +127,7 @@
 
         {{-- Jika SEP belum di-upload --}}
         @if(!$showUploadedData)
-            <div class="max-w-4xl mx-auto p-10 bg-zinc-50 dark:bg-zinc-900 rounded-xl shadow-lg">
+            <div class="max-w-5xl mx-auto p-10 bg-zinc-50 dark:bg-zinc-900 rounded-xl shadow-lg">
                 <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md">
                     <h3 class="text-lg font-medium mb-4">
                         <i class="fas fa-file-upload mr-2 text-blue-600"></i> Unggah Dokumen SEP (PDF)
@@ -145,7 +147,7 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div wire:loading.flex wire:target="sepFile,resumeFile,billingFile"
+    <div wire:loading.flex wire:target="sepFile,resumeFile,billingFile,fileLIP"
         class="fixed inset-0 z-50 bg-neutral-900/60 flex items-center justify-center backdrop-blur-sm">
         <div class="flex flex-col items-center gap-4 text-center">
             <svg class="h-12 w-12 animate-spin text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none"

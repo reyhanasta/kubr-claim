@@ -29,17 +29,18 @@ class BpjsRawatJalanForm extends Component
     public $resumeFile;
     public $billingFile;
     public $fileLIP; // ✅ file tambahan
-
+    
     // Flags
     public $uploading = false;
     public $showUploadedData = false;
-
+    
     // Data pasien
     public $patient_name; 
     public $sep_date;
     public $sep_number;
     public $bpjs_serial_number;
     public $medical_record_number;
+    public $jenis_rawatan = 'RJ'; // Jenis rawatan default RJ
     public $patient_class;
     public $confirmPatient = false;
 
@@ -220,7 +221,7 @@ class BpjsRawatJalanForm extends Component
         $this->validate();
 
         try {
-            $outputDir = $generateFolderService->generateOutputPath($this->sep_date, $this->sep_number);
+            $outputDir = $generateFolderService->generateOutputPath($this->sep_date, $this->sep_number,$this->jenis_rawatan);
             $pdfOutputPath = $outputDir . Str::upper($this->patient_name) . '.pdf';
             // Urutan fix: SEP -> Billing -> Resume
             $orderedFiles = [];
@@ -274,7 +275,7 @@ class BpjsRawatJalanForm extends Component
             'no_rkm_medis' => $this->medical_record_number,
             'no_kartu_bpjs' => $this->bpjs_serial_number,
             'no_sep' => $this->sep_number,
-            'jenis_rawatan' => 'RJ',
+            'jenis_rawatan' => $this->jenis_rawatan,
             'tanggal_rawatan' => $this->sep_date,
             'patient_name' => $this->patient_name,
             'patient_class' => $this->patient_class,

@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
 use Spatie\PdfToText\Pdf;
 use Illuminate\Support\Env;
+
 class PdfReadService
 {
     /**
@@ -19,27 +21,7 @@ class PdfReadService
         return $text;
     }
 
-    // public function extractPdf($text){
-    //      $pattern = '/
-    //         No\.SEP\s*:\s*(\S+)\s+
-    //         Tgl\.SEP\s*:\s*([0-9-]+)\s+
-    //         Peserta\s+
-    //         No\.Kartu\s*:\s*(\d+)\s*\(\s*MR\.?\s*(\d+)\s*\)\s+
-    //         Nama\sPeserta\s*:\s*([^\n]+)
-            
-    //     /xs';  // x flag for readability
-       
-    //     if (preg_match($pattern, $text, $matches)) {
-    //         return [
-    //             'sep_number' => trim($matches[1]),
-    //             'sep_date' => trim($matches[2]),
-    //             'bpjs_serial_number' => trim($matches[3]),
-    //             'medical_record_number' => trim($matches[4]),
-    //             'patient_name' => trim($matches[5])
-    //         ];
-    //     }
-    //     return null;
-    // }
+    
 
     public function extractPdf($text){
         // Normalisasi: ubah NBSP jadi space, normalisasi newline, pastikan UTF-8
@@ -69,29 +51,39 @@ class PdfReadService
         if (preg_match('/Nama\s*Peserta\s*(?:\s*):\s*([^\n\r]+)/i', $text, $m)) {
             $data['patient_name'] = trim($m[1]);
         }
-
-        // Kls.Hak — pola lebih fleksibel:
-        // - boleh "Kls.Hak" atau "Kls. Hak" atau "Kls Hak"
-        // - mengizinkan sebanyak apapun whitespace/newline sebelum ':' atau setelahnya
-        // if (preg_match('/Kls\.?\s*Hak\s*(?:\s*):\s*([^\n\r]+)/i', $text, $m)) {
-        //     $data['patient_class'] = trim($m[1]);
-        // } else {
-        //     // fallback: kadang ada "Kls.Rawat" atau label lain yang berisi kata 'Kelas'
-        //     if (preg_match('/Kls\.?\s*Rawat\s*(?:\s*):\s*([^\n\r]+)/i', $text, $m)) {
-        //         $data['treatment_class'] = trim($m[1]);
-        //     } elseif (preg_match('/\bKelas\s+[0-9A-Za-z]+\b/i', $text, $m)) {
-        //         // fallback kasar: cari kata "Kelas 3" di mana saja
-        //         $data['patient_class_fallback'] = trim($m[0]);
-        //     }
-        // }
         if (preg_match('/\bKelas\s+[0-9A-Za-z]+\b/i', $text, $m)) {
                 // fallback kasar: cari kata "Kelas 3" di mana saja
                 $data['patient_class'] = trim($m[0]);
-            }
+        }
+        // Jenis Rawat (Jns.Rawat)
+       // Jenis Rawat (Jns.Rawat : R.Jalan / R.Inap)
+        if (preg_match('/Jns\.?\s*Rawat\s*[:\-]?\s*([R\. ]?(Jalan|Inap))/i', $text, $m)) {
+            $rawat = strtoupper(trim($m[1]));
 
-        // if (preg_match('/Jns\.?\s*Rawat\s*\n\s*:\s*([^\n\r]+)/i', $text, $m)) {
-        //     $data['care_type'] = trim($m[1]); // hasil: R.Jalan
-        // }
+            if (strpos($rawat, 'INAP') !== false) {
+                $data['jenis_rawatan'] = 'RI';
+            } elseif (strpos($rawat, 'JALAN') !== false) {
+                $data['jenis_rawatan'] = 'RJ';
+            } else {
+                $data['jenis_rawatan'] = 'RJ'; // fallback
+            }
+        } else {
+            // Coba fallback lain: cari "R.Jalan" / "R.Inap" di teks
+            if (preg_match('/R\.?JALAN/i', $text)) {
+                $data['jenis_rawatan'] = 'RJ';
+            } elseif (preg_match('/R\.?INAP/i', $text)) {
+                $data['jenis_rawatan'] = 'RI';
+            } else {
+                $data['jenis_rawatan'] = 'RJ'; // default
+            }
+        }
+        
+        // 🔹 Tambahkan debug log
+        Log::debug('PDF Extracted Data:', $data);
+        Log::debug('Rawat block check:', [
+            'matched_text' => substr($text, strpos($text, 'Jns.Rawat'), 50) // lihat 50 karakter setelah "Jns.Rawat"
+        ]);
+
         return $data ?: null;
     }
 }

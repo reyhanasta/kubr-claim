@@ -34,9 +34,9 @@ class Dashboard extends Component
         return view('livewire.dashboard', [
             'files' => $files,
             'totalFiles' => BpjsClaim::count(),
-            'filesThisYear' => BpjsClaim::whereYear('created_at', now()->year)->count(),
-            'filesThisMonth' => BpjsClaim::whereYear('created_at', now()->year)
-                                        ->whereMonth('created_at', now()->month)
+            'filesThisYear' => BpjsClaim::whereYear('tanggal_rawatan', now()->year)->count(),
+            'filesThisMonth' => BpjsClaim::whereYear('tanggal_rawatan', now()->year)
+                                        ->whereMonth('tanggal_rawatan', now()->month)
                                         ->count(),
             'duplicateFilesCount' => BpjsClaim::select('no_sep')
                                         ->groupBy('no_sep')
