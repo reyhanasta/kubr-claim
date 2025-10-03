@@ -44,7 +44,8 @@ class ProcessBpjsDocuments implements ShouldQueue
         $outputPath = $folderService->generateOutputPath($this->sepDate, $this->sepNumber, $this->patientName);
 
         // Merge PDFs (apply rotations if needed)
-        $finalPath = $pdfMerger->mergePdfs($this->scannedDocs, $outputPath, $this->rotations);
+        // $finalPath = $pdfMerger->mergePdfs($this->scannedDocs, $outputPath, $this->rotations);
+        $finalPath = $pdfMerger->mergePdfs($this->scannedDocs, $outputPath);
 
         // Save documents info
         foreach ($this->scannedDocs as $index => $filePath) {

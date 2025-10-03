@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('no_kartu_bpjs');
             $table->string('no_sep')->unique();
             $table->string('jenis_rawatan');
-            $table->string('kelas_rawatan');
+            $table->string('kelas_rawatan')->nullable();
             $table->string('file_path')->nullable();
             $table->date('tanggal_rawatan')->nullable();
             $table->timestamps();
