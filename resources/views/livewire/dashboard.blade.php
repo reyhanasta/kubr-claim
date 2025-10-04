@@ -59,6 +59,8 @@
                         <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Path</th>
                         <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Tanggal
                             Upload</th>
+                        <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Tanggal
+                            SEP</th>
                         <th class="px-4 py-2 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Aksi</th>
 
 
@@ -74,6 +76,9 @@
                             <td class="px-4 py-2 text-sm text-blue-600 dark:text-blue-400">{{ $file->no_sep }}</td>
                             <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
                                 {{ $file->created_at->format('d M Y') }}
+                            </td>
+                            <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                                {{ date('d-m-Y', strtotime($file->tanggal_rawatan)) }}
                             </td>
                             <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
 
