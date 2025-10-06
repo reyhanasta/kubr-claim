@@ -312,13 +312,13 @@ class BpjsRawatJalanForm extends Component
     protected function createClaimRecord(): BpjsClaim
     {
         return BpjsClaim::create([
-            'no_rkm_medis' => $this->medical_record_number,
+            'no_rm' => $this->medical_record_number,
             'no_kartu_bpjs' => $this->bpjs_serial_number,
             'no_sep' => $this->sep_number,
             'jenis_rawatan' => $this->jenis_rawatan,
             'tanggal_rawatan' => $this->sep_date,
-            'patient_name' => $this->patient_name,
-            'patient_class' => $this->patient_class,
+            'nama_pasien' => $this->patient_name,
+            'kelas_rawatan' => $this->patient_class,
         ]);
     }
 

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('bpjs_claims', function (Blueprint $table) {
             $table->id();
             $table->string('no_rm')->nullable();
-            $table->string('patient_name');
+            $table->string('nama_pasien');
             $table->string('no_kartu_bpjs');
             $table->string('no_sep')->unique();
             $table->string('jenis_rawatan');

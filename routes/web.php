@@ -18,8 +18,9 @@ Route::get('/', function () {
 //     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
-   Route::get('/dashboard/bpjs-claims', BpjsClaimDashboard::class)
-    ->name('dashboard.bpjs-claims');
+   Route::get('/dashboard', BpjsClaimDashboard::class)
+    ->name('dashboard');
+    
     Route::redirect('settings', 'settings/profile');
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');

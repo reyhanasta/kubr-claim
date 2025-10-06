@@ -41,7 +41,6 @@
 
 
             {{-- Search Input --}}
-
             <div class="mb-4 sm:flex sm:items-center sm:justify-between">
                 <flux:input icon="magnifying-glass" placeholder="Search orders" wire:model.live.debounce.300ms="search"
                     placeholder="Cari berdasarkan nama atau NIK..." clearable />

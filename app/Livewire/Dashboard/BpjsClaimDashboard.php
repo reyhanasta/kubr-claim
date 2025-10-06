@@ -4,69 +4,72 @@ namespace App\Livewire\Dashboard;
 
 use Livewire\Component;
 use App\Models\BpjsClaim;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class BpjsClaimDashboard extends Component
 {
     public $month;
     public $year;
-    public $jenisRawatan = '';
-    public $kelasRawatan = '';
+    public $search = '';
+
+    public $summary = [];
+    public $jenisRawatanChart = [];
+    public $monthlyChart = [];
 
     public function mount()
     {
         $this->month = now()->month;
         $this->year = now()->year;
+
+        $this->refreshData();
     }
 
-    public function getSummaryProperty()
+    public function updated($property)
+    {
+        if (in_array($property, ['month', 'year'])) {
+            $this->refreshData();
+        }
+    }
+    
+
+    public function refreshData()
     {
         $query = BpjsClaim::query()
             ->when($this->month, fn($q) => $q->whereMonth('tanggal_rawatan', $this->month))
-            ->when($this->year, fn($q) => $q->whereYear('tanggal_rawatan', $this->year))
-            ->when($this->jenisRawatan, fn($q) => $q->where('jenis_rawatan', $this->jenisRawatan))
-            ->when($this->kelasRawatan, fn($q) => $q->where('kelas_rawatan', $this->kelasRawatan));
+            ->when($this->year, fn($q) => $q->whereYear('tanggal_rawatan', $this->year));
 
-        return [
-            'total' => $query->count(),
-            'rawat_jalan' => (clone $query)->where('jenis_rawatan', 'Rawat Jalan')->count(),
-            'rawat_inap' => (clone $query)->where('jenis_rawatan', 'Rawat Inap')->count(),
-            'igd' => (clone $query)->where('jenis_rawatan', 'IGD')->count(),
+        // Hitung total klaim
+        $riCount = (clone $query)->where('jenis_rawatan', 'RI')->count();
+        $rjCount = (clone $query)->where('jenis_rawatan', 'RJ')->count();
+        $totalCount = $riCount + $rjCount;
+
+        $this->summary = [
+            'total_claims' => $totalCount,
+            'total_ri' => $riCount,
+            'total_rj' => $rjCount,
         ];
-    }
 
-    public function getPerKelasProperty()
-    {
-        return BpjsClaim::select('kelas_rawatan', DB::raw('count(*) as total'))
-            ->when($this->month, fn($q) => $q->whereMonth('tanggal_rawatan', $this->month))
-            ->when($this->year, fn($q) => $q->whereYear('tanggal_rawatan', $this->year))
-            ->groupBy('kelas_rawatan')
-            ->pluck('total', 'kelas_rawatan');
-    }
+        // Grafik Pie - per jenis rawatan
+        $this->jenisRawatanChart = [
+            'Rawat Inap (RI)' => $riCount,
+            'Rawat Jalan (RJ)' => $rjCount,
+        ];
 
-    public function getMonthlyChartProperty()
-    {
-        return BpjsClaim::select(DB::raw('MONTH(tanggal_rawatan) as month'), DB::raw('count(*) as total'))
+        // Grafik Bar - per bulan (selama tahun berjalan)
+        $monthlyData = BpjsClaim::select(DB::raw('MONTH(tanggal_rawatan) as month'), DB::raw('count(*) as total'))
             ->whereYear('tanggal_rawatan', $this->year)
             ->groupBy('month')
-            ->pluck('total', 'month');
+            ->pluck('total', 'month')
+            ->toArray();
+
+        $this->monthlyChart = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $this->monthlyChart[] = $monthlyData[$i] ?? 0;
+        }
     }
 
     public function render()
     {
-        return view('livewire.dashboard.bpjs-claim-dashboard', [
-            'summary' => $this->summary,
-            'kelasStats' => $this->perKelas,
-            'monthlyChart' => $this->monthlyChart,
-            'claims' => BpjsClaim::query()
-                ->when($this->month, fn($q) => $q->whereMonth('tanggal_rawatan', $this->month))
-                ->when($this->year, fn($q) => $q->whereYear('tanggal_rawatan', $this->year))
-                ->when($this->jenisRawatan, fn($q) => $q->where('jenis_rawatan', $this->jenisRawatan))
-                ->when($this->kelasRawatan, fn($q) => $q->where('kelas_rawatan', $this->kelasRawatan))
-                ->latest('tanggal_rawatan')
-                ->take(10)
-                ->get(),
-        ]);
+        return view('livewire.dashboard.bpjs-claim-dashboard');
     }
 }
