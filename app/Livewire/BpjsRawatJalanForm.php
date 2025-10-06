@@ -10,6 +10,7 @@ use App\Models\ClaimDocument;
 use Livewire\WithFileUploads;
 use App\Services\PdfReadService;
 use App\Services\PdfMergerService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\GenerateFolderService;
 use Illuminate\Support\Facades\Storage;
@@ -50,7 +51,7 @@ class BpjsRawatJalanForm extends Component
         'resumeFile'  => 'required|file|mimes:pdf|max:2048', // Resume wajib
         'fileLIP'     => 'nullable|file|mimes:pdf|max:2048', // LIP opsional
         'sep_date'    => 'required|date',
-        'sep_number'  => 'required|string|max:50',
+        'sep_number'  => 'required|string|max:50|unique:bpjs_claims,no_sep',
         'medical_record_number' => 'required|string|max:50',
     ];
 
@@ -235,61 +236,78 @@ class BpjsRawatJalanForm extends Component
     {
         $this->validate();
 
+        // 1️⃣ Validasi cepat tanpa lanjut ke proses file
         if (!$this->sepFile || !$this->billingFile || !$this->resumeFile) {
-            LivewireAlert::error('Semua file wajib diunggah sebelum menyimpan klaim.')
-                ->show();
-            return;
+            return LivewireAlert::error('Semua file wajib diunggah sebelum menyimpan klaim.')->show();
         }
 
         try {
-            $outputDir = $generateFolderService->generateOutputPath($this->sep_date, $this->sep_number,$this->jenis_rawatan);
-            $pdfOutputPath = $outputDir . Str::upper($this->patient_name) . '.pdf';
-            // Urutan fix: SEP -> Billing -> Resume
-            $orderedFiles = [];
+            // 2️⃣ Siapkan direktori output & nama file PDF akhir
+            $outputDir = $generateFolderService->generateOutputPath($this->sep_date, $this->sep_number, $this->jenis_rawatan);
+            // $patientNameSafe = Str::of($this->patient_name)->upper()->replaceMatches('/[^A-Z0-9_\-]/', '_');
+            $patientNameSafe = Str::of($this->patient_name)->upper();
+            $pdfOutputPath = $outputDir . "{$patientNameSafe}.pdf";
 
-            if (!empty($this->rotatedPaths['sepFile'])) $orderedFiles[] = $this->rotatedPaths['sepFile'];
-            if (!empty($this->rotatedPaths['billingFile'])) $orderedFiles[] = $this->rotatedPaths['billingFile'];
-            if (!empty($this->rotatedPaths['resumeFile'])) $orderedFiles[] = $this->rotatedPaths['resumeFile'];
-            
-            if (empty($orderedFiles)) throw new \Exception("Tidak ada file yang bisa digabungkan");
-            
+            // 3️⃣ Tentukan urutan file yang akan digabung (SEP -> Billing -> Resume)
+            $orderedFiles = collect([
+                $this->rotatedPaths['sepFile'] ?? null,
+                $this->rotatedPaths['billingFile'] ?? null,
+                $this->rotatedPaths['resumeFile'] ?? null,
+            ])->filter()->values()->all();
+
+            if (empty($orderedFiles)) {
+                throw new \Exception("Tidak ada file yang bisa digabungkan");
+            }
+
+            // 4️⃣ Gabungkan PDF secara efisien (streamed)
             $finalPath = $pdfMergeService->mergePdfs($orderedFiles, $pdfOutputPath);
-            
+
+            // 5️⃣ Simpan record klaim ke database
             $claim = $this->createClaimRecord();
+
+            // 6️⃣ Simpan dokumen utama klaim (hasil merge)
             $this->storeClaimDocuments($claim, $finalPath);
-            // Simpan LIP kalau ada
+
+            // 7️⃣ Jika ada file LIP tambahan → simpan terpisah
             if (!empty($this->fileLIP)) {
                 $lipFilename = 'LIP.pdf';
-                $lipPath = dirname($pdfOutputPath) . '/' . $lipFilename;
-                
-                 // Simpan file ke shared storage
-                $this->fileLIP->storeAs(dirname($pdfOutputPath), $lipFilename, 'shared');
+                $lipPath = $outputDir . $lipFilename;
+
+                // Simpan LIP pakai stream ke disk shared
+                Storage::disk('shared')->putFileAs($outputDir, $this->fileLIP, $lipFilename);
+
                 ClaimDocument::create([
                     'bpjs_claims_id' => $claim->id,
                     'filename' => $lipFilename,
                     'order' => 'LIP',
-                    'disk' => Storage::disk('shared')->path($lipPath),
+                    'disk' => 'shared',
+                    'path' => $lipPath,
                 ]);
 
-                Log::info("LIP file saved", ['lip_file' => $lipPath]);
+                Log::info("LIP file saved", ['path' => $lipPath]);
             }
 
+            // 8️⃣ Cleanup otomatis (hapus file sementara)
             $this->cleanUpAfterSubmit($pdfMergeService);
 
-
+            // 9️⃣ Tampilkan notifikasi sukses
             LivewireAlert::title('Klaim berhasil dibuat!')
                 ->text('Dokumen digabung sesuai urutan SEP → Billing → Resume')
                 ->success()
                 ->show();
-        } catch (\Exception $e) {
-            Log::error("BPJS Claim Error: " . $e->getMessage());
+
+        } catch (\Throwable $e) {
+            Log::error("BPJS Claim Error: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
             LivewireAlert::title('Klaim gagal dibuat!')
                 ->error()
                 ->text('Terjadi kegagalan saat penyimpanan file: ' . $e->getMessage())
-                ->timer(2400)
+                ->timer(2500)
                 ->show();
         }
     }
+
+
 
     protected function createClaimRecord(): BpjsClaim
     {
@@ -309,10 +327,18 @@ class BpjsRawatJalanForm extends Component
         Storage::disk('public')->makeDirectory('raw-documents');
 
         foreach ($this->scanned_docs as $index => $file) {
-            if (!$file || $index === 'fileLIP') continue; // ✅ skip LIP dari merge list
+            if (!$file || $index === 'fileLIP') continue;
 
             $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->storeAs('raw-documents', $filename, 'public');
+            $tempPath = $this->rotatedPaths[$index] ?? null;
+
+            if ($tempPath && Storage::disk('public')->exists($tempPath)) {
+                $destination = 'raw-documents/'.$filename;
+                Storage::disk('public')->move($tempPath, $destination);
+            } else {
+                // fallback
+                $file->storeAs('raw-documents', $filename, 'public');
+            }
 
             ClaimDocument::create([
                 'bpjs_claims_id' => $claim->id,
@@ -323,11 +349,19 @@ class BpjsRawatJalanForm extends Component
         }
     }
 
+
     protected function cleanUpAfterSubmit($pdfMergeService)
     {
+        foreach ($this->rotatedPaths as $path) {
+            if (str_starts_with($path, 'temp/') && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
         $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
         $this->reset();
     }
+
 
     public function render()
     {

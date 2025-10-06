@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Dashboard\BpjsClaimDashboard;
 use App\Livewire\BpjsLIP;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\Password;
@@ -17,7 +18,8 @@ Route::get('/', function () {
 //     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
+   Route::get('/dashboard/bpjs-claims', BpjsClaimDashboard::class)
+    ->name('dashboard.bpjs-claims');
     Route::redirect('settings', 'settings/profile');
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');

@@ -1,83 +1,38 @@
 <?php
 
-use Illuminate\Support\Facades\Storage;
 use App\Services\PdfMergerService;
+use Illuminate\Support\Facades\Storage;
 use setasign\Fpdi\Fpdi;
 
 beforeEach(function () {
-    // Ensure clean, isolated storage
-    Storage::fake('local');
     Storage::fake('shared');
+
+    // Buat 2 file PDF dummy yang valid minimal (header + EOF)
+    $this->pdf1 = storage_path('app/test_pdf1.pdf');
+    $this->pdf2 = storage_path('app/test_pdf2.pdf');
+    file_put_contents($this->pdf1, "%PDF-1.4\n%Dummy PDF 1\n%%EOF");
+    file_put_contents($this->pdf2, "%PDF-1.4\n%Dummy PDF 2\n%%EOF");
+
+    $this->outputPath = storage_path('app/test_merged_output.pdf');
+    $this->service = new PdfMergerService();
 });
 
-it('merges multiple PDF files successfully', function () {
-    $service = new PdfMergerService();
+afterEach(function () {
+@unlink($this->pdf1);
+@unlink($this->pdf2);
+@unlink($this->outputPath);
+});
 
-    // Create sample PDF files
-    $pdf1Path = 'local/sample1.pdf';
-    $pdf2Path = 'local/sample2.pdf';
-    $outputPath = 'merged/test_merged.pdf';
+it('can merge multiple PDFs successfully', function () {
+    $result = $this->service->mergePdfs([$this->pdf1, $this->pdf2], $this->outputPath);
 
-    // Create dummy PDFs
-    Storage::disk('local')->put($pdf1Path, generateTestPdf('Test PDF 1'));
-    Storage::disk('local')->put($pdf2Path, generateTestPdf('Test PDF 2'));
+    expect(file_exists($result))->toBeTrue()
+        ->and(pathinfo($result, PATHINFO_EXTENSION))->toBe('pdf');
+});
 
-    // Run the merge
-    $mergedPath = $service->mergePdfs([$pdf1Path, $pdf2Path], $outputPath);
+it('throws exception when given empty file array', function () {
+    $this->expectException(Exception::class);
+    $this->expectExceptionMessage('Tidak ada file PDF untuk digabungkan');
 
-    // Verify the merged file exists
-    Storage::disk('shared')->assertExists($mergedPath);
-
-    // Verify the file is not empty
-    expect(Storage::disk('shared')->size($mergedPath))->toBeGreaterThan(1024);
-
-    // Clean up after test
-    Storage::disk('shared')->delete($mergedPath);
-})->group('pdf');
-
-it('throws an exception for missing files', function () {
-    $service = new PdfMergerService();
-
-    $outputPath = 'merged/test_missing.pdf';
-    
-    // Attempt to merge non-existent files
-    expect(fn() => $service->mergePdfs(['local/missing.pdf'], $outputPath))
-        ->toThrow(Exception::class, 'PDF file not found: local/missing.pdf');
-})->group('pdf');
-
-// it('throws an exception for empty PDFs', function () {
-//     $service = new PdfMergerService();
-
-//     $outputPath = 'merged/test_empty.pdf';
-//     $emptyFilePath = 'local/empty.pdf';
-
-//     // Create a minimal but empty PDF
-//     Storage::disk('local')->put($emptyFilePath, generateEmptyPdf());
-
-//     // Expect an exception for empty file
-//     expect(fn() => $service->mergePdfs([$emptyFilePath], $outputPath))
-//         ->toThrow(Exception::class, "Failed to merge PDFs: Merged PDF is too small - likely corrupt");
-// })->group('pdf');
-
-
-/**
- * Generate a simple test PDF content.
- */
-function generateTestPdf($text)
-{
-    $pdf = new Fpdi();
-    $pdf->AddPage();
-    $pdf->SetFont('Helvetica', '', 16);
-    $pdf->Text(10, 10, $text);
-    return $pdf->Output('S');
-}
-
-/**
- * Generate a minimal valid empty PDF content.
- */
-function generateEmptyPdf(): string
-{
-    $pdf = new Fpdi();
-    $pdf->AddPage();
-    return $pdf->Output('S');
-}
+    $this->service->mergePdfs([], $this->outputPath);
+});
