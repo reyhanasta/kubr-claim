@@ -36,6 +36,7 @@ return [
             'serve' => true,
             'throw' => false,
             'report' => false,
+            'visibility' => 'public',
         ],
         'temporary_url' => [
             'driver' => 'local',
@@ -43,22 +44,35 @@ return [
             'expiration' => now()->addMinutes(30),
             'throw' => false,
             'report' => false,
-        ],
-        'shared' => [
-        'driver' => 'local',
-        // 'root' => '/mnt/shared_bpjs', 
-        'root' => 'Z:/mnt/test_shared', 
-        // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
             'permissions' => [
                 'file' => [
-                    'public' => 0664,
-                    'private' => 0664,
+                    'public' => 0775,
+                    'private' => 0775,
                 ],
                 'dir' => [
                     'public' => 0775,
                     'private' => 0775,
                 ],
             ], // Path to mounted shared folder
+            'visibility' => 'public',
+        ],
+        'shared' => [
+            'driver' => 'local',
+            // 'root' => '/mnt/shared_bpjs', 
+            // 'root' => 'Z:/mnt/test_shared', 
+            'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
+            // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
+                'permissions' => [
+                    'file' => [
+                        'public' => 0664,
+                        'private' => 0664,
+                    ],
+                    'dir' => [
+                        'public' => 0775,
+                        'private' => 0775,
+                    ],
+                ], // Path to mounted shared folder
+                'visibility' => 'public',
         ],
 
         'public' => [

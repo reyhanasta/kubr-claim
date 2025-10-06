@@ -20,12 +20,12 @@ class GenerateFolderService
         Carbon::setLocale('id');
 
         $date  = Carbon::parse($sep_date);
-        $month = $date->format('m') . ' ' . strtoupper($date->translatedFormat('F')); // contoh: "04 APRIL"
+        $month = $date->format('m') . '_' . strtoupper($date->translatedFormat('F')); // contoh: "04 APRIL"
         $year  = $date->format('Y'); 
         $day   = $date->format('d'); 
 
         // Pastikan jenis_rawatan hanya RI atau RJ
-        $jenisRawatan = strtoupper($jenis_rawatan) === 'RI' ? 'R.Inap' : 'R.Jalan';
+        $jenisRawatan = strtoupper($jenis_rawatan) === 'RI' ? 'R.INAP' : 'R.JALAN';
 
         // Contoh struktur: 2025/04 APRIL 2025/RI/03/1234567890/
         $folderPath = "{$month} REGULER {$year}/{$jenisRawatan}/{$day}/{$sep_number}";

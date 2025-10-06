@@ -82,10 +82,10 @@
                             </td>
                             <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
 
-                                <flux:button variant="primary" href="{{ route('bpjs-rajal-form-edit', $file->id) }}"
+                                {{-- <flux:button variant="primary" href="{{ route('bpjs-rajal-form-edit', $file->id) }}"
                                     color="amber">
                                     Edit
-                                </flux:button>
+                                </flux:button> --}}
 
                             </td>
                         </tr>

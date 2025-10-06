@@ -23,6 +23,7 @@
                     <iframe src="{{ $previewUrls['sepFile'] ?? '' }}#zoom=120&toolbar=0&navpanes=0&scrollbar=0"
                         class="absolute top-0 left-0 w-full h-full" frameborder="0">
                     </iframe>
+
                 </div>
             </div>
 

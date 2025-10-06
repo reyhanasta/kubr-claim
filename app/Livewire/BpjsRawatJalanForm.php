@@ -117,9 +117,15 @@ class BpjsRawatJalanForm extends Component
 
             $this->scanned_docs['sepFile'] = $this->sepFile;
             $this->rotatedPaths['sepFile'] = $storedPath;
-            $this->previewUrls['sepFile'] = Storage::url($storedPath);
+            
+            // Use url() helper instead of asset() - this uses current request URL
+            $this->previewUrls['sepFile'] = url('storage/' . $storedPath);
 
-            Log::info('SEP file processed', ['filename' => $filename]);
+            Log::info('SEP file processed', [
+                'filename' => $filename,
+                'path' => $storedPath,
+                'url' => $this->previewUrls['sepFile']
+            ]);
         } catch (\Exception $e) {
             Log::error('File processing error: ' . $e->getMessage());
             $this->cancelUpload();
