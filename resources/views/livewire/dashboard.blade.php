@@ -84,7 +84,7 @@
 
                                 {{-- <flux:button variant="primary" href="{{ route('bpjs-rajal-form-edit', $file->id) }}"
                                     color="amber">
-                                    Edit
+                                    Hapus
                                 </flux:button> --}}
 
                             </td>

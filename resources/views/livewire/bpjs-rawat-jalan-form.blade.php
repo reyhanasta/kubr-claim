@@ -23,7 +23,6 @@
                     <iframe src="{{ $previewUrls['sepFile'] ?? '' }}#zoom=120&toolbar=0&navpanes=0&scrollbar=0"
                         class="absolute top-0 left-0 w-full h-full" frameborder="0">
                     </iframe>
-
                 </div>
             </div>
 
@@ -76,7 +75,7 @@
                 <!-- Upload File Resume & Billing -->
                 <div class="max-w-5xl mx-auto p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
                     <h1 class="text-2xl font-bold mb-4">Input Dokumen Penunjang</h1>
-
+                    <hr class="my-4 border-gray-300 dark:border-gray-600">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
                         <!-- Resume -->
                         <flux:field>

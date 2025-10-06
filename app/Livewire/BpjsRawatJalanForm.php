@@ -45,22 +45,31 @@ class BpjsRawatJalanForm extends Component
     public $confirmPatient = false;
 
     protected $rules = [
-        'scanned_docs.*' => 'nullable|file|mimes:pdf|max:2048',
-        'fileLIP'        => 'nullable|file|mimes:pdf|max:2048', // ✅ validasi LIP
+        'sepFile'     => 'required|file|mimes:pdf|max:2048', // SEP wajib
+        'billingFile' => 'required|file|mimes:pdf|max:2048', // Billing wajib
+        'resumeFile'  => 'required|file|mimes:pdf|max:2048', // Resume wajib
+        'fileLIP'     => 'nullable|file|mimes:pdf|max:2048', // LIP opsional
+        'sep_date'    => 'required|date',
+        'sep_number'  => 'required|string|max:50',
+        'medical_record_number' => 'required|string|max:50',
     ];
+
 
 
     protected $messages = [
+        'sepFile.required'     => 'File SEP wajib diunggah.',
+        'sepFile.mimes'        => 'File SEP harus berformat PDF.',
+        'billingFile.required' => 'File Billing wajib diunggah.',
+        'billingFile.mimes'    => 'File Billing harus berformat PDF.',
+        'resumeFile.required'  => 'File Resume Medis wajib diunggah.',
+        'resumeFile.mimes'     => 'File Resume Medis harus berformat PDF.',
+        'fileLIP.mimes'        => 'File LIP harus berformat PDF.',
+        'sep_number.required'  => 'Nomor SEP wajib diisi.',
+        'sep_date.required'    => 'Tanggal SEP wajib diisi.',
+        'sep_date.date'        => 'Tanggal SEP harus berupa format tanggal yang valid.',
         'medical_record_number.required' => 'Nomor RM wajib diisi.',
-        'medical_record_number.exists' => 'Nomor RM tidak ditemukan.',
-        'sep_date.required' => 'Tanggal rawatan wajib diisi.',
-        'sep_date.date' => 'Tanggal rawatan harus berupa tanggal.',
-        'sep_number.required' => 'Nomor SEP wajib diisi.',
-        'scanned_docs.*.required' => 'File wajib diisi.',
-        'scanned_docs.*.file' => 'File harus berformat PDF.',
-        'scanned_docs.*.mimes' => 'File harus berformat PDF.',
-        'scanned_docs.*.max' => 'File tidak boleh lebih dari 2MB.',
     ];
+
 
     protected $listeners = ['cancelUploadTimeout' => 'handleUploadTimeout'];
 
@@ -226,11 +235,18 @@ class BpjsRawatJalanForm extends Component
     {
         $this->validate();
 
+        if (!$this->sepFile || !$this->billingFile || !$this->resumeFile) {
+            LivewireAlert::error('Semua file wajib diunggah sebelum menyimpan klaim.')
+                ->show();
+            return;
+        }
+
         try {
             $outputDir = $generateFolderService->generateOutputPath($this->sep_date, $this->sep_number,$this->jenis_rawatan);
             $pdfOutputPath = $outputDir . Str::upper($this->patient_name) . '.pdf';
             // Urutan fix: SEP -> Billing -> Resume
             $orderedFiles = [];
+
             if (!empty($this->rotatedPaths['sepFile'])) $orderedFiles[] = $this->rotatedPaths['sepFile'];
             if (!empty($this->rotatedPaths['billingFile'])) $orderedFiles[] = $this->rotatedPaths['billingFile'];
             if (!empty($this->rotatedPaths['resumeFile'])) $orderedFiles[] = $this->rotatedPaths['resumeFile'];
