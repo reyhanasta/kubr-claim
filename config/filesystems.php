@@ -58,9 +58,9 @@ return [
         ],
         'shared' => [
             'driver' => 'local',
-            // 'root' => '/mnt/shared_bpjs', 
+            'root' => '/mnt/shared_bpjs', 
             // 'root' => 'Z:/mnt/test_shared', 
-            'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
+            // 'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
             // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
                 'permissions' => [
                     'file' => [

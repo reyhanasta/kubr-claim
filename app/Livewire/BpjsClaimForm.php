@@ -9,9 +9,11 @@ use Spatie\PdfToText\Pdf;
 use Illuminate\Support\Str;
 use App\Models\ClaimDocument;
 use Livewire\WithFileUploads;
+use App\Services\PdfReadService;
 use App\Services\PdfMergerService;
 use CzProject\PdfRotate\PdfRotate;
 use Illuminate\Support\Facades\Log;
+use App\Services\GenerateFolderService;
 use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
 
@@ -20,15 +22,25 @@ class BpjsClaimForm extends Component
     use WithFileUploads;
     public $no_rm = '';
     public $rmIcon = 'magnifying-glass';
-    public $patient_name = '';
     public $rotations = []; // maps index => degrees (e.g., 90, 180, etc.)
     public $no_sep = '';
+    public $uploading = false;
+    public $showUploadedData = false;
     public $no_kartu_bpjs = '';
-    public $jenis_rawatan = 'RAWAT JALAN'; // Default to 'RAWAT JALAN'
     public $tanggal_rawatan ;
     public $scanned_docs = [];
     public $previewUrls = [];
     public $fileOrder = [];
+    public $sepFile;
+
+    public $patient_name; 
+    public $sep_date;
+    public $sep_number;
+    public $bpjs_serial_number;
+    public $medical_record_number;
+    public $jenis_rawatan = 'RJ'; // Jenis rawatan default RJ
+    public $patient_class;
+
     public $rotatedPaths = [];
     public $showPreviewModal = false;
     public $currentPreviewIndex = null;
@@ -36,7 +48,7 @@ class BpjsClaimForm extends Component
 
     
      protected $rules = [
-        'no_rm' => 'required|exists:pasien,no_rkm_medis',
+        'no_rm' => 'required',
         'tanggal_rawatan' => 'required|date',
         'jenis_rawatan' => 'required',
         'no_sep' => 'required',
@@ -79,6 +91,56 @@ class BpjsClaimForm extends Component
     {
         $this->showPreviewModal = false;
         $this->currentPreviewIndex = null;
+    }
+
+    public function updatedSepFile(PdfReadService $pdfReadService)
+    {
+        try {
+            $this->uploading = true;
+            $this->validateOnly('sepFile');
+
+            // Extract text SEP
+            $pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
+            $data = $pdfReadService->extractPdf($pdfText);
+
+            if (!$data) {
+                LivewireAlert::title('Format dokumen salah!')
+                    ->error()
+                    ->text('Silahkan upload ulang file SEP')
+                    ->timer(10000)
+                    ->show();
+                return;
+            }
+
+            $this->fill($data);
+            $this->showUploadedData = true;
+
+            // Save for preview
+            $filename = uniqid() . '_' . $this->sepFile->getClientOriginalName();
+            $storedPath = $this->sepFile->storeAs('temp', $filename, 'public');
+
+            $this->scanned_docs['sepFile'] = $this->sepFile;
+            $this->rotatedPaths['sepFile'] = $storedPath;
+            
+            // Use url() helper instead of asset() - this uses current request URL
+            $this->previewUrls['sepFile'] = url('storage/' . $storedPath);
+
+            Log::info('SEP file processed', [
+                'filename' => $filename,
+                'path' => $storedPath,
+                'url' => $this->previewUrls['sepFile']
+            ]);
+        } catch (\Exception $e) {
+            Log::error('File processing error: ' . $e->getMessage());
+            $this->cancelUpload();
+            LivewireAlert::title('Gagal memproses file!')
+                ->error()
+                ->text('Terjadi kesalahan saat memproses file')
+                ->timer(5000)
+                ->show();
+        } finally {
+            $this->uploading = false;
+        }
     }
 
 
@@ -419,14 +481,21 @@ class BpjsClaimForm extends Component
        FORM SUBMISSION
        ==================== */
    
-    public function submit(PdfMergerService $pdfMergeService)
+    public function submit(PdfMergerService $pdfMergeService, GenerateFolderService $generateFolderService)
     {
         $this->validate();
 
-        $folderPath = $this->generateFolderPath();
+         if (!$this->sepFile ) {
+            LivewireAlert::error('Semua file wajib diunggah sebelum menyimpan klaim.')
+                ->show();
+            return;
+        }
+        
 
         try {
-            $outputPath = $this->generateOutputPath($folderPath);
+            $outputDir = $generateFolderService->generateOutputPath($this->sep_date, $this->sep_number,$this->jenis_rawatan);
+            $pdfOutputPath = $outputDir . Str::upper($this->patient_name) . '.pdf';
+
             // PERBAIKAN 13: Perbaikan logika merge files dan pastikan direktori tujuan ada
             // Prepare final PDF output path
             // Storage::disk('public')->makeDirectory($outputPath);
@@ -436,7 +505,7 @@ class BpjsClaimForm extends Component
                 throw new \Exception("No files available to merge");
             }
             // Step 3: Merge all PDFs
-            $finalPath = $pdfMergeService->mergePdfs($this->rotatedPaths, $outputPath);
+            $finalPath = $pdfMergeService->mergePdfs($this->rotatedPaths, $outputDir);
 
             // Step 4: Save claim data
             $claim = $this->createClaimRecord();
@@ -445,9 +514,10 @@ class BpjsClaimForm extends Component
             $this->storeClaimDocuments($claim,$finalPath);
 
             // Step 6: Clean up temp files
-            $this->cleanUpTempFiles();
+            // $this->cleanUpTempFiles();
+                        $this->cleanUpAfterSubmit($pdfMergeService);
+
             // Step 7: Reset form and notify success
-            $this->reset();
 
             // LivewireAlert::title('Klaim berhasil dibuat!')
             //     ->success()
@@ -460,6 +530,10 @@ class BpjsClaimForm extends Component
             //         ->onConfirm('redirectToClaim')
             //         ->onDeny('redirectToClaim')
             //         ->show();
+            LivewireAlert::title('Klaim berhasil dibuat!')
+                ->text('Dokumen digabung sesuai urutan SEP → Billing → Resume')
+                ->success()
+                ->show();
 
         } catch (\Exception $e) {
             Log::error("BPJS Claim Error: " . $e->getMessage(), [
@@ -524,12 +598,33 @@ class BpjsClaimForm extends Component
             ]);
         }
     }
-
-    protected function cleanUpTempFiles()
+    public function cancelForm()
     {
-        foreach ($this->rotatedPaths as $path) {
-            Storage::disk('public')->delete($path);
-        }
+        $this->reset(
+            'scanned_docs',
+            'rotatedPaths',
+            'previewUrls',
+            'sepFile',
+            'resumeFile',
+            'billingFile',
+            'fileLIP',
+            'showUploadedData'
+        );
+        return redirect(request()->header('Referer'));
+        
+    }
+
+    // protected function cleanUpTempFiles()
+    // {
+    //     foreach ($this->rotatedPaths as $path) {
+    //         Storage::disk('public')->delete($path);
+    //     }
+    // }
+
+    protected function cleanUpAfterSubmit($pdfMergeService)
+    {
+        $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
+        $this->reset();
     }
 
     public function render()
