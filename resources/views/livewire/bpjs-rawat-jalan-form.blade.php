@@ -76,7 +76,19 @@
                 <div class="max-w-5xl mx-auto p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
                     <h1 class="text-2xl font-bold mb-4">Input Dokumen Penunjang</h1>
                     <hr class="my-4 border-gray-300 dark:border-gray-600">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+                        <!-- SEP Rawat Jalan -->
+                        @if ($jenis_rawatan === 'RI')
+                            <flux:field>
+                                <flux:label>
+                                    <flux:icon.document-text variant="solid" class="text-green-600 mr-1.5" />
+                                    File SEP Rawat Jalan
+                                </flux:label>
+                                <flux:input type="file" wire:model="sepRJFile" accept=".pdf"
+                                    placeholder="Unggah File SEP Rawat Jalan" />
+                            </flux:field>
+                        @endif
+
                         <!-- Resume -->
                         <flux:field>
                             <flux:label>
@@ -86,7 +98,10 @@
                             <flux:input type="file" wire:model="resumeFile" accept=".pdf"
                                 placeholder="Unggah File Resume Medis" />
                         </flux:field>
-
+                    </div>
+                    <br>
+                    <hr>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 mt-4 ">
                         <!-- Billing -->
                         <flux:field>
                             <flux:label>
@@ -107,7 +122,6 @@
                             <flux:description>File LIP (tidak ikut di-merge, disimpan terpisah)</flux:description>
                             <flux:input type="file" wire:model="fileLIP" accept=".pdf" placeholder="Unggah File LIP" />
                         </flux:field>
-
                     </div>
 
                     <!-- Actions -->
@@ -147,7 +161,7 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div wire:loading.flex wire:target="sepFile,resumeFile,billingFile,fileLIP"
+    <div wire:loading.flex wire:target="sepFile,resumeFile,billingFile,fileLIP,sepRJFile"
         class="fixed inset-0 z-50 bg-neutral-900/60 flex items-center justify-center backdrop-blur-sm">
         <div class="flex flex-col items-center gap-4 text-center">
             <svg class="h-12 w-12 animate-spin text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none"

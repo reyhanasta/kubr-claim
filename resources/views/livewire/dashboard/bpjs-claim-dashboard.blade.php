@@ -1,6 +1,6 @@
 <div class="p-6 space-y-8">
     {{-- Filter --}}
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
             <label class="text-sm font-semibold">Tahun</label>
             <input type="number" wire:model.live="year" class="w-full border rounded p-1">
@@ -47,16 +47,17 @@
         </div>
     </div>
 
+    <hr>
     {{-- Charts --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="bg-white p-4 rounded-lg shadow">
             <h4 class="text-center font-semibold mb-2">Klaim per Jenis Rawatan</h4>
-            <canvas id="jenisRawatanChart" height="100"></canvas>
+            <canvas id="jenisRawatanChart" height="120"></canvas>
         </div>
 
         <div class="bg-white p-4 rounded-lg shadow">
             <h4 class="text-center font-semibold mb-2">Klaim per Bulan ({{ $year }})</h4>
-            <canvas id="monthlyChart" height="100"></canvas>
+            <canvas id="monthlyChart" height="120"></canvas>
         </div>
     </div>
     <script>

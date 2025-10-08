@@ -21,12 +21,13 @@ class BpjsRawatJalanForm extends Component
     use WithFileUploads;
 
     // Dokumen utama
-    public $scanned_docs = ['sepFile'=>'','billingFile'=>'','resumeFile'=>''];
+    public $scanned_docs = ['sepFile'=>'','sepRJFile'=>'','billingFile'=>'','resumeFile'=>''];
     public $rotatedPaths = [];
     public $previewUrls = [];
 
     // File upload individual
     public $sepFile;
+    public $sepRJFile; // ✅ file tambahan
     public $resumeFile;
     public $billingFile;
     public $fileLIP; // ✅ file tambahan
@@ -60,6 +61,7 @@ class BpjsRawatJalanForm extends Component
     protected $messages = [
         'sepFile.required'     => 'File SEP wajib diunggah.',
         'sepFile.mimes'        => 'File SEP harus berformat PDF.',
+        
         'billingFile.required' => 'File Billing wajib diunggah.',
         'billingFile.mimes'    => 'File Billing harus berformat PDF.',
         'resumeFile.required'  => 'File Resume Medis wajib diunggah.',
@@ -163,6 +165,20 @@ class BpjsRawatJalanForm extends Component
         }
     }
 
+    public function updatedSEPRJFile()
+    {
+        if ($this->sepRJFile) {
+            $filename = uniqid() . '_' . $this->sepRJFile->getClientOriginalName();
+            $storedPath = $this->sepRJFile->storeAs('temp', $filename, 'public');
+
+            $this->scanned_docs['sepRJFile'] = $this->sepRJFile;
+            $this->rotatedPaths['sepRJFile'] = $storedPath;
+            $this->previewUrls['sepRJFile'] = Storage::url($storedPath);
+
+            Log::info("SEP RJ file uploaded", ['filename' => $filename]);
+        }
+    }
+
     public function updatedBillingFile()
     {
         if ($this->billingFile) {
@@ -196,7 +212,7 @@ class BpjsRawatJalanForm extends Component
     public function cancelUpload()
     {
         $this->uploading = false;
-        $this->reset(['sepFile', 'resumeFile', 'billingFile', 'scanned_docs', 'previewUrls', 'rotatedPaths', 'showUploadedData']);
+        $this->reset(['sepFile', 'sepRJFile', 'resumeFile', 'billingFile', 'scanned_docs', 'previewUrls', 'rotatedPaths', 'showUploadedData']);
 
         foreach ($this->rotatedPaths as $path) {
             if (Storage::disk('public')->exists($path)) {
@@ -220,6 +236,7 @@ class BpjsRawatJalanForm extends Component
             'rotatedPaths',
             'previewUrls',
             'sepFile',
+            'sepRJFile',
             'resumeFile',
             'billingFile',
             'fileLIP',
@@ -249,16 +266,18 @@ class BpjsRawatJalanForm extends Component
             $pdfOutputPath = $outputDir . "{$patientNameSafe}.pdf";
 
             // 3️⃣ Tentukan urutan file yang akan digabung (SEP -> Billing -> Resume)
+            if($this->rotatedPaths)
             $orderedFiles = collect([
                 $this->rotatedPaths['sepFile'] ?? null,
-                $this->rotatedPaths['billingFile'] ?? null,
+                $this->rotatedPaths['sepRJFile'] ?? null,
                 $this->rotatedPaths['resumeFile'] ?? null,
+                $this->rotatedPaths['billingFile'] ?? null,
             ])->filter()->values()->all();
-
+                
             if (empty($orderedFiles)) {
+                Log::error("No files to merge", $orderedFiles);
                 throw new \Exception("Tidak ada file yang bisa digabungkan");
             }
-
             // 4️⃣ Gabungkan PDF secara efisien (streamed)
             $finalPath = $pdfMergeService->mergePdfs($orderedFiles, $pdfOutputPath);
 
