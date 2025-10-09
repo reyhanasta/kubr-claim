@@ -58,9 +58,9 @@ return [
         ],
         'shared' => [
             'driver' => 'local',
-            'root' => '/mnt/shared_bpjs', 
+            // 'root' => '/mnt/shared_bpjs', 
             // 'root' => 'Z:/mnt/test_shared', 
-            // 'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
+            'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
             // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
                 'permissions' => [
                     'file' => [
@@ -79,6 +79,14 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        'backup' => [
+            'driver' => 'local',
+            'root' => 'D:/FOLDER_BACKUP', // Ganti dengan path folder backup yang diinginkan
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
