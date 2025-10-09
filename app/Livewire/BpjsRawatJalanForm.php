@@ -2,17 +2,15 @@
 
 namespace App\Livewire;
 
-use App\Models\Patient;
 use Livewire\Component;
-use App\Models\BpjsClaim;
-use Illuminate\Support\Str;
-use App\Models\ClaimDocument;
 use Livewire\WithFileUploads;
+use App\Models\BpjsClaim;
+use App\Models\ClaimDocument;
 use App\Services\PdfReadService;
 use App\Services\PdfMergerService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Services\GenerateFolderService;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
 
@@ -56,12 +54,9 @@ class BpjsRawatJalanForm extends Component
         'medical_record_number' => 'required|string|max:50',
     ];
 
-
-
     protected $messages = [
         'sepFile.required'     => 'File SEP wajib diunggah.',
         'sepFile.mimes'        => 'File SEP harus berformat PDF.',
-        
         'billingFile.required' => 'File Billing wajib diunggah.',
         'billingFile.mimes'    => 'File Billing harus berformat PDF.',
         'resumeFile.required'  => 'File Resume Medis wajib diunggah.',
@@ -72,7 +67,6 @@ class BpjsRawatJalanForm extends Component
         'sep_date.date'        => 'Tanggal SEP harus berupa format tanggal yang valid.',
         'medical_record_number.required' => 'Nomor RM wajib diisi.',
     ];
-
 
     protected $listeners = ['cancelUploadTimeout' => 'handleUploadTimeout'];
 
