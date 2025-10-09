@@ -58,7 +58,7 @@ return [
         ],
         'shared' => [
             'driver' => 'local',
-            'root' => '/mnt/shared_bpjs', 
+            'root' => env('FOLDER_SHARED'),
             // 'root' => 'Z:/mnt/test_shared', 
             // 'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
             // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
@@ -79,6 +79,13 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+        'backup' => [
+            'driver' => 'local',
+            'root' => env('FOLDER_BACKUP'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
