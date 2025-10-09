@@ -58,7 +58,7 @@ return [
         ],
         'shared' => [
             'driver' => 'local',
-            // 'root' => '/mnt/shared_bpjs', 
+            'root' => env('FOLDER_SHARED'),
             // 'root' => 'Z:/mnt/test_shared', 
             'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
             // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
@@ -83,10 +83,9 @@ return [
             'throw' => false,
             'report' => false,
         ],
-
         'backup' => [
             'driver' => 'local',
-            'root' => 'D:/FOLDER_BACKUP', // Ganti dengan path folder backup yang diinginkan
+            'root' => env('FOLDER_BACKUP'),
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

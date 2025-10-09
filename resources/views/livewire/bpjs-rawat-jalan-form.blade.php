@@ -61,10 +61,12 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-8">
                         <flux:input type="text" icon="document-text" wire:model="sep_number" placeholder="Nomor SEP"
                             label="Nomor SEP" />
-                        <flux:input type="date" wire:model="sep_date" placeholder="Tanggal SEP" label="Tanggal SEP" />
+
+                        <flux:input type="date" wire:model="sep_date" placeholder="Tanggal SEP"
+                            label="{{ $sep_date_label }}" />
                         <flux:input type="text" wire:model="patient_class" placeholder="Kelas Pasien"
                             label="Kelas Pasien" />
                         <flux:input type="text" wire:model="jenis_rawatan" placeholder="Jenis Rawatan"
