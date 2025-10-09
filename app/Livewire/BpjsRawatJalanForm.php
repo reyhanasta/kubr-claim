@@ -11,7 +11,7 @@ use App\Models\ClaimDocument;
 use App\Services\PdfReadService;
 use App\Services\PdfMergerService;
 use App\Services\GenerateFolderService;
-use Illuminate\Support\Str;
+
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
