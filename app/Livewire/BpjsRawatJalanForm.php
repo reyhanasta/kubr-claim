@@ -5,6 +5,8 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\BpjsClaim;
+use App\Jobs\BackupFileJob;
+use Illuminate\Support\Str;
 use App\Models\ClaimDocument;
 use App\Services\PdfReadService;
 use App\Services\PdfMergerService;
@@ -37,6 +39,7 @@ class BpjsRawatJalanForm extends Component
     // Data pasien
     public $patient_name; 
     public $sep_date;
+    public $sep_date_label = 'Tanggal SEP';
     public $sep_number;
     public $bpjs_serial_number;
     public $medical_record_number;
@@ -99,22 +102,32 @@ class BpjsRawatJalanForm extends Component
     {
         try {
             $this->uploading = true;
-            $this->validateOnly('sepFile');
+             try {
+                $this->uploading = true;
+                $this->validateOnly('sepFile');
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                $this->showValidationErrors($e->validator);
+                $this->uploading = false;
+                return;
+            }
 
             // Extract text SEP
             $pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
             $data = $pdfReadService->extractPdf($pdfText);
-
             if (!$data) {
                 LivewireAlert::title('Format dokumen salah!')
-                    ->error()
-                    ->text('Silahkan upload ulang file SEP')
-                    ->timer(10000)
-                    ->show();
+                ->error()
+                ->text('Silahkan upload ulang file SEP')
+                ->timer(10000)
+                ->show();
                 return;
             }
-
+            
             $this->fill($data);
+            if($this->jenis_rawatan == 'RI'){
+                $this->sep_date_label = 'Tanggal Pulang';
+                $this->sep_date = null;
+            }
             $this->showUploadedData = true;
 
             // Save for preview
@@ -245,7 +258,13 @@ class BpjsRawatJalanForm extends Component
        ==================== */
     public function submit(PdfMergerService $pdfMergeService, GenerateFolderService $generateFolderService)
     {
+        try {
         $this->validate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $this->showValidationErrors($e->validator);
+            return;
+        }
+
 
         // 1️⃣ Validasi cepat tanpa lanjut ke proses file
         if (!$this->sepFile || !$this->billingFile || !$this->resumeFile) {
@@ -299,15 +318,18 @@ class BpjsRawatJalanForm extends Component
 
                 Log::info("LIP file saved", ['path' => $lipPath]);
             }
-
+                
             // 8️⃣ Cleanup otomatis (hapus file sementara)
             $this->cleanUpAfterSubmit($pdfMergeService);
 
+            // 9️⃣ Jalankan backup file secara asynchronous
+            BackupFileJob::dispatch($finalPath, $lipPath ?? null);
+
             // 9️⃣ Tampilkan notifikasi sukses
             LivewireAlert::title('Klaim berhasil dibuat!')
-                ->text('Dokumen digabung sesuai urutan SEP → Billing → Resume')
-                ->success()
-                ->show();
+                 ->text('Dokumen digabung dan backup tersimpan otomatis.')
+                 ->success()
+                 ->show();
 
         } catch (\Throwable $e) {
             Log::error("BPJS Claim Error: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
@@ -374,6 +396,20 @@ class BpjsRawatJalanForm extends Component
         $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
         $this->reset();
     }
+
+    protected function showValidationErrors($validator)
+    {
+        foreach ($validator->errors()->all() as $error) {
+            LivewireAlert::toast()
+                ->error()
+                ->title('Validasi Gagal')
+                ->text($error)
+                ->position('top-end')
+                ->timer(4000)
+                ->show();
+        }
+    }
+
 
 
     public function render()

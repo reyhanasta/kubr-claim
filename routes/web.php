@@ -1,7 +1,6 @@
 <?php
 
 use App\Livewire\Dashboard\BpjsClaimDashboard;
-use App\Livewire\BpjsLIP;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Appearance;
