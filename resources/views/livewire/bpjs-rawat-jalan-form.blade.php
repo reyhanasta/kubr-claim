@@ -61,7 +61,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
                         <flux:input type="text" icon="document-text" wire:model="sep_number" placeholder="Nomor SEP"
                             label="Nomor SEP" />
 
@@ -78,7 +78,7 @@
                 <div class="max-w-5xl mx-auto p-6 bg-white dark:bg-gray-700 rounded-xl shadow-lg">
                     <h1 class="text-2xl font-bold mb-4">Input Dokumen Penunjang</h1>
                     <hr class="my-4 border-gray-300 dark:border-gray-600">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+                    <div class="grid grid-cols-2 md:grid-cols-2 gap-6 px-4">
                         <!-- SEP Rawat Jalan -->
                         @if ($jenis_rawatan === 'RI')
                             <flux:field>
@@ -103,7 +103,7 @@
                     </div>
                     <br>
                     <hr>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4 mt-4 ">
+                    <div class="grid grid-cols-2 md:grid-cols-2 gap-6 px-4 mt-4 ">
                         <!-- Billing -->
                         <flux:field>
                             <flux:label>

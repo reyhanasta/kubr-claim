@@ -37,15 +37,15 @@
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
         <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow">
             <h3 class="font-semibold text-gray-700 dark:text-gray-300">Kelas 1</h3>
-            <p class="text-2xl font-bold">{{ $summary['total_claims'] ?? 0 }}</p>
+            <p class="text-2xl font-bold">{{ $summary['total_kelas1'] ?? 0 }}</p>
         </div>
         <div class="bg-green-100 dark:bg-green-900 p-4 rounded-lg shadow">
             <h3 class="font-semibold text-gray-700 dark:text-gray-300">Kelas 2</h3>
-            <p class="text-2xl font-bold">{{ $summary['total_ri'] ?? 0 }}</p>
+            <p class="text-2xl font-bold">{{ $summary['total_kelas2'] ?? 0 }}</p>
         </div>
         <div class="bg-blue-100 dark:bg-blue-900 p-4 rounded-lg shadow">
             <h3 class="font-semibold text-gray-700 dark:text-gray-300">Kelas 3</h3>
-            <p class="text-2xl font-bold">{{ $summary['total_rj'] ?? 0 }}</p>
+            <p class="text-2xl font-bold">{{ $summary['total_kelas3'] ?? 0 }}</p>
         </div>
     </div>
 

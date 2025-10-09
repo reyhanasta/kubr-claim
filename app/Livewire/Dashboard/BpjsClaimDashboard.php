@@ -40,12 +40,18 @@ class BpjsClaimDashboard extends Component
         // Hitung total klaim
         $riCount = (clone $query)->where('jenis_rawatan', 'RI')->count();
         $rjCount = (clone $query)->where('jenis_rawatan', 'RJ')->count();
+        $kelas1Count = (clone $query)->where('kelas_rawatan', 'Kelas 1')->count();
+        $kelas2Count = (clone $query)->where('kelas_rawatan', 'Kelas 2')->count();
+        $kelas3Count = (clone $query)->where('kelas_rawatan', 'Kelas 3')->count();
         $totalCount = $riCount + $rjCount;
 
         $this->summary = [
             'total_claims' => $totalCount,
             'total_ri' => $riCount,
             'total_rj' => $rjCount,
+            'total_kelas1' => $kelas1Count,
+            'total_kelas2' => $kelas2Count,
+            'total_kelas3' => $kelas3Count,
         ];
 
         // 🔹 Grafik Bar - Klaim per bulan
