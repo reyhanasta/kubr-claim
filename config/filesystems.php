@@ -59,20 +59,20 @@ return [
         'shared' => [
             'driver' => 'local',
             'root' => env('FOLDER_SHARED'),
-            // 'root' => 'Z:/mnt/test_shared', 
-            // 'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA', 
+            // 'root' => 'Z:/mnt/test_shared',
+            // 'root' => 'Z:/FOLDER KLAIM REGULER BPJS SINTA',
             // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
-                'permissions' => [
-                    'file' => [
-                        'public' => 0664,
-                        'private' => 0664,
-                    ],
-                    'dir' => [
-                        'public' => 0775,
-                        'private' => 0775,
-                    ],
-                ], // Path to mounted shared folder
-                'visibility' => 'public',
+            'permissions' => [
+                'file' => [
+                    'public' => 0664,
+                    'private' => 0664,
+                ],
+                'dir' => [
+                    'public' => 0775,
+                    'private' => 0775,
+                ],
+            ], // Path to mounted shared folder
+            'visibility' => 'public',
         ],
 
         'public' => [

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     Storage::fake('shared');
-    $this->service = new GenerateFolderService();
+    $this->service = new GenerateFolderService;
 });
 
 it('creates correct folder structure based on date and type', function () {

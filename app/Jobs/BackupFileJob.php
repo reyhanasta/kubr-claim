@@ -7,14 +7,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class BackupFileJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected string $finalPath;
+
     protected ?string $lipPath;
 
     /**
@@ -33,7 +34,7 @@ class BackupFileJob implements ShouldQueue
     {
         try {
             // Tentukan direktori backup (per tahun/bulan)
-            $backupDir = 'backup_claims/' . now()->format('Y/m');
+            $backupDir = 'backup_claims/'.now()->format('Y/m');
 
             // Disk tujuan backup (bisa diganti ke s3 / ftp)
             $backupDisk = Storage::disk('backup');
@@ -48,7 +49,7 @@ class BackupFileJob implements ShouldQueue
                 if (Storage::disk('shared')->exists($file)) {
                     $filename = basename($file);
                     $backupDisk->put(
-                        $backupDir . '/' . $filename,
+                        $backupDir.'/'.$filename,
                         Storage::disk('shared')->get($file)
                     );
                 }

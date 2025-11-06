@@ -2,22 +2,20 @@
 
 namespace App\Services;
 
-use setasign\Fpdi\Fpdi;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use setasign\Fpdi\Fpdi;
 
-class PdfMergerService 
+class PdfMergerService
 {
     protected int $minFileSize = 100; // bytes
-    protected int $maxRetries   = 3;
+
+    protected int $maxRetries = 3;
 
     /**
      * Merge multiple PDF files into one.
      *
-     * @param array $pdfPaths
-     * @param string $outputPath
-     * @return string
      * @throws \Exception
      */
     public function mergePdfs(array $pdfPaths, string $outputPath): string
@@ -27,24 +25,24 @@ class PdfMergerService
 
         Log::info('PDF merge process started', [
             'correlation_id' => $correlationId,
-            'output_path'    => $outputPath,
-            'file_count'     => count($pdfPaths),
+            'output_path' => $outputPath,
+            'file_count' => count($pdfPaths),
         ]);
 
         if (empty($pdfPaths)) {
-            throw new \Exception("Tidak ada file PDF untuk digabungkan");
+            throw new \Exception('Tidak ada file PDF untuk digabungkan');
         }
 
-        $pdf = new Fpdi();
+        $pdf = new Fpdi;
         $processedFiles = $this->processPdfFiles($pdf, $pdfPaths);
 
         if ($processedFiles === 0) {
-            throw new \Exception("Tidak ada file PDF yang berhasil diproses");
+            throw new \Exception('Tidak ada file PDF yang berhasil diproses');
         }
 
         $this->makeDirectory($outputPath);
 
-        $tempPath = storage_path('app/temp_merged_' . uniqid() . '.pdf');
+        $tempPath = storage_path('app/temp_merged_'.uniqid().'.pdf');
         $pdf->Output($tempPath, 'F');
 
         $this->validateMergedFile($tempPath);
@@ -55,9 +53,9 @@ class PdfMergerService
 
         Log::info('PDF merge completed successfully', [
             'correlation_id' => $correlationId,
-            'output_path'    => $outputPath,
-            'processed_files'=> $processedFiles,
-            'duration_sec'   => $duration,
+            'output_path' => $outputPath,
+            'processed_files' => $processedFiles,
+            'duration_sec' => $duration,
         ]);
 
         return $outputPath;
@@ -72,8 +70,9 @@ class PdfMergerService
         $disk = Storage::disk('public');
 
         foreach ($pdfPaths as $path) {
-            if (!$disk->exists($path)) {
+            if (! $disk->exists($path)) {
                 Log::warning("File tidak ditemukan: {$path}");
+
                 continue;
             }
 
@@ -82,6 +81,7 @@ class PdfMergerService
 
             if ($size < $this->minFileSize) {
                 Log::warning("File terlalu kecil untuk diproses: {$path}");
+
                 continue;
             }
 
@@ -109,13 +109,13 @@ class PdfMergerService
         $retry = 0;
         $saved = false;
 
-        while ($retry < $this->maxRetries && !$saved) {
+        while ($retry < $this->maxRetries && ! $saved) {
             try {
                 $stream = fopen($tempPath, 'r');
                 if ($disk->put($outputPath, $stream)) {
                     $saved = true;
                 } else {
-                    throw new \Exception("Gagal menulis ke shared storage");
+                    throw new \Exception('Gagal menulis ke shared storage');
                 }
             } catch (\Exception $e) {
                 $retry++;
@@ -126,7 +126,7 @@ class PdfMergerService
 
         $this->cleanupTempFile($tempPath);
 
-        if (!$saved) {
+        if (! $saved) {
             throw new \Exception("Gagal menyimpan file ke shared storage setelah {$this->maxRetries} percobaan");
         }
     }
@@ -138,8 +138,6 @@ class PdfMergerService
             Log::debug("Temp file dibersihkan: {$tempPath}");
         }
     }
-
-    
 
     /**
      * Make sure output directory exists.
@@ -155,16 +153,15 @@ class PdfMergerService
      */
     protected function validateMergedFile(string $tempPath): void
     {
-        if (!file_exists($tempPath)) {
-            throw new \Exception("File hasil merge tidak ditemukan");
+        if (! file_exists($tempPath)) {
+            throw new \Exception('File hasil merge tidak ditemukan');
         }
 
         if (filesize($tempPath) < 1024) {
             $this->cleanupTempFile($tempPath);
-            throw new \Exception("PDF hasil merge terlalu kecil atau gagal dibuat");
+            throw new \Exception('PDF hasil merge terlalu kecil atau gagal dibuat');
         }
     }
-
 
     // TESTIN PURPOSE ONLY - REMOVE IN PRODUCTION
     public function mergePdfsOld(array $files, string $outputPath)
@@ -176,10 +173,12 @@ class PdfMergerService
     public function mergePdfsNew(array $files, string $outputPath)
     {
         // versi refactor yang aku bantu ubah
-        $output = new \setasign\Fpdi\Fpdi();
+        $output = new \setasign\Fpdi\Fpdi;
 
         foreach ($files as $file) {
-            if (!file_exists($file)) continue;
+            if (! file_exists($file)) {
+                continue;
+            }
             $pageCount = $output->setSourceFile($file);
 
             for ($i = 1; $i <= $pageCount; $i++) {
@@ -191,11 +190,9 @@ class PdfMergerService
         }
 
         $output->Output($outputPath, 'F');
+
         return $outputPath;
     }
-
-
-  
 
     /**
      * Cleanup temp files in public storage.

@@ -4,43 +4,43 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 test('it_measures_resume_upload_speed', function () {
-   Storage::fake('public');
+    Storage::fake('public');
 
-        $file = UploadedFile::fake()->create('resume.pdf', 500, 'application/pdf');
+    $file = UploadedFile::fake()->create('resume.pdf', 500, 'application/pdf');
 
-        $start = microtime(true);
+    $start = microtime(true);
 
-        // Simulate Livewire call to updatedResumeFile
-        $filename = uniqid() . '_' . $file->getClientOriginalName();
-        $storedPath = $file->storeAs('temp', $filename, 'public');
+    // Simulate Livewire call to updatedResumeFile
+    $filename = uniqid().'_'.$file->getClientOriginalName();
+    $storedPath = $file->storeAs('temp', $filename, 'public');
 
-        $elapsed = microtime(true) - $start;
+    $elapsed = microtime(true) - $start;
 
-        dump("Resume upload time: " . number_format($elapsed * 1000, 2) . " ms");
+    dump('Resume upload time: '.number_format($elapsed * 1000, 2).' ms');
 
-        Storage::disk('public')->assertExists($storedPath);
+    Storage::disk('public')->assertExists($storedPath);
 
-        $this->assertTrue($elapsed < 200, "Upload terlalu lambat (>200ms)");
+    $this->assertTrue($elapsed < 200, 'Upload terlalu lambat (>200ms)');
 });
 
 test('it_measures_billing_upload_speed', function () {
     Storage::fake('public');
 
-        $file = UploadedFile::fake()->create('billing.pdf', 500, 'application/pdf');
+    $file = UploadedFile::fake()->create('billing.pdf', 500, 'application/pdf');
 
-        $start = microtime(true);
+    $start = microtime(true);
 
-        // Simulate Livewire call to updatedBillingFile
-        $filename = uniqid() . '_' . $file->getClientOriginalName();
-        $storedPath = $file->storeAs('temp', $filename, 'public');
+    // Simulate Livewire call to updatedBillingFile
+    $filename = uniqid().'_'.$file->getClientOriginalName();
+    $storedPath = $file->storeAs('temp', $filename, 'public');
 
-        $elapsed = microtime(true) - $start;
+    $elapsed = microtime(true) - $start;
 
-        dump("Billing upload time: " . number_format($elapsed * 1000, 2) . " ms");
+    dump('Billing upload time: '.number_format($elapsed * 1000, 2).' ms');
 
-        Storage::disk('public')->assertExists($storedPath);
+    Storage::disk('public')->assertExists($storedPath);
 
-        $this->assertTrue($elapsed < 200, "Upload terlalu lambat (>200ms)");
+    $this->assertTrue($elapsed < 200, 'Upload terlalu lambat (>200ms)');
 });
 
 test('it_can_handle_multiple_resume_and_billing_uploads', function () {
@@ -54,7 +54,7 @@ test('it_can_handle_multiple_resume_and_billing_uploads', function () {
     $start = microtime(true);
 
     foreach ($files as $file) {
-        $filename = uniqid() . '_' . $file->getClientOriginalName();
+        $filename = uniqid().'_'.$file->getClientOriginalName();
         $storedPath = $file->storeAs('temp', $filename, 'public');
         Storage::disk('public')->assertExists($storedPath);
     }
@@ -62,11 +62,11 @@ test('it_can_handle_multiple_resume_and_billing_uploads', function () {
     $elapsed = microtime(true) - $start;
     $avg = $elapsed / count($files);
 
-    dump("Uploaded " . count($files) . " files in " . number_format($elapsed, 2) . " s");
-    dump("Average per file: " . number_format($avg * 1000, 2) . " ms");
+    dump('Uploaded '.count($files).' files in '.number_format($elapsed, 2).' s');
+    dump('Average per file: '.number_format($avg * 1000, 2).' ms');
 
     // Assert rata-rata per file masih di bawah 250ms
-    $this->assertTrue($avg < 0.25, "Upload rata-rata per file terlalu lambat (>250ms)");
+    $this->assertTrue($avg < 0.25, 'Upload rata-rata per file terlalu lambat (>250ms)');
 });
 
 test('it_measures_sep_upload_and_parsing_speed', function () {
@@ -78,7 +78,7 @@ test('it_measures_sep_upload_and_parsing_speed', function () {
     $startUpload = microtime(true);
 
     // Simulate upload
-    $filename = uniqid() . '_' . $file->getClientOriginalName();
+    $filename = uniqid().'_'.$file->getClientOriginalName();
     $storedPath = $file->storeAs('temp', $filename, 'public');
 
     $uploadElapsed = microtime(true) - $startUpload;
@@ -94,10 +94,10 @@ test('it_measures_sep_upload_and_parsing_speed', function () {
 
     $parseElapsed = microtime(true) - $startParse;
 
-    dump("SEP upload time: " . number_format($uploadElapsed * 1000, 2) . " ms");
-    dump("SEP parsing time: " . number_format($parseElapsed * 1000, 2) . " ms");
+    dump('SEP upload time: '.number_format($uploadElapsed * 1000, 2).' ms');
+    dump('SEP parsing time: '.number_format($parseElapsed * 1000, 2).' ms');
 
     // Expect upload cepat (<200ms), parsing bisa lebih lama tapi tetap wajar (<1500ms untuk 1MB)
-    $this->assertTrue($uploadElapsed < 0.2, "SEP upload terlalu lambat (>200ms)");
-    $this->assertTrue($parseElapsed < 1.5, "SEP parsing terlalu lambat (>1.5s untuk 1MB)");
+    $this->assertTrue($uploadElapsed < 0.2, 'SEP upload terlalu lambat (>200ms)');
+    $this->assertTrue($parseElapsed < 1.5, 'SEP parsing terlalu lambat (>1.5s untuk 1MB)');
 });

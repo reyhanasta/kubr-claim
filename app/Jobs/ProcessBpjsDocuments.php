@@ -2,28 +2,30 @@
 
 namespace App\Jobs;
 
-use App\Models\BpjsClaim;
 use App\Models\ClaimDocument;
-use App\Services\PdfReadService;
-use App\Services\PdfMergerService;
 use App\Services\GenerateFolderService;
+use App\Services\PdfMergerService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ProcessBpjsDocuments implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $scannedDocs;
+
     protected $rotations;
+
     protected $sepDate;
+
     protected $sepNumber;
+
     protected $patientName;
+
     protected $claimId;
 
     public function __construct($scannedDocs, $rotations, $sepDate, $sepNumber, $patientName, $claimId)
