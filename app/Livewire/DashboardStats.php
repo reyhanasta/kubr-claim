@@ -2,18 +2,21 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\BpjsClaim;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Livewire\Component;
 
 class DashboardStats extends Component
 {
     public $selectedMonth;
+
     public $selectedYear;
 
     public $kelasStats = [];
+
     public $jenisStats = [];
+
     public $totalClaims = 0;
 
     public function mount()

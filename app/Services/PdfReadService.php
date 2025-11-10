@@ -2,28 +2,28 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Log;
 use Spatie\PdfToText\Pdf;
-use Illuminate\Support\Env;
 
 class PdfReadService
 {
     /**
      * Read text from a PDF file using Spatie's PdfToText package.
      *
-     * @param string $pdfPath Path to the PDF file.
+     * @param  string  $pdfPath  Path to the PDF file.
      * @return string Extracted text from the PDF.
      */
     public function getPdfTextwithSpatie($file)
     {
-        
+
         $text = Pdf::getText($file->getRealPath(), Env::get('PDFTOTEXT_PATH'));
+
         return $text;
     }
 
-    
-
-    public function extractPdf($text){
+    public function extractPdf($text)
+    {
         // Normalisasi: ubah NBSP jadi space, normalisasi newline, pastikan UTF-8
         $text = mb_convert_encoding($text, 'UTF-8', 'auto');
         $text = preg_replace('/\x{00A0}/u', ' ', $text); // NBSP -> space
@@ -43,7 +43,7 @@ class PdfReadService
 
         // No.Kartu (mendukung jika ':' di baris berikutnya)
         if (preg_match('/No\.Kartu\s*(?:\s*):\s*([0-9]+)\s*\(\s*MR\.?\s*([0-9]+)\s*\)/i', $text, $m)) {
-            $data['bpjs_serial_number']    = trim($m[1]);
+            $data['bpjs_serial_number'] = trim($m[1]);
             $data['medical_record_number'] = trim($m[2]);
         }
 
@@ -52,11 +52,11 @@ class PdfReadService
             $data['patient_name'] = trim($m[1]);
         }
         if (preg_match('/\bKelas\s+[0-9A-Za-z]+\b/i', $text, $m)) {
-                // fallback kasar: cari kata "Kelas 3" di mana saja
-                $data['patient_class'] = trim($m[0]);
+            // fallback kasar: cari kata "Kelas 3" di mana saja
+            $data['patient_class'] = trim($m[0]);
         }
         // Jenis Rawat (Jns.Rawat)
-       // Jenis Rawat (Jns.Rawat : R.Jalan / R.Inap)
+        // Jenis Rawat (Jns.Rawat : R.Jalan / R.Inap)
         if (preg_match('/Jns\.?\s*Rawat\s*[:\-]?\s*([R\. ]?(Jalan|Inap))/i', $text, $m)) {
             $rawat = strtoupper(trim($m[1]));
 
@@ -77,11 +77,11 @@ class PdfReadService
                 $data['jenis_rawatan'] = 'RJ'; // default
             }
         }
-        
+
         // 🔹 Tambahkan debug log
         Log::debug('PDF Extracted Data:', $data);
         Log::debug('Rawat block check:', [
-            'matched_text' => substr($text, strpos($text, 'Jns.Rawat'), 50) // lihat 50 karakter setelah "Jns.Rawat"
+            'matched_text' => substr($text, strpos($text, 'Jns.Rawat'), 50), // lihat 50 karakter setelah "Jns.Rawat"
         ]);
 
         return $data ?: null;

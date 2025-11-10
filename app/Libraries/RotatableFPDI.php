@@ -10,8 +10,12 @@ class RotatableFPDI extends Fpdi
 
     public function Rotate($angle, $x = -1, $y = -1)
     {
-        if ($x == -1) $x = $this->x;
-        if ($y == -1) $y = $this->y;
+        if ($x == -1) {
+            $x = $this->x;
+        }
+        if ($y == -1) {
+            $y = $this->y;
+        }
         if ($this->angle != 0) {
             $this->_out('Q');
         }
