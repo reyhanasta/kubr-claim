@@ -41,6 +41,10 @@ class BpjsRawatJalanForm extends Component
     #[Validate('required|file|mimes:pdf,jpg,jpeg,png|max:2048')]
     public ?TemporaryUploadedFile $billingFile = null;
 
+    // Lab result (optional, PDF only) – merged into final combined PDF
+    #[Validate('nullable|file|mimes:pdf|max:2048')]
+    public ?TemporaryUploadedFile $labResultFile = null;
+
     #[Validate('nullable|file|mimes:pdf|max:2048')]
     public ?TemporaryUploadedFile $fileLIP = null;
 
@@ -105,6 +109,8 @@ class BpjsRawatJalanForm extends Component
             'fileLIP.max' => 'File LIP maksimal 2MB',
             'sepRJFile.mimes' => 'File SEP RJ harus berformat PDF maksimal 2MB',
             'sepRJFile.max' => 'File SEP RJ maksimal 2MB',
+            'labResultFile.mimes' => 'File Hasil Labor harus berformat PDF maksimal 2MB',
+            'labResultFile.max' => 'File Hasil Labor maksimal 2MB',
             'sep_number.required' => 'Nomor SEP wajib diisi',
             'sep_number.unique' => 'Nomor SEP sudah terdaftar',
             'sep_date.required' => 'Tanggal SEP wajib diisi',
@@ -194,6 +200,11 @@ class BpjsRawatJalanForm extends Component
         $this->processOptionalFile($this->fileLIP, 'fileLIP');
     }
 
+    public function updatedLabResultFile(): void
+    {
+        $this->processOptionalFile($this->labResultFile, 'labResultFile');
+    }
+
     public function cancelUpload(): void
     {
         $this->uploading = false;
@@ -227,7 +238,6 @@ class BpjsRawatJalanForm extends Component
         // Double-check required files
         if (! $this->requiredFilesUploaded) {
             $this->showErrorAlert('File tidak lengkap', 'Semua file wajib harus diunggah sebelum menyimpan klaim');
-
             return;
         }
 
@@ -273,7 +283,7 @@ class BpjsRawatJalanForm extends Component
             $this->showSuccessAlert('Klaim berhasil dibuat!', 'Dokumen telah digabung dan disimpan');
 
             // Redirect to claims list or dashboard
-            $this->redirect(route('dashboard'), navigate: true);
+            $this->redirect(route('bpjs-rajal-form'), navigate: true);
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('BPJS Claim Error', [
@@ -384,6 +394,7 @@ class BpjsRawatJalanForm extends Component
             $this->rotatedPaths['sepRJFile'] ?? null,
             $this->rotatedPaths['resumeFile'] ?? null,
             $this->rotatedPaths['billingFile'] ?? null,
+            $this->rotatedPaths['labResultFile'] ?? null,
         ])->filter()->values()->all();
     }
 
@@ -481,6 +492,7 @@ class BpjsRawatJalanForm extends Component
             'resumeFile',
             'billingFile',
             'fileLIP',
+            'labResultFile',
             'scanned_docs',
             'previewUrls',
             'rotatedPaths',

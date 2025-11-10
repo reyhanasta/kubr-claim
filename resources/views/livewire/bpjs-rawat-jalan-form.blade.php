@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50/30 to-cyan-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-slate-900 py-8 px-4">
+<div class="min-h-screen py-8 px-4">
     {{-- Offline Indicator --}}
     <div wire:offline class="fixed top-4 right-4 z-50 animate-pulse">
         <div class="flex items-center gap-2 bg-rose-500 text-white px-4 py-3 rounded-xl shadow-lg backdrop-blur-sm">
@@ -230,7 +230,7 @@
                                 <flux:heading size="sm" class="text-slate-600 dark:text-slate-300">Dokumen Tambahan (Opsional)</flux:heading>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {{-- SEP RJ File (only for RI) --}}
                                 @if ($jenis_rawatan === 'RI')
                                     <div class="space-y-3">
@@ -297,6 +297,41 @@
                                         </div>
                                     @endif
                                 </div>
+
+                                {{-- Hasil Lab (PDF only) --}}
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg">
+                                            <flux:icon.beaker class="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                                        </div>
+                                        <div class="flex-grow">
+                                            <flux:heading size="sm">Hasil Labor</flux:heading>
+                                            <flux:text size="xs" class="text-slate-500 dark:text-slate-400">
+                                                Opsional, diikutkan dalam file gabungan
+                                            </flux:text>
+                                        </div>
+                                    </div>
+                                    <flux:input 
+                                        type="file" 
+                                        wire:model="labResultFile" 
+                                        accept=".pdf"
+                                        label="Upload Hasil Lab (PDF)"
+                                    />
+                                    @error('labResultFile')
+                                        <div class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                                            <flux:icon.exclamation-circle class="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                                            <flux:text size="sm" class="text-rose-900 dark:text-rose-100">{{ $message }}</flux:text>
+                                        </div>
+                                    @enderror
+                                    @if($labResultFile)
+                                        <div class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                                            <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                            <flux:text size="sm" class="text-emerald-900 dark:text-emerald-100 truncate flex-grow">
+                                                {{ is_object($labResultFile) ? $labResultFile->getClientOriginalName() : 'Hasil Lab' }}
+                                            </flux:text>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
@@ -308,7 +343,7 @@
                                     {{ collect([$resumeFile, $billingFile])->filter()->count() }}/2 wajib
                                 </flux:text>
                             </div>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                                 <div class="text-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border {{ $resumeFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-slate-200 dark:border-slate-700' }}">
                                     <div class="text-2xl font-bold {{ $resumeFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400' }}">
                                         {{ $resumeFile ? '✓' : '○' }}
@@ -334,6 +369,12 @@
                                         {{ $fileLIP ? '✓' : '○' }}
                                     </div>
                                     <flux:text size="xs" class="text-slate-600 dark:text-slate-400 mt-1">LIP</flux:text>
+                                </div>
+                                <div class="text-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border {{ $labResultFile ? 'border-rose-300 dark:border-rose-700' : 'border-slate-200 dark:border-slate-700' }}">
+                                    <div class="text-2xl font-bold {{ $labResultFile ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400' }}">
+                                        {{ $labResultFile ? '✓' : '○' }}
+                                    </div>
+                                    <flux:text size="xs" class="text-slate-600 dark:text-slate-400 mt-1">Hasil Lab</flux:text>
                                 </div>
                             </div>
                         </div>
@@ -476,7 +517,7 @@
     {{-- Loading Overlay with Better Animation --}}
     <div 
         wire:loading.flex 
-        wire:target="sepFile,resumeFile,billingFile,fileLIP,sepRJFile,submit"
+        wire:target="sepFile,resumeFile,billingFile,fileLIP,sepRJFile,labResultFile,submit"
         class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center animate-fade-in"
     >
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center border border-slate-200 dark:border-slate-700">
