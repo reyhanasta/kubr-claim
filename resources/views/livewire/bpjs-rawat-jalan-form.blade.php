@@ -7,7 +7,7 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-4xl mx-auto">
         {{-- Header Section --}}
         {{-- Main Form After SEP Upload --}}
         @if($showUploadedData)
@@ -108,6 +108,7 @@
                                 <flux:label class="flex items-center gap-2">
                                     <flux:icon.calendar class="w-4 h-4" />
                                     {{ $sep_date_label }}
+                                    <flux:text size="sm" class="text-rose-600 dark:text-rose-400">*</flux:text>
                                 </flux:label>
                                 <flux:input type="date" wire:model="sep_date" />
                                 @error('sep_date')
@@ -119,6 +120,7 @@
                                 <flux:label class="flex items-center gap-2">
                                     <flux:icon.shield-check class="w-4 h-4" />
                                     Kelas Pasien
+                                    <flux:text size="sm" class="text-rose-600 dark:text-rose-400">*</flux:text>
                                 </flux:label>
                                 <flux:input type="text" wire:model="patient_class" />
                                 @error('patient_class')
@@ -152,9 +154,39 @@
                     <div class="p-6 space-y-6">
                         {{-- Main Required Documents --}}
                         <div class="space-y-4">
-                           
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {{-- SEP RJ File (only for RI) --}}
+                                @if ($jenis_rawatan === 'RI')
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                                                <flux:icon.document-text class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                            </div>
+                                            <flux:heading size="sm">SEP Rawat Jalan</flux:heading>
+                                            <flux:text size="sm" class="text-rose-600 dark:text-rose-400">*Wajib</flux:text>
+                                        </div>
+                                        <flux:input 
+                                            type="file" 
+                                            wire:model="sepRJFile" 
+                                            accept=".pdf"
+                                            label="Upload SEP RJ (PDF)"
+                                        />
+                                        @error('sepRJFile')
+                                            <div class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                                                <flux:icon.exclamation-circle class="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                                                <flux:text size="sm" class="text-rose-900 dark:text-rose-100">{{ $message }}</flux:text>
+                                            </div>
+                                        @enderror
+                                        @if($sepRJFile)
+                                            <div class="flex items-center gap-2 p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
+                                                <flux:icon.check-circle class="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0" />
+                                                <flux:text size="sm" class="text-sky-900 dark:text-sky-100 truncate flex-grow">
+                                                    {{ is_object($sepRJFile) ? $sepRJFile->getClientOriginalName() : 'SEP RJ' }}
+                                                </flux:text>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                                 {{-- Resume File --}}
                                 <div class="space-y-3">
                                     <div class="flex items-center gap-2">
@@ -229,40 +261,7 @@
                                 <flux:icon.plus-circle class="w-5 h-5 text-slate-400" />
                                 <flux:heading size="sm" class="text-slate-600 dark:text-slate-300">Dokumen Tambahan (Opsional)</flux:heading>
                             </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {{-- SEP RJ File (only for RI) --}}
-                                @if ($jenis_rawatan === 'RI')
-                                    <div class="space-y-3">
-                                        <div class="flex items-center gap-2">
-                                            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                                                <flux:icon.document-text class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                                            </div>
-                                            <flux:heading size="sm">SEP Rawat Jalan</flux:heading>
-                                        </div>
-                                        <flux:input 
-                                            type="file" 
-                                            wire:model="sepRJFile" 
-                                            accept=".pdf"
-                                            label="Upload SEP RJ (Opsional)"
-                                        />
-                                        @error('sepRJFile')
-                                            <div class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
-                                                <flux:icon.exclamation-circle class="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0" />
-                                                <flux:text size="sm" class="text-rose-900 dark:text-rose-100">{{ $message }}</flux:text>
-                                            </div>
-                                        @enderror
-                                        @if($sepRJFile)
-                                            <div class="flex items-center gap-2 p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
-                                                <flux:icon.check-circle class="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0" />
-                                                <flux:text size="sm" class="text-sky-900 dark:text-sky-100 truncate flex-grow">
-                                                    {{ is_object($sepRJFile) ? $sepRJFile->getClientOriginalName() : 'SEP RJ' }}
-                                                </flux:text>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endif
-
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                                 {{-- LIP File --}}
                                 <div class="space-y-3">
                                     <div class="flex items-center gap-2">
@@ -270,7 +269,7 @@
                                             <flux:icon.document-plus class="w-5 h-5 text-violet-600 dark:text-violet-400" />
                                         </div>
                                         <div class="flex-grow">
-                                            <flux:heading size="sm">Dokumen LIP</flux:heading>
+                                            <flux:heading size="sm">Dokumen LIP (Opsional)</flux:heading>
                                             <flux:text size="xs" class="text-slate-500 dark:text-slate-400">
                                                 Disimpan terpisah, tidak ikut di-merge
                                             </flux:text>
@@ -280,7 +279,7 @@
                                         type="file" 
                                         wire:model="fileLIP" 
                                         accept=".pdf"
-                                        label="Upload LIP (Opsional)"
+                                        label="Upload LIP (PDF)"
                                     />
                                     @error('fileLIP')
                                         <div class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
@@ -305,7 +304,7 @@
                                             <flux:icon.beaker class="w-5 h-5 text-rose-600 dark:text-rose-400" />
                                         </div>
                                         <div class="flex-grow">
-                                            <flux:heading size="sm">Hasil Labor</flux:heading>
+                                            <flux:heading size="sm">Hasil Labor (Opsional)</flux:heading>
                                             <flux:text size="xs" class="text-slate-500 dark:text-slate-400">
                                                 Opsional, diikutkan dalam file gabungan
                                             </flux:text>
