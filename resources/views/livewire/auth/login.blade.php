@@ -6,27 +6,19 @@
 
     <form wire:submit="login" class="flex flex-col gap-6">
         <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email address')"
-            type="email"
-            required
-            autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
-        />
+        <flux:input wire:model="email" :label="__('Email address')" type="email" required autofocus autocomplete="email"
+            placeholder="email@example.com" />
+        @error('email')
+            <flux:text class="text-red-600 dark:text-red-400 text-sm">{{ $message }}</flux:text>
+        @enderror
 
         <!-- Password -->
         <div class="relative">
-            <flux:input
-                wire:model="password"
-                :label="__('Password')"
-                type="password"
-                required
-                autocomplete="current-password"
-                :placeholder="__('Password')"
-                viewable
-            />
+            <flux:input wire:model="password" :label="__('Password')" type="password" required
+                autocomplete="current-password" :placeholder="__('Password')" viewable />
+            @error('password')
+                <flux:text class="text-red-600 dark:text-red-400 text-sm">{{ $message }}</flux:text>
+            @enderror
 
             @if (Route::has('password.request'))
                 <flux:link class="absolute end-0 top-0 text-sm" :href="route('password.request')" wire:navigate>

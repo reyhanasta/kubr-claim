@@ -426,7 +426,7 @@
                     <flux:icon.document-check class="w-12 h-12 text-white" />
                 </div>
                 <flux:heading size="xl" level="1" class="mb-2 bg-gradient-to-r from-slate-700 via-teal-600 to-cyan-600 dark:from-slate-300 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent">
-                    Form Klaim BPJS Rawat Jalan
+                    Form Klaim BPJS 
                 </flux:heading>
                 <flux:subheading class="text-slate-600 dark:text-slate-400">
                     Silakan upload dokumen SEP untuk memulai proses klaim

@@ -4,6 +4,7 @@ namespace App\Livewire\Auth;
 
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -43,7 +44,8 @@ class Login extends Component
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        Log::info('Login successful', ['email' => $this->email, 'ip' => request()->ip()]);
+        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: false);
     }
 
     /**
