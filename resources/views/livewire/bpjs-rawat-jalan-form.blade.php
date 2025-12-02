@@ -1,4 +1,5 @@
 <div class="min-h-screen py-8 px-4">
+
     {{-- Offline Indicator --}}
     <div wire:offline class="fixed top-4 right-4 z-50 animate-pulse">
         <div class="flex items-center gap-2 bg-rose-500 text-white px-4 py-3 rounded-xl shadow-lg backdrop-blur-sm">
@@ -88,11 +89,14 @@
 
                             {{-- Nomor BPJS --}}
                             <div
-                                class="group relative overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-800/20 p-5 rounded-xl border-l-4 border-amber-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-amber-500/10 rounded-full">
+                                class="group relative overflow-hidden bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-100 dark:from-teal-900/30 dark:via-cyan-900/30 dark:to-sky-800/30 p-5 rounded-xl border-l-4 border-teal-500 hover:shadow-lg hover:shadow-teal-200/50 dark:hover:shadow-teal-900/50 hover:-translate-y-1 transition-all duration-300">
+                                <div
+                                    class="absolute -top-1 -right-1 w-16 h-16 opacity-90 group-hover:scale-110 transition-transform duration-300">
+                                    <img src="{{ asset('logo_bpjs.png') }}" alt="BPJS Logo"
+                                        class="w-full h-full object-contain drop-shadow-md">
                                 </div>
                                 <flux:label
-                                    class="text-xs font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                    class="text-xs font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wide mb-2 flex items-center gap-2">
                                     <flux:icon.identification class="w-4 h-4" />
                                     No. BPJS
                                 </flux:label>
@@ -202,13 +206,21 @@
                                                 <flux:icon.document-text
                                                     class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                             </div>
-                                            <div>
+                                            <div class="flex-grow">
                                                 <flux:heading size="sm">Resume Medis</flux:heading>
                                                 <flux:text size="sm" class="text-rose-600 dark:text-rose-400">*Wajib</flux:text>
                                             </div>
                                         </div>
                                         <flux:input type="file" wire:model="resumeFile" accept=".pdf"
                                             label="Upload Resume Medis (PDF)" />
+                                        {{-- Upload indicator --}}
+                                        <div wire:loading wire:target="resumeFile"
+                                            class="flex items-center gap-2 text-emerald-600">
+                                            <div
+                                                class="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent">
+                                            </div>
+                                            <span class="text-xs font-medium">Uploading...</span>
+                                        </div>
                                         @error('resumeFile')
                                             <div
                                                 class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
@@ -238,13 +250,22 @@
                                                 <flux:icon.document-currency-dollar
                                                     class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                             </div>
-                                            <div>
+                                            <div class="flex-grow">
                                                 <flux:heading size="sm">File Billing</flux:heading>
                                                 <flux:text size="sm" class="text-rose-600 dark:text-rose-400">*Wajib</flux:text>
                                             </div>
+
                                         </div>
                                         <flux:input type="file" wire:model="billingFile" accept=".pdf,.jpg,.png"
                                             label="Upload Billing (PDF/JPG/PNG)" />
+                                        {{-- Upload indicator --}}
+                                        <div wire:loading wire:target="billingFile"
+                                            class="flex items-center gap-2 text-emerald-600">
+                                            <div
+                                                class="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent">
+                                            </div>
+                                            <span class="text-xs font-medium">Uploading...</span>
+                                        </div>
                                         @error('billingFile')
                                             <div
                                                 class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
@@ -286,10 +307,21 @@
                                                     <flux:icon.document-text
                                                         class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                                 </div>
-                                                <flux:heading size="sm">SEP Rawat Jalan</flux:heading>
+                                                <div class="flex-grow">
+                                                    <flux:heading size="sm">SEP Rawat Jalan</flux:heading>
+                                                </div>
+
                                             </div>
                                             <flux:input type="file" wire:model="sepRJFile" accept=".pdf"
                                                 label="Upload SEP RJ (Opsional)" />
+                                            {{-- Upload indicator --}}
+                                            <div wire:loading wire:target="sepRJFile"
+                                                class="flex items-center gap-2 text-emerald-600">
+                                                <div
+                                                    class="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent">
+                                                </div>
+                                                <span class="text-xs font-medium">Uploading...</span>
+                                            </div>
                                             @error('sepRJFile')
                                                 <div
                                                     class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
@@ -301,10 +333,11 @@
                                             @enderror
                                             @if($sepRJFile)
                                                 <div
-                                                    class="flex items-center gap-2 p-3 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800">
+                                                    class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                                                     <flux:icon.check-circle
-                                                        class="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0" />
-                                                    <flux:text size="sm" class="text-sky-900 dark:text-sky-100 truncate flex-grow">
+                                                        class="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                                    <flux:text size="sm"
+                                                        class="text-emerald-900 dark:text-emerald-100 truncate flex-grow">
                                                         {{ is_object($sepRJFile) ? $sepRJFile->getClientOriginalName() : 'SEP RJ' }}
                                                     </flux:text>
                                                 </div>
@@ -324,9 +357,18 @@
                                                     Disimpan terpisah, tidak ikut di-merge
                                                 </flux:text>
                                             </div>
+
                                         </div>
                                         <flux:input type="file" wire:model="fileLIP" accept=".pdf"
                                             label="Upload LIP (Opsional)" />
+                                        {{-- Upload indicator --}}
+                                        <div wire:loading wire:target="fileLIP"
+                                            class="flex items-center gap-2 text-emerald-600">
+                                            <div
+                                                class="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent">
+                                            </div>
+                                            <span class="text-xs font-medium">Uploading...</span>
+                                        </div>
                                         @error('fileLIP')
                                             <div
                                                 class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
@@ -338,11 +380,11 @@
                                         @enderror
                                         @if($fileLIP)
                                             <div
-                                                class="flex items-center gap-2 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                                                class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                                                 <flux:icon.check-circle
-                                                    class="w-5 h-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />
+                                                    class="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                                                 <flux:text size="sm"
-                                                    class="text-violet-900 dark:text-violet-100 truncate flex-grow">
+                                                    class="text-emerald-900 dark:text-emerald-100 truncate flex-grow">
                                                     {{ is_object($fileLIP) ? $fileLIP->getClientOriginalName() : 'LIP' }}
                                                 </flux:text>
                                             </div>
@@ -364,6 +406,14 @@
                                         </div>
                                         <flux:input type="file" wire:model="labResultFile" accept=".pdf"
                                             label="Upload Hasil Lab (PDF)" />
+                                        {{-- Upload indicator --}}
+                                        <div wire:loading wire:target="labResultFile"
+                                            class="flex items-center gap-2 text-emerald-600">
+                                            <div
+                                                class="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent">
+                                            </div>
+                                            <span class="text-xs font-medium">Uploading...</span>
+                                        </div>
                                         @error('labResultFile')
                                             <div
                                                 class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
@@ -398,9 +448,18 @@
                                                     Opsional, diikutkan dalam file gabungan
                                                 </flux:text>
                                             </div>
+
                                         </div>
                                         <flux:input type="file" wire:model="labResultFile2" accept=".pdf"
                                             label="Upload Hasil Lab (PDF)" />
+                                        {{-- Upload indicator --}}
+                                        <div wire:loading wire:target="labResultFile2"
+                                            class="flex items-center gap-2 text-emerald-600">
+                                            <div
+                                                class="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent">
+                                            </div>
+                                            <span class="text-xs font-medium">Uploading...</span>
+                                        </div>
                                         @error('labResultFile2')
                                             <div
                                                 class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
@@ -434,7 +493,7 @@
                                         {{ collect([$resumeFile, $billingFile])->filter()->count() }}/2 wajib
                                     </flux:text>
                                 </div>
-                                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
                                     <div
                                         class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $resumeFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
@@ -453,35 +512,35 @@
                                     </div>
                                     @if($jenis_rawatan === 'RI')
                                         <div
-                                            class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $sepRJFile ? 'border-sky-300 dark:border-sky-700' : 'border-gray-200 dark:border-gray-700' }}">
+                                            class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $sepRJFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
                                             <div
-                                                class="text-2xl font-bold {{ $sepRJFile ? 'text-sky-600 dark:text-sky-400' : 'text-gray-400' }}">
+                                                class="text-2xl font-bold {{ $sepRJFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}">
                                                 {{ $sepRJFile ? '✓' : '○' }}
                                             </div>
                                             <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">SEP RJ</flux:text>
                                         </div>
                                     @endif
                                     <div
-                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $fileLIP ? 'border-violet-300 dark:border-violet-700' : 'border-gray-200 dark:border-gray-700' }}">
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $fileLIP ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-2xl font-bold {{ $fileLIP ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400' }}">
+                                            class="text-2xl font-bold {{ $fileLIP ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}">
                                             {{ $fileLIP ? '✓' : '○' }}
                                         </div>
                                         <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">LIP</flux:text>
                                     </div>
                                     <div
-                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $labResultFile ? 'border-rose-300 dark:border-rose-700' : 'border-gray-200 dark:border-gray-700' }}">
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $labResultFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-2xl font-bold {{ $labResultFile ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400' }}">
+                                            class="text-2xl font-bold {{ $labResultFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}">
                                             {{ $labResultFile ? '✓' : '○' }}
                                         </div>
                                         <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">Lab 1
                                         </flux:text>
                                     </div>
                                     <div
-                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $labResultFile2 ? 'border-rose-300 dark:border-rose-700' : 'border-gray-200 dark:border-gray-700' }}">
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $labResultFile2 ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-2xl font-bold {{ $labResultFile2 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400' }}">
+                                            class="text-2xl font-bold {{ $labResultFile2 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}">
                                             {{ $labResultFile2 ? '✓' : '○' }}
                                         </div>
                                         <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">Lab 2
@@ -517,11 +576,19 @@
                         @endif
 
                         <flux:button type="submit" variant="primary" icon="check" wire:loading.attr="disabled"
-                            wire:target="submit" :disabled="!$this->canShowSupportingDocuments"
-                            class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-500 shadow-lg px-8 disabled:opacity-50 disabled:cursor-not-allowed">
+                            wire:target="submit,resumeFile,billingFile,sepRJFile,fileLIP,labResultFile,labResultFile2"
+                            disabled="{{ !$this->canShowSupportingDocuments || !$resumeFile || !$billingFile }}"
+                            class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-500 text-white shadow-lg px-8 disabled:opacity-50 disabled:cursor-not-allowed">
                             <span wire:loading.remove wire:target="submit">Simpan Klaim</span>
-                            <span wire:loading wire:target="submit" class="flex items-center gap-2">
-                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span wire:loading wire:target="submit" class="inline-flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
                                 Menyimpan...
                             </span>
                         </flux:button>
@@ -631,8 +698,36 @@
     </div>
 
     {{-- Loading Overlay with Better Animation --}}
-    <div wire:loading.flex
+    {{-- <div wire:loading.flex
         wire:target="sepFile,resumeFile,billingFile,fileLIP,sepRJFile,labResultFile,labResultFile2,submit"
+        class="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center animate-fade-in">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center border border-gray-200 dark:border-gray-700">
+            <div class="relative w-20 h-20 mx-auto mb-6">
+                <div class="absolute inset-0 border-4 border-emerald-200 dark:border-emerald-800 rounded-full"></div>
+                <div
+                    class="absolute inset-0 border-4 border-transparent border-t-emerald-600 dark:border-t-emerald-400 rounded-full animate-spin">
+                </div>
+                <flux:icon.document-arrow-up
+                    class="absolute inset-0 m-auto w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+            </div>
+
+            <flux:heading size="lg" class="text-gray-900 dark:text-white mb-2">
+                Memproses File
+            </flux:heading>
+            <flux:text size="sm" class="text-gray-600 dark:text-gray-400">
+                Mohon tunggu, sedang memproses dokumen...
+            </flux:text>
+
+            <div class="mt-6 flex items-center justify-center gap-2">
+                <div class="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+            </div>
+        </div>
+    </div> --}}
+
+    <div wire:loading.flex wire:target="sepFile,submit"
         class="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center animate-fade-in">
         <div
             class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center border border-gray-200 dark:border-gray-700">
