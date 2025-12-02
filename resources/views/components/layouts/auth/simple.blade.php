@@ -32,8 +32,8 @@
             {{-- Content --}}
             <div class="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
                 {{-- App Icon --}}
-                <div class="mb-8 p-6 bg-white/10 backdrop-blur-sm rounded-3xl border border-white/20 shadow-2xl">
-                    <flux:icon.document-check class="w-20 h-20 text-white" />
+                <div class="mb-8 p-4 bg-white/20 backdrop-blur-sm rounded-3xl border border-white/20 shadow-2xl">
+                    <img src="{{ asset('FastClaim_Icon.png') }}" alt="FastClaim" class="w-24 h-24 object-contain" />
                 </div>
 
                 <h1 class="text-4xl font-bold mb-4 text-center">{{ config('app.name', 'Fast Claim') }}</h1>
@@ -83,8 +83,8 @@
             <div class="w-full max-w-md">
                 {{-- Mobile Logo --}}
                 <div class="lg:hidden flex flex-col items-center mb-8">
-                    <div class="p-4 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl shadow-xl mb-4">
-                        <flux:icon.document-check class="w-12 h-12 text-white" />
+                    <div class="p-2 bg-white rounded-2xl shadow-xl mb-4">
+                        <img src="{{ asset('FastClaim_Icon.png') }}" alt="FastClaim" class="w-16 h-16 object-contain" />
                     </div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-50">
                         {{ config('app.name', 'Fast Claim') }}

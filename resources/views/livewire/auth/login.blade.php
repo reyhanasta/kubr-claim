@@ -41,7 +41,7 @@
         </div>
 
         <flux:button variant="primary" type="submit"
-            class="w-full bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:via-emerald-800 hover:to-teal-800 shadow-lg py-3 text-base font-semibold">
+            class="w-full text-white bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:via-emerald-800 hover:to-teal-800 shadow-lg py-3 text-base font-semibold">
             <span wire:loading.remove wire:target="login">{{ __('Masuk') }}</span>
             <span wire:loading wire:target="login" class="flex items-center justify-center gap-2">
                 <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
