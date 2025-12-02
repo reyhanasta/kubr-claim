@@ -346,9 +346,37 @@ class BpjsRawatJalanForm extends Component
         // Validate essential fields are not empty
         $this->validateExtractedData($extractedData);
 
+        // Check if SEP number already exists in database
+        $this->checkDuplicateSepNumber($extractedData['sep_number'] ?? '');
+
         $this->fillPatientData($extractedData);
         $this->storeTempFile($this->sepFile, 'sepFile');
         $this->showUploadedData = true;
+    }
+
+    /**
+     * Check if SEP number already exists in database.
+     *
+     * @throws \RuntimeException if SEP number is duplicate
+     */
+    private function checkDuplicateSepNumber(string $sepNumber): void
+    {
+        if (empty($sepNumber)) {
+            return;
+        }
+
+        $existingClaim = BpjsClaim::where('no_sep', $sepNumber)->first();
+
+        if ($existingClaim) {
+            $tanggalRawatan = $existingClaim->tanggal_rawatan?->format('d/m/Y') ?? '-';
+            $jenisRawatan = $existingClaim->jenis_rawatan === 'RI' ? 'Rawat Inap' : 'Rawat Jalan';
+
+            throw new \RuntimeException(
+                "Nomor SEP {$sepNumber} sudah terdaftar sebelumnya. ".
+                "Data klaim: {$existingClaim->nama_pasien} ({$jenisRawatan}) ".
+                "tanggal {$tanggalRawatan}."
+            );
+        }
     }
 
     /**
@@ -585,7 +613,13 @@ class BpjsRawatJalanForm extends Component
         ]);
 
         $this->cancelUpload();
-        $this->showErrorAlert('Gagal memproses file!', 'Terjadi kesalahan saat memproses file');
+
+        // Use custom message from RuntimeException, otherwise use generic message
+        if ($e instanceof \RuntimeException) {
+            $this->showErrorAlert('Gagal memproses file!', $e->getMessage());
+        } else {
+            $this->showErrorAlert('Gagal memproses file!', 'Terjadi kesalahan saat memproses file');
+        }
     }
 
     private function showSuccessAlert(string $title, string $text): void

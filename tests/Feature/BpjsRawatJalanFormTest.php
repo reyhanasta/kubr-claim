@@ -386,3 +386,61 @@ test('validate extracted data passes when all essential fields are present', fun
 
     expect(true)->toBeTrue(); // If we reach here, no exception was thrown
 });
+
+test('check duplicate sep number throws exception when sep exists', function () {
+    $user = User::factory()->create();
+
+    // Create existing claim with a specific SEP number
+    BpjsClaim::create([
+        'no_rm' => 'RM001',
+        'no_kartu_bpjs' => '1234567890',
+        'no_sep' => 'SEP123456789',
+        'jenis_rawatan' => 'RJ',
+        'tanggal_rawatan' => '2025-11-15',
+        'nama_pasien' => 'Existing Patient',
+        'kelas_rawatan' => '1',
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(BpjsRawatJalanForm::class);
+
+    // Use reflection to access private method
+    $reflection = new ReflectionClass($component->instance());
+    $method = $reflection->getMethod('checkDuplicateSepNumber');
+
+    // Expect exception when checking duplicate SEP
+    expect(fn () => $method->invoke($component->instance(), 'SEP123456789'))
+        ->toThrow(RuntimeException::class, 'Nomor SEP SEP123456789 sudah terdaftar sebelumnya');
+});
+
+test('check duplicate sep number passes when sep does not exist', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)
+        ->test(BpjsRawatJalanForm::class);
+
+    // Use reflection to access private method
+    $reflection = new ReflectionClass($component->instance());
+    $method = $reflection->getMethod('checkDuplicateSepNumber');
+
+    // Should not throw exception for new SEP number
+    $method->invoke($component->instance(), 'NEW_SEP_NUMBER');
+
+    expect(true)->toBeTrue(); // If we reach here, no exception was thrown
+});
+
+test('check duplicate sep number skips validation for empty sep', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)
+        ->test(BpjsRawatJalanForm::class);
+
+    // Use reflection to access private method
+    $reflection = new ReflectionClass($component->instance());
+    $method = $reflection->getMethod('checkDuplicateSepNumber');
+
+    // Should not throw exception for empty SEP number
+    $method->invoke($component->instance(), '');
+
+    expect(true)->toBeTrue(); // If we reach here, no exception was thrown
+});
