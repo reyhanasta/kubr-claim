@@ -1,52 +1,69 @@
 <div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+    {{-- Header --}}
+    <div class="text-center space-y-2">
+        <h2 class="text-2xl font-bold text-sage-900 dark:text-sage-50">
+            Selamat Datang Kembali
+        </h2>
+        <p class="text-sage-600 dark:text-sage-400">
+            Masuk ke akun Anda untuk melanjutkan
+        </p>
+    </div>
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form wire:submit="login" class="flex flex-col gap-6">
+    <form wire:submit="login" class="flex flex-col gap-5">
         <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email address')"
-            type="email"
-            required
-            autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
-        />
+        <div class="space-y-2">
+            <flux:input wire:model="email" :label="__('Email')" type="email" required autofocus autocomplete="email"
+                placeholder="nama@email.com" icon="envelope" />
+        </div>
 
         <!-- Password -->
-        <div class="relative">
-            <flux:input
-                wire:model="password"
-                :label="__('Password')"
-                type="password"
-                required
-                autocomplete="current-password"
-                :placeholder="__('Password')"
-                viewable
-            />
-
-            @if (Route::has('password.request'))
-                <flux:link class="absolute end-0 top-0 text-sm" :href="route('password.request')" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </flux:link>
-            @endif
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                <flux:label>{{ __('Password') }}</flux:label>
+                @if (Route::has('password.request'))
+                    <flux:link class="text-sm text-sage-600 hover:text-sage-700 dark:text-sage-400 dark:hover:text-sage-300"
+                        :href="route('password.request')" wire:navigate>
+                        {{ __('Lupa password?') }}
+                    </flux:link>
+                @endif
+            </div>
+            <flux:input wire:model="password" type="password" required autocomplete="current-password"
+                placeholder="••••••••" viewable icon="lock-closed" />
         </div>
 
         <!-- Remember Me -->
-        <flux:checkbox wire:model="remember" :label="__('Remember me')" />
-
-        <div class="flex items-center justify-end">
-            <flux:button variant="primary" type="submit" class="w-full">{{ __('Log in') }}</flux:button>
+        <div class="flex items-center justify-between">
+            <flux:checkbox wire:model="remember" :label="__('Ingat saya')" />
         </div>
+
+        <flux:button variant="primary" type="submit"
+            class="w-full bg-gradient-to-r from-sage-600 via-sage-700 to-leaf-700 hover:from-sage-700 hover:via-sage-800 hover:to-leaf-800 shadow-lg py-3 text-base font-semibold">
+            <span wire:loading.remove wire:target="login">{{ __('Masuk') }}</span>
+            <span wire:loading wire:target="login" class="flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                Memproses...
+            </span>
+        </flux:button>
     </form>
 
     @if (Route::has('register'))
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
-            {{ __('Don\'t have an account?') }}
-            <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
+        <div class="text-center">
+            <p class="text-sm text-sage-700 dark:text-sage-400">
+                {{ __('Belum punya akun?') }}
+                <flux:link
+                    class="font-semibold text-sage-600 hover:text-sage-700 dark:text-sage-400 dark:hover:text-sage-300"
+                    :href="route('register')" wire:navigate>
+                    {{ __('Daftar sekarang') }}
+                </flux:link>
+            </p>
         </div>
     @endif
 </div>

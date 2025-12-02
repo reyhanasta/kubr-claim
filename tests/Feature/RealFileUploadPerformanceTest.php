@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Storage;
 test('example', function () {
     $response = $this->get('/');
 
-    $response->assertStatus(200);
+    // Homepage now redirects to login
+    $response->assertRedirect(route('login'));
 });
 
 test('it_measures_resume_upload_time_on_real_disk', function () {

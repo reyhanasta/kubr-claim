@@ -45,6 +45,10 @@ class BpjsRawatJalanForm extends Component
     #[Validate('nullable|file|mimes:pdf|max:2048')]
     public ?TemporaryUploadedFile $labResultFile = null;
 
+    // Lab result (optional, PDF only) – merged into final combined PDF
+    #[Validate('nullable|file|mimes:pdf|max:2048')]
+    public ?TemporaryUploadedFile $labResultFile2 = null;
+
     #[Validate('nullable|file|mimes:pdf|max:2048')]
     public ?TemporaryUploadedFile $fileLIP = null;
 
@@ -111,6 +115,8 @@ class BpjsRawatJalanForm extends Component
             'sepRJFile.max' => 'File SEP RJ maksimal 2MB',
             'labResultFile.mimes' => 'File Hasil Labor harus berformat PDF maksimal 2MB',
             'labResultFile.max' => 'File Hasil Labor maksimal 2MB',
+            'labResultFile2.mimes' => 'File Hasil Labor harus berformat PDF maksimal 2MB',
+            'labResultFile2.max' => 'File Hasil Labor maksimal 2MB',
             'sep_number.required' => 'Nomor SEP wajib diisi',
             'sep_number.unique' => 'Nomor SEP sudah terdaftar',
             'sep_date.required' => 'Tanggal SEP wajib diisi',
