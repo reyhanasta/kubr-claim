@@ -600,10 +600,10 @@
         {{-- Initial SEP Upload Section --}}
         @if(!$showUploadedData)
             <div class="mb-8 text-center animate-fade-in">
-                <div
+                {{-- <div
                     class="inline-block p-4 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-2xl mb-4 shadow-xl transform hover:scale-105 transition-transform duration-300">
                     <flux:icon.document-check class="w-12 h-12 text-white" />
-                </div>
+                </div> --}}
                 <flux:heading size="xl" level="1"
                     class="mb-2 bg-gradient-to-r from-emerald-800 via-emerald-600 to-emerald-500 dark:from-emerald-200 dark:via-emerald-400 dark:to-emerald-500 bg-clip-text text-transparent">
                     Form Klaim BPJS Rawat Jalan
