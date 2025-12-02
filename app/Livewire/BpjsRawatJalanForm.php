@@ -166,6 +166,22 @@ class BpjsRawatJalanForm extends Component
         ];
     }
 
+    /**
+     * Check if supporting documents form can be displayed.
+     * For Rawat Inap (RI), user must fill discharge date first.
+     */
+    #[Computed]
+    public function canShowSupportingDocuments(): bool
+    {
+        // For Rawat Jalan, always show after SEP is uploaded
+        if ($this->jenis_rawatan === 'RJ') {
+            return true;
+        }
+
+        // For Rawat Inap, require discharge date to be filled
+        return ! empty($this->sep_date);
+    }
+
     public function updatedSepFile(): void
     {
         if (! $this->sepFile) {
@@ -211,6 +227,11 @@ class BpjsRawatJalanForm extends Component
         $this->processOptionalFile($this->labResultFile, 'labResultFile');
     }
 
+    public function updatedLabResultFile2(): void
+    {
+        $this->processOptionalFile($this->labResultFile2, 'labResultFile2');
+    }
+
     public function cancelUpload(): void
     {
         $this->uploading = false;
@@ -244,6 +265,7 @@ class BpjsRawatJalanForm extends Component
         // Double-check required files
         if (! $this->requiredFilesUploaded) {
             $this->showErrorAlert('File tidak lengkap', 'Semua file wajib harus diunggah sebelum menyimpan klaim');
+
             return;
         }
 
@@ -321,9 +343,41 @@ class BpjsRawatJalanForm extends Component
             throw new \RuntimeException('Format dokumen SEP tidak valid atau tidak dapat dibaca');
         }
 
+        // Validate essential fields are not empty
+        $this->validateExtractedData($extractedData);
+
         $this->fillPatientData($extractedData);
         $this->storeTempFile($this->sepFile, 'sepFile');
         $this->showUploadedData = true;
+    }
+
+    /**
+     * Validate that essential data was extracted from SEP document.
+     *
+     * @throws \RuntimeException if essential data is missing
+     */
+    private function validateExtractedData(array $data): void
+    {
+        $requiredFields = [
+            'sep_number' => 'Nomor SEP',
+            'patient_name' => 'Nama Pasien',
+            'medical_record_number' => 'Nomor Rekam Medis',
+            'bpjs_serial_number' => 'Nomor Kartu BPJS',
+        ];
+
+        $missingFields = [];
+
+        foreach ($requiredFields as $field => $label) {
+            if (empty(trim($data[$field] ?? ''))) {
+                $missingFields[] = $label;
+            }
+        }
+
+        if (! empty($missingFields)) {
+            throw new \RuntimeException(
+                'Data SEP tidak lengkap. Field berikut tidak dapat dibaca: '.implode(', ', $missingFields).'. Pastikan file SEP yang diupload valid dan dapat dibaca.'
+            );
+        }
     }
 
     private function fillPatientData(array $data): void
@@ -401,6 +455,7 @@ class BpjsRawatJalanForm extends Component
             $this->rotatedPaths['resumeFile'] ?? null,
             $this->rotatedPaths['billingFile'] ?? null,
             $this->rotatedPaths['labResultFile'] ?? null,
+            $this->rotatedPaths['labResultFile2'] ?? null,
         ])->filter()->values()->all();
     }
 
@@ -499,6 +554,7 @@ class BpjsRawatJalanForm extends Component
             'billingFile',
             'fileLIP',
             'labResultFile',
+            'labResultFile2',
             'scanned_docs',
             'previewUrls',
             'rotatedPaths',
