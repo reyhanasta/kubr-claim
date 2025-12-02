@@ -12,48 +12,9 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     /* ========================================
-       🌿 SAGE GREEN COLOR PALETTE
-       Optimized for accessibility & dark mode
+       💎 EMERALD COLOR PALETTE
+       Clean, professional with emerald accent
        ======================================== */
-
-    /* Primary Sage Colors */
-    --color-sage-50: #f6f7f4;
-    --color-sage-100: #e8ebe4;
-    --color-sage-200: #d2dcc6;
-    --color-sage-300: #b5c4a1;
-    --color-sage-400: #96a97d;
-    --color-sage-500: #778a5e;
-    --color-sage-600: #5d6d4a;
-    --color-sage-700: #4a573c;
-    --color-sage-800: #3d4733;
-    --color-sage-900: #343d2d;
-    --color-sage-950: #1a2016;
-
-    /* Extended Palette for UI Elements */
-    --color-leaf-50: #f0f5ed;
-    --color-leaf-100: #dce8d5;
-    --color-leaf-200: #bdd4af;
-    --color-leaf-300: #96ba81;
-    --color-leaf-400: #739e5a;
-    --color-leaf-500: #568140;
-    --color-leaf-600: #436631;
-    --color-leaf-700: #365029;
-    --color-leaf-800: #2d4123;
-    --color-leaf-900: #27371f;
-    --color-leaf-950: #121d0d;
-
-    /* Cream/Warm Background Colors */
-    --color-cream-50: #fdfdf9;
-    --color-cream-100: #f8f9f3;
-    --color-cream-200: #f1f3e0;
-    --color-cream-300: #e5e9cc;
-    --color-cream-400: #d5dbb0;
-    --color-cream-500: #c2ca91;
-    --color-cream-600: #aab572;
-    --color-cream-700: #8d965b;
-    --color-cream-800: #74794d;
-    --color-cream-900: #606442;
-    --color-cream-950: #333521;
 
     /* Keep zinc for neutral grays */
     --color-zinc-50: #fafafa;
@@ -68,17 +29,17 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    /* Accent colors using sage theme */
-    --color-accent: var(--color-sage-700);
-    --color-accent-content: var(--color-sage-700);
-    --color-accent-foreground: var(--color-white);
+    /* Accent colors using emerald theme */
+    --color-accent: #059669;
+    --color-accent-content: #059669;
+    --color-accent-foreground: #ffffff;
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-sage-400);
-        --color-accent-content: var(--color-sage-400);
-        --color-accent-foreground: var(--color-sage-950);
+        --color-accent: #34d399;
+        --color-accent-content: #34d399;
+        --color-accent-foreground: #064e3b;
     }
 }
 
@@ -88,22 +49,22 @@
 
 :root {
     /* Light Mode Colors */
-    --bg-primary: #f8f9f3;
-    --bg-secondary: #f1f3e0;
+    --bg-primary: #f9fafb;
+    --bg-secondary: #f3f4f6;
     --bg-surface: #ffffff;
     --bg-surface-elevated: #ffffff;
     
-    --text-primary: #1f2937;
-    --text-secondary: #4b5563;
+    --text-primary: #111827;
+    --text-secondary: #374151;
     --text-muted: #6b7280;
     
-    --border-default: #d2dcc6;
-    --border-subtle: #e8ebe4;
+    --border-default: #e5e7eb;
+    --border-subtle: #f3f4f6;
     
-    --accent-primary: #5d6d4a;
-    --accent-primary-hover: #4a573c;
-    --accent-secondary: #778a5e;
-    --accent-light: #96a97d;
+    --accent-primary: #059669;
+    --accent-primary-hover: #047857;
+    --accent-secondary: #10b981;
+    --accent-light: #34d399;
     
     /* Status Colors */
     --color-success: #059669;
@@ -114,22 +75,22 @@
 
 .dark {
     /* Dark Mode Colors */
-    --bg-primary: #1a2016;
-    --bg-secondary: #242e1e;
-    --bg-surface: #2d3a26;
-    --bg-surface-elevated: #3d4a34;
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-surface: #1f2937;
+    --bg-surface-elevated: #374151;
     
-    --text-primary: #f6f7f4;
-    --text-secondary: #d2dcc6;
-    --text-muted: #96a97d;
+    --text-primary: #f9fafb;
+    --text-secondary: #e5e7eb;
+    --text-muted: #9ca3af;
     
-    --border-default: #4a573c;
-    --border-subtle: #3d4733;
+    --border-default: #374151;
+    --border-subtle: #1f2937;
     
-    --accent-primary: #96a97d;
-    --accent-primary-hover: #b5c4a1;
-    --accent-secondary: #778a5e;
-    --accent-light: #d2dcc6;
+    --accent-primary: #34d399;
+    --accent-primary-hover: #6ee7b7;
+    --accent-secondary: #10b981;
+    --accent-light: #a7f3d0;
     
     /* Status Colors (slightly adjusted for dark) */
     --color-success: #10b981;
@@ -144,13 +105,7 @@
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-sage-200, currentColor);
-    }
-    
-    .dark *,
-    .dark ::after,
-    .dark ::before {
-        border-color: var(--color-sage-800, currentColor);
+        border-color: var(--border-default, currentColor);
     }
 }
 
@@ -169,7 +124,7 @@
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
-    @apply outline-hidden ring-2 ring-sage-500 ring-offset-2 ring-offset-white dark:ring-sage-400 dark:ring-offset-sage-950;
+    @apply outline-hidden ring-2 ring-emerald-500 ring-offset-2 ring-offset-white dark:ring-emerald-400 dark:ring-offset-gray-900;
 }
 
 /* ========================================
@@ -177,41 +132,41 @@ select:focus[data-flux-control] {
    ======================================== */
 
 /* Gradient backgrounds */
-.bg-sage-gradient {
-    @apply bg-gradient-to-br from-sage-500 via-sage-600 to-leaf-600;
+.bg-emerald-gradient {
+    @apply bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600;
 }
 
-.bg-sage-gradient-light {
-    @apply bg-gradient-to-br from-sage-50 to-cream-100 dark:from-sage-900 dark:to-sage-950;
+.bg-emerald-gradient-light {
+    @apply bg-gradient-to-br from-gray-50 to-emerald-50/30 dark:from-gray-900 dark:to-gray-800;
 }
 
 /* Card styles */
-.card-sage {
-    @apply bg-white dark:bg-sage-900 border border-sage-200 dark:border-sage-800 rounded-2xl shadow-sm;
+.card-default {
+    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm;
 }
 
-.card-sage-elevated {
-    @apply bg-white dark:bg-sage-800 border border-sage-200 dark:border-sage-700 rounded-2xl shadow-xl;
+.card-elevated {
+    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl;
 }
 
 /* Button styles */
-.btn-sage-primary {
-    @apply bg-sage-600 hover:bg-sage-700 dark:bg-sage-500 dark:hover:bg-sage-400 text-white dark:text-sage-950 font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200;
+.btn-primary {
+    @apply bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-emerald-950 font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200;
 }
 
-.btn-sage-secondary {
-    @apply bg-sage-100 hover:bg-sage-200 dark:bg-sage-800 dark:hover:bg-sage-700 text-sage-800 dark:text-sage-100 font-medium px-6 py-3 rounded-xl transition-all duration-200;
+.btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 font-medium px-6 py-3 rounded-xl transition-all duration-200;
 }
 
 /* Text colors */
-.text-sage-primary {
-    @apply text-sage-900 dark:text-sage-50;
+.text-primary {
+    @apply text-gray-900 dark:text-gray-50;
 }
 
-.text-sage-secondary {
-    @apply text-sage-700 dark:text-sage-300;
+.text-secondary {
+    @apply text-gray-700 dark:text-gray-300;
 }
 
-.text-sage-muted {
-    @apply text-sage-500 dark:text-sage-400;
+.text-muted {
+    @apply text-gray-500 dark:text-gray-400;
 }

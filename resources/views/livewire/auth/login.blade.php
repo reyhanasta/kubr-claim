@@ -1,10 +1,10 @@
 <div class="flex flex-col gap-6">
     {{-- Header --}}
     <div class="text-center space-y-2">
-        <h2 class="text-2xl font-bold text-sage-900 dark:text-sage-50">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-50">
             Selamat Datang Kembali
         </h2>
-        <p class="text-sage-600 dark:text-sage-400">
+        <p class="text-gray-600 dark:text-gray-400">
             Masuk ke akun Anda untuk melanjutkan
         </p>
     </div>
@@ -24,7 +24,8 @@
             <div class="flex items-center justify-between">
                 <flux:label>{{ __('Password') }}</flux:label>
                 @if (Route::has('password.request'))
-                    <flux:link class="text-sm text-sage-600 hover:text-sage-700 dark:text-sage-400 dark:hover:text-sage-300"
+                    <flux:link
+                        class="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
                         :href="route('password.request')" wire:navigate>
                         {{ __('Lupa password?') }}
                     </flux:link>
@@ -40,7 +41,7 @@
         </div>
 
         <flux:button variant="primary" type="submit"
-            class="w-full bg-gradient-to-r from-sage-600 via-sage-700 to-leaf-700 hover:from-sage-700 hover:via-sage-800 hover:to-leaf-800 shadow-lg py-3 text-base font-semibold">
+            class="w-full bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:via-emerald-800 hover:to-teal-800 shadow-lg py-3 text-base font-semibold">
             <span wire:loading.remove wire:target="login">{{ __('Masuk') }}</span>
             <span wire:loading wire:target="login" class="flex items-center justify-center gap-2">
                 <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -56,10 +57,10 @@
 
     @if (Route::has('register'))
         <div class="text-center">
-            <p class="text-sm text-sage-700 dark:text-sage-400">
+            <p class="text-sm text-gray-700 dark:text-gray-400">
                 {{ __('Belum punya akun?') }}
                 <flux:link
-                    class="font-semibold text-sage-600 hover:text-sage-700 dark:text-sage-400 dark:hover:text-sage-300"
+                    class="font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
                     :href="route('register')" wire:navigate>
                     {{ __('Daftar sekarang') }}
                 </flux:link>

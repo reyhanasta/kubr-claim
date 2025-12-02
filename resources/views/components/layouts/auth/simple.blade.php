@@ -9,7 +9,7 @@
     <div class="flex min-h-svh">
         {{-- Left Side - Decorative Panel --}}
         <div
-            class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-sage-600 via-sage-700 to-leaf-700">
+            class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-700">
             {{-- Background Pattern --}}
             <div class="absolute inset-0 opacity-10">
                 <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -24,9 +24,9 @@
 
             {{-- Floating Shapes --}}
             <div class="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-20 right-10 w-96 h-96 bg-leaf-400/20 rounded-full blur-3xl animate-pulse"
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-teal-400/20 rounded-full blur-3xl animate-pulse"
                 style="animation-delay: 1s"></div>
-            <div class="absolute top-1/2 left-1/3 w-48 h-48 bg-sage-300/20 rounded-full blur-2xl animate-pulse"
+            <div class="absolute top-1/2 left-1/3 w-48 h-48 bg-emerald-300/20 rounded-full blur-2xl animate-pulse"
                 style="animation-delay: 2s"></div>
 
             {{-- Content --}}
@@ -79,15 +79,16 @@
 
         {{-- Right Side - Login Form --}}
         <div
-            class="flex-1 flex flex-col items-center justify-center p-6 md:p-10 bg-cream-100 dark:bg-gradient-to-br dark:from-sage-950 dark:via-sage-950 dark:to-sage-900">
+            class="flex-1 flex flex-col items-center justify-center p-6 md:p-10 bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
             <div class="w-full max-w-md">
                 {{-- Mobile Logo --}}
                 <div class="lg:hidden flex flex-col items-center mb-8">
-                    <div class="p-4 bg-gradient-to-br from-sage-600 to-leaf-600 rounded-2xl shadow-xl mb-4">
+                    <div class="p-4 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl shadow-xl mb-4">
                         <flux:icon.document-check class="w-12 h-12 text-white" />
                     </div>
-                    <h1 class="text-2xl font-bold text-sage-900 dark:text-sage-50">
-                        {{ config('app.name', 'Fast Claim') }}</h1>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-50">
+                        {{ config('app.name', 'Fast Claim') }}
+                    </h1>
                 </div>
 
                 <div class="flex flex-col gap-6">
@@ -95,8 +96,8 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="mt-8 pt-6 border-t border-sage-200 dark:border-sage-800 text-center">
-                    <p class="text-sm text-sage-600 dark:text-sage-400">
+                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
                         © {{ date('Y') }} {{ config('app.name', 'Fast Claim') }}. All rights reserved.
                     </p>
                 </div>

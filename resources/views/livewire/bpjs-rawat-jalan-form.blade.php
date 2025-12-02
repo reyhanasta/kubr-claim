@@ -14,8 +14,9 @@
             <form wire:submit.prevent="submit" class="space-y-6 animate-fade-in">
                 {{-- PDF Preview Section --}}
                 <div
-                    class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 transform hover:shadow-2xl transition-shadow duration-300">
-                    <div class="bg-gradient-to-r from-sage-600 to-sage-500 dark:from-sage-700 dark:to-sage-600 p-4">
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 transform hover:shadow-2xl transition-shadow duration-300">
+                    <div
+                        class="bg-gradient-to-r from-emerald-600 to-emerald-500 dark:from-emerald-700 dark:to-emerald-600 p-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <flux:icon.document-magnifying-glass class="w-6 h-6 text-white" />
@@ -24,7 +25,7 @@
                             <flux:badge color="white" size="lg">PDF</flux:badge>
                         </div>
                     </div>
-                    <div class="relative bg-slate-100 dark:bg-slate-900" style="padding-top: 34%">
+                    <div class="relative bg-gray-100 dark:bg-gray-900" style="padding-top: 34%">
                         <iframe src="{{ $previewUrls['sepFile'] ?? '' }}#zoom=120&toolbar=0&navpanes=0&scrollbar=0"
                             class="absolute top-0 left-0 w-full h-full border-0" loading="lazy">
                         </iframe>
@@ -33,9 +34,9 @@
 
                 {{-- Patient Information Card --}}
                 <div
-                    class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 transform hover:shadow-2xl transition-shadow duration-300">
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 transform hover:shadow-2xl transition-shadow duration-300">
                     <div
-                        class="bg-gradient-to-r from-sage-700 via-sage-600 to-sage-500 dark:from-sage-800 dark:via-sage-700 dark:to-sage-600 p-6">
+                        class="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 dark:from-emerald-800 dark:via-emerald-700 dark:to-emerald-600 p-6">
                         <div class="flex items-center justify-between">
                             <div>
                                 <flux:heading size="lg" class="text-white flex items-center gap-2">
@@ -57,28 +58,30 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                             {{-- Nomor RM --}}
                             <div
-                                class="group relative overflow-hidden bg-gradient-to-br from-sage-50 to-sage-100 dark:from-sage-900/20 dark:to-sage-800/20 p-5 rounded-xl border-l-4 border-sage-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-sage-500/10 rounded-full"></div>
+                                class="group relative overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border-l-4 border-emerald-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-500/10 rounded-full">
+                                </div>
                                 <flux:label
-                                    class="text-xs font-bold text-sage-700 dark:text-sage-300 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                    class="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide mb-2 flex items-center gap-2">
                                     <flux:icon.hashtag class="w-4 h-4" />
                                     Nomor RM
                                 </flux:label>
-                                <div class="font-mono text-xl font-bold text-slate-900 dark:text-white relative z-10">
+                                <div class="font-mono text-xl font-bold text-gray-900 dark:text-white relative z-10">
                                     {{ $medical_record_number }}
                                 </div>
                             </div>
 
                             {{-- Nama Pasien --}}
                             <div
-                                class="group relative overflow-hidden bg-gradient-to-br from-sage-100 to-sage-200 dark:from-sage-900/30 dark:to-sage-800/30 p-5 rounded-xl border-l-4 border-sage-600 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 md:col-span-2">
-                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-sage-600/10 rounded-full"></div>
+                                class="group relative overflow-hidden bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30 p-5 rounded-xl border-l-4 border-emerald-600 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 md:col-span-2">
+                                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-600/10 rounded-full">
+                                </div>
                                 <flux:label
-                                    class="text-xs font-bold text-sage-700 dark:text-sage-300 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                    class="text-xs font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide mb-2 flex items-center gap-2">
                                     <flux:icon.user class="w-4 h-4" />
                                     Nama Pasien
                                 </flux:label>
-                                <div class="text-xl font-bold text-slate-900 dark:text-white relative z-10 truncate">
+                                <div class="text-xl font-bold text-gray-900 dark:text-white relative z-10 truncate">
                                     {{ $patient_name }}
                                 </div>
                             </div>
@@ -93,7 +96,7 @@
                                     <flux:icon.identification class="w-4 h-4" />
                                     No. BPJS
                                 </flux:label>
-                                <div class="font-mono text-xl font-bold text-slate-900 dark:text-white relative z-10">
+                                <div class="font-mono text-xl font-bold text-gray-900 dark:text-white relative z-10">
                                     {{ $bpjs_serial_number }}
                                 </div>
                             </div>
@@ -101,14 +104,14 @@
 
                         {{-- Claim Details Form --}}
                         <div
-                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
                             <flux:field>
                                 <flux:label class="flex items-center gap-2">
                                     <flux:icon.document-text class="w-4 h-4" />
                                     Nomor SEP
                                 </flux:label>
                                 <flux:input type="text" wire:model="sep_number" readonly
-                                    class="bg-slate-50 dark:bg-slate-900" />
+                                    class="bg-gray-50 dark:bg-gray-900" />
                                 @error('sep_number')
                                     <flux:error>{{ $message }}</flux:error>
                                 @enderror
@@ -143,7 +146,7 @@
                                     Jenis Rawatan
                                 </flux:label>
                                 <flux:input type="text" wire:model="jenis_rawatan" readonly
-                                    class="bg-slate-50 dark:bg-slate-900" />
+                                    class="bg-gray-50 dark:bg-gray-900" />
                             </flux:field>
                         </div>
                     </div>
@@ -174,9 +177,9 @@
                 {{-- Documents Upload Section --}}
                 @if ($this->canShowSupportingDocuments)
                     <div
-                        class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                        class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                         <div
-                            class="bg-gradient-to-r from-sage-700 via-sage-600 to-sage-500 dark:from-sage-800 dark:via-sage-700 dark:to-sage-600 p-6">
+                            class="bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 dark:from-emerald-800 dark:via-emerald-700 dark:to-emerald-600 p-6">
                             <flux:heading size="lg" class="text-white flex items-center gap-2">
                                 <flux:icon.folder-open class="w-6 h-6" />
                                 Dokumen Pendukung
@@ -195,8 +198,9 @@
                                     {{-- Resume File --}}
                                     <div class="space-y-3">
                                         <div class="flex items-center gap-2">
-                                            <div class="p-2 bg-sage-100 dark:bg-sage-900/30 rounded-lg">
-                                                <flux:icon.document-text class="w-5 h-5 text-sage-600 dark:text-sage-400" />
+                                            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                                                <flux:icon.document-text
+                                                    class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                             </div>
                                             <div>
                                                 <flux:heading size="sm">Resume Medis</flux:heading>
@@ -230,9 +234,9 @@
                                     {{-- Billing File --}}
                                     <div class="space-y-3">
                                         <div class="flex items-center gap-2">
-                                            <div class="p-2 bg-sage-100 dark:bg-sage-900/30 rounded-lg">
+                                            <div class="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
                                                 <flux:icon.document-currency-dollar
-                                                    class="w-5 h-5 text-sage-600 dark:text-sage-400" />
+                                                    class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                                             </div>
                                             <div>
                                                 <flux:heading size="sm">File Billing</flux:heading>
@@ -266,10 +270,10 @@
                             </div>
 
                             {{-- Optional Documents --}}
-                            <div class="pt-6 border-t border-slate-200 dark:border-slate-700 space-y-4">
+                            <div class="pt-6 border-t border-gray-200 dark:border-gray-700 space-y-4">
                                 <div class="flex items-center gap-2">
-                                    <flux:icon.plus-circle class="w-5 h-5 text-slate-400" />
-                                    <flux:heading size="sm" class="text-slate-600 dark:text-slate-300">Dokumen Tambahan
+                                    <flux:icon.plus-circle class="w-5 h-5 text-gray-400" />
+                                    <flux:heading size="sm" class="text-gray-600 dark:text-gray-300">Dokumen Tambahan
                                         (Opsional)</flux:heading>
                                 </div>
 
@@ -316,7 +320,7 @@
                                             </div>
                                             <div class="flex-grow">
                                                 <flux:heading size="sm">Dokumen LIP</flux:heading>
-                                                <flux:text size="xs" class="text-slate-500 dark:text-slate-400">
+                                                <flux:text size="xs" class="text-gray-500 dark:text-gray-400">
                                                     Disimpan terpisah, tidak ikut di-merge
                                                 </flux:text>
                                             </div>
@@ -353,7 +357,7 @@
                                             </div>
                                             <div class="flex-grow">
                                                 <flux:heading size="sm">Hasil Labor 1</flux:heading>
-                                                <flux:text size="xs" class="text-slate-500 dark:text-slate-400">
+                                                <flux:text size="xs" class="text-gray-500 dark:text-gray-400">
                                                     Opsional, diikutkan dalam file gabungan
                                                 </flux:text>
                                             </div>
@@ -390,7 +394,7 @@
                                             </div>
                                             <div class="flex-grow">
                                                 <flux:heading size="sm">Hasil Labor 2</flux:heading>
-                                                <flux:text size="xs" class="text-slate-500 dark:text-slate-400">
+                                                <flux:text size="xs" class="text-gray-500 dark:text-gray-400">
                                                     Opsional, diikutkan dalam file gabungan
                                                 </flux:text>
                                             </div>
@@ -422,65 +426,65 @@
                             </div>
 
                             {{-- Upload Progress Indicator --}}
-                            <div class="pt-6 border-t border-slate-200 dark:border-slate-700">
+                            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
                                 <div class="flex items-center justify-between mb-3">
-                                    <flux:text size="sm" class="text-slate-600 dark:text-slate-400 font-medium">Status Upload
+                                    <flux:text size="sm" class="text-gray-600 dark:text-gray-400 font-medium">Status Upload
                                     </flux:text>
-                                    <flux:text size="sm" class="text-slate-500 dark:text-slate-400">
+                                    <flux:text size="sm" class="text-gray-500 dark:text-gray-400">
                                         {{ collect([$resumeFile, $billingFile])->filter()->count() }}/2 wajib
                                     </flux:text>
                                 </div>
                                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                                     <div
-                                        class="text-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border {{ $resumeFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-slate-200 dark:border-slate-700' }}">
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $resumeFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-2xl font-bold {{ $resumeFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400' }}">
+                                            class="text-2xl font-bold {{ $resumeFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}">
                                             {{ $resumeFile ? '✓' : '○' }}
                                         </div>
-                                        <flux:text size="xs" class="text-slate-600 dark:text-slate-400 mt-1">Resume</flux:text>
+                                        <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">Resume</flux:text>
                                     </div>
                                     <div
-                                        class="text-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border {{ $billingFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-slate-200 dark:border-slate-700' }}">
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $billingFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-2xl font-bold {{ $billingFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400' }}">
+                                            class="text-2xl font-bold {{ $billingFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}">
                                             {{ $billingFile ? '✓' : '○' }}
                                         </div>
-                                        <flux:text size="xs" class="text-slate-600 dark:text-slate-400 mt-1">Billing</flux:text>
+                                        <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">Billing</flux:text>
                                     </div>
                                     @if($jenis_rawatan === 'RI')
                                         <div
-                                            class="text-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border {{ $sepRJFile ? 'border-sky-300 dark:border-sky-700' : 'border-slate-200 dark:border-slate-700' }}">
+                                            class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $sepRJFile ? 'border-sky-300 dark:border-sky-700' : 'border-gray-200 dark:border-gray-700' }}">
                                             <div
-                                                class="text-2xl font-bold {{ $sepRJFile ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400' }}">
+                                                class="text-2xl font-bold {{ $sepRJFile ? 'text-sky-600 dark:text-sky-400' : 'text-gray-400' }}">
                                                 {{ $sepRJFile ? '✓' : '○' }}
                                             </div>
-                                            <flux:text size="xs" class="text-slate-600 dark:text-slate-400 mt-1">SEP RJ</flux:text>
+                                            <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">SEP RJ</flux:text>
                                         </div>
                                     @endif
                                     <div
-                                        class="text-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border {{ $fileLIP ? 'border-violet-300 dark:border-violet-700' : 'border-slate-200 dark:border-slate-700' }}">
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $fileLIP ? 'border-violet-300 dark:border-violet-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-2xl font-bold {{ $fileLIP ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400' }}">
+                                            class="text-2xl font-bold {{ $fileLIP ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400' }}">
                                             {{ $fileLIP ? '✓' : '○' }}
                                         </div>
-                                        <flux:text size="xs" class="text-slate-600 dark:text-slate-400 mt-1">LIP</flux:text>
+                                        <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">LIP</flux:text>
                                     </div>
                                     <div
-                                        class="text-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border {{ $labResultFile ? 'border-rose-300 dark:border-rose-700' : 'border-slate-200 dark:border-slate-700' }}">
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $labResultFile ? 'border-rose-300 dark:border-rose-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-2xl font-bold {{ $labResultFile ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400' }}">
+                                            class="text-2xl font-bold {{ $labResultFile ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400' }}">
                                             {{ $labResultFile ? '✓' : '○' }}
                                         </div>
-                                        <flux:text size="xs" class="text-slate-600 dark:text-slate-400 mt-1">Lab 1
+                                        <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">Lab 1
                                         </flux:text>
                                     </div>
                                     <div
-                                        class="text-center p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border {{ $labResultFile2 ? 'border-rose-300 dark:border-rose-700' : 'border-slate-200 dark:border-slate-700' }}">
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $labResultFile2 ? 'border-rose-300 dark:border-rose-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-2xl font-bold {{ $labResultFile2 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400' }}">
+                                            class="text-2xl font-bold {{ $labResultFile2 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400' }}">
                                             {{ $labResultFile2 ? '✓' : '○' }}
                                         </div>
-                                        <flux:text size="xs" class="text-slate-600 dark:text-slate-400 mt-1">Lab 2
+                                        <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">Lab 2
                                         </flux:text>
                                     </div>
                                 </div>
@@ -491,9 +495,9 @@
 
                 {{-- Action Buttons --}}
                 <div
-                    class="flex items-center justify-between gap-4 bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 border border-slate-200 dark:border-slate-700">
+                    class="flex items-center justify-between gap-4 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-200 dark:border-gray-700">
                     <flux:button variant="ghost" wire:click="cancelForm" icon="arrow-left" type="button"
-                        class="hover:bg-slate-100 dark:hover:bg-slate-700">
+                        class="hover:bg-gray-100 dark:hover:bg-gray-700">
                         Kembali
                     </flux:button>
 
@@ -514,7 +518,7 @@
 
                         <flux:button type="submit" variant="primary" icon="check" wire:loading.attr="disabled"
                             wire:target="submit" :disabled="!$this->canShowSupportingDocuments"
-                            class="bg-gradient-to-r from-sage-600 via-sage-500 to-sage-400 hover:from-sage-700 hover:via-sage-600 hover:to-sage-500 shadow-lg px-8 disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-500 shadow-lg px-8 disabled:opacity-50 disabled:cursor-not-allowed">
                             <span wire:loading.remove wire:target="submit">Simpan Klaim</span>
                             <span wire:loading wire:target="submit" class="flex items-center gap-2">
                                 <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -530,20 +534,20 @@
         @if(!$showUploadedData)
             <div class="mb-8 text-center animate-fade-in">
                 <div
-                    class="inline-block p-4 bg-gradient-to-br from-sage-600 to-sage-500 rounded-2xl mb-4 shadow-xl transform hover:scale-105 transition-transform duration-300">
+                    class="inline-block p-4 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-2xl mb-4 shadow-xl transform hover:scale-105 transition-transform duration-300">
                     <flux:icon.document-check class="w-12 h-12 text-white" />
                 </div>
                 <flux:heading size="xl" level="1"
-                    class="mb-2 bg-gradient-to-r from-sage-800 via-sage-600 to-sage-500 dark:from-sage-200 dark:via-sage-400 dark:to-sage-500 bg-clip-text text-transparent">
+                    class="mb-2 bg-gradient-to-r from-emerald-800 via-emerald-600 to-emerald-500 dark:from-emerald-200 dark:via-emerald-400 dark:to-emerald-500 bg-clip-text text-transparent">
                     Form Klaim BPJS Rawat Jalan
                 </flux:heading>
-                <flux:subheading class="text-slate-600 dark:text-slate-400">
+                <flux:subheading class="text-gray-600 dark:text-gray-400">
                     Silakan upload dokumen SEP untuk memulai proses klaim
                 </flux:subheading>
             </div>
             <div
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 transform hover:scale-[1.01] transition-transform duration-300 animate-fade-in">
-                <div class="bg-gradient-to-r from-sage-600 to-sage-500 dark:from-sage-700 dark:to-sage-600 p-6">
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 transform hover:scale-[1.01] transition-transform duration-300 animate-fade-in">
+                <div class="bg-gradient-to-r from-emerald-600 to-emerald-500 dark:from-emerald-700 dark:to-emerald-600 p-6">
                     <div class="flex items-center gap-3">
                         <div class="p-3 bg-white/20 rounded-xl">
                             <flux:icon.document-arrow-up class="w-7 h-7 text-white" />
@@ -559,17 +563,17 @@
 
                 <div class="p-8">
                     <div
-                        class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-12 text-center hover:border-sage-500 dark:hover:border-sage-400 transition-all duration-300 bg-gradient-to-br from-slate-50 to-sage-50/30 dark:from-slate-900/50 dark:to-sage-900/10">
+                        class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 text-center hover:border-emerald-500 dark:hover:border-emerald-400 transition-all duration-300 bg-gradient-to-br from-gray-50 to-emerald-50/30 dark:from-gray-900/50 dark:to-emerald-900/10">
                         <div class="space-y-4">
                             <div
-                                class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-sage-100 dark:bg-sage-900/30 mb-4 mx-auto">
-                                <flux:icon.document-plus class="w-12 h-12 text-sage-600 dark:text-sage-400" />
+                                class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 mb-4 mx-auto">
+                                <flux:icon.document-plus class="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
                             </div>
 
                             <div>
                                 <label for="sepFile" class="cursor-pointer">
                                     <div
-                                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-sage-600 to-sage-500 hover:from-sage-700 hover:to-sage-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 font-medium">
+                                        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 font-medium">
                                         <flux:icon.arrow-up-tray class="w-5 h-5" />
                                         <span>Pilih File SEP</span>
                                     </div>
@@ -577,7 +581,7 @@
                                 </label>
                             </div>
 
-                            <div class="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                            <div class="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                 <flux:icon.information-circle class="w-4 h-4" />
                                 <span>Format: PDF | Maksimal: 2MB</span>
                             </div>
@@ -629,28 +633,29 @@
     {{-- Loading Overlay with Better Animation --}}
     <div wire:loading.flex
         wire:target="sepFile,resumeFile,billingFile,fileLIP,sepRJFile,labResultFile,labResultFile2,submit"
-        class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center animate-fade-in">
+        class="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center animate-fade-in">
         <div
-            class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center border border-slate-200 dark:border-slate-700">
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center border border-gray-200 dark:border-gray-700">
             <div class="relative w-20 h-20 mx-auto mb-6">
-                <div class="absolute inset-0 border-4 border-sage-200 dark:border-sage-800 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-emerald-200 dark:border-emerald-800 rounded-full"></div>
                 <div
-                    class="absolute inset-0 border-4 border-transparent border-t-sage-600 dark:border-t-sage-400 rounded-full animate-spin">
+                    class="absolute inset-0 border-4 border-transparent border-t-emerald-600 dark:border-t-emerald-400 rounded-full animate-spin">
                 </div>
-                <flux:icon.document-arrow-up class="absolute inset-0 m-auto w-8 h-8 text-sage-600 dark:text-sage-400" />
+                <flux:icon.document-arrow-up
+                    class="absolute inset-0 m-auto w-8 h-8 text-emerald-600 dark:text-emerald-400" />
             </div>
 
-            <flux:heading size="lg" class="text-slate-900 dark:text-white mb-2">
+            <flux:heading size="lg" class="text-gray-900 dark:text-white mb-2">
                 Memproses File
             </flux:heading>
-            <flux:text size="sm" class="text-slate-600 dark:text-slate-400">
+            <flux:text size="sm" class="text-gray-600 dark:text-gray-400">
                 Mohon tunggu, sedang memproses dokumen...
             </flux:text>
 
             <div class="mt-6 flex items-center justify-center gap-2">
-                <div class="w-2 h-2 bg-sage-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-                <div class="w-2 h-2 bg-sage-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-                <div class="w-2 h-2 bg-sage-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                <div class="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
             </div>
         </div>
     </div>
