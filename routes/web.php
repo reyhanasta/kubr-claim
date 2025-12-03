@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\BackupDashboard;
 use App\Livewire\Dashboard\BpjsClaimDashboard;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
@@ -23,6 +24,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/profile', Profile::class)->name('settings.profile');
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+
+    // Backup Dashboard
+    Route::get('backup', BackupDashboard::class)->name('backup.dashboard');
 });
 
 Route::get('bpjs-rajal-form', \App\Livewire\BpjsRawatJalanForm::class)->middleware(['auth', 'verified'])->name('bpjs-rajal-form');

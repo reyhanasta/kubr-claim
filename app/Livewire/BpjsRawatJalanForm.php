@@ -304,9 +304,9 @@ class BpjsRawatJalanForm extends Component
 
             DB::commit();
 
-            // Cleanup and dispatch backup job
+            // Cleanup and dispatch backup job with claim ID for tracking
             $this->cleanUpAfterSubmit($pdfMergeService);
-            BackupFileJob::dispatch($finalPath, $lipPath);
+            BackupFileJob::dispatch($finalPath, $lipPath, $claim->id);
 
             $this->showSuccessAlert('Klaim berhasil dibuat!', 'Dokumen telah digabung dan disimpan');
 
