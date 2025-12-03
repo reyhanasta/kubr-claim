@@ -38,7 +38,7 @@ test('validates required files on submit', function () {
 
     // Check that requiredFilesUploaded computed property is false
     expect($component->get('requiredFilesUploaded'))->toBeFalse();
-    
+
     // Verify no claim was created (because files missing)
     expect(BpjsClaim::count())->toBe(0);
 });
@@ -159,9 +159,9 @@ test('upload progress tracking works', function () {
 
     // Upload files one by one and verify scanned_docs gets populated
     $component->set('resumeFile', UploadedFile::fake()->create('resume.pdf', 100));
-    
+
     $component->set('billingFile', UploadedFile::fake()->create('billing.pdf', 100));
-    
+
     // After uploads, scanned_docs should be populated
     expect($component->scanned_docs)->toBeArray();
 });
@@ -180,7 +180,7 @@ test('cancel upload cleans up files and resets state', function () {
 });
 
 test('sanitize patient name removes special characters', function () {
-    $form = new BpjsRawatJalanForm();
+    $form = new BpjsRawatJalanForm;
     $form->patient_name = 'Ñoño José María';
 
     $reflection = new ReflectionClass($form);
@@ -194,7 +194,7 @@ test('sanitize patient name removes special characters', function () {
 });
 
 test('generate unique filename creates unique names', function () {
-    $form = new BpjsRawatJalanForm();
+    $form = new BpjsRawatJalanForm;
     $file1 = UploadedFile::fake()->create('test.pdf');
     $file2 = UploadedFile::fake()->create('test.pdf');
 
@@ -205,9 +205,9 @@ test('generate unique filename creates unique names', function () {
     // Convert to TemporaryUploadedFile by uploading
     $component = Livewire::test(BpjsRawatJalanForm::class)
         ->set('sepFile', $file1);
-    
+
     $tempFile = $component->sepFile;
-    
+
     if ($tempFile) {
         $filename1 = $method->invoke($form, $tempFile);
         usleep(1000);
@@ -230,7 +230,7 @@ test('locked properties cannot be modified from frontend', function () {
 });
 
 test('fill patient data extracts numeric class from text', function () {
-    $form = new BpjsRawatJalanForm();
+    $form = new BpjsRawatJalanForm;
 
     $reflection = new ReflectionClass($form);
     $method = $reflection->getMethod('fillPatientData');
@@ -246,7 +246,7 @@ test('fill patient data extracts numeric class from text', function () {
 });
 
 test('fill patient data handles various class formats', function (string $input, string $expected) {
-    $form = new BpjsRawatJalanForm();
+    $form = new BpjsRawatJalanForm;
 
     $reflection = new ReflectionClass($form);
     $method = $reflection->getMethod('fillPatientData');
@@ -302,4 +302,145 @@ test('patient class validation message is user friendly', function () {
 
     $errors = $component->errors();
     expect($errors->get('patient_class')[0])->toContain('1, 2, atau 3');
+});
+
+test('can show supporting documents returns true for rawat jalan', function () {
+    $user = User::factory()->create();
+
+    // Default jenis_rawatan is 'RJ', so should return true
+    $component = Livewire::actingAs($user)
+        ->test(BpjsRawatJalanForm::class);
+
+    // RJ should always show supporting documents
+    expect($component->get('canShowSupportingDocuments'))->toBeTrue();
+});
+
+test('can show supporting documents behavior for rawat inap', function () {
+    $user = User::factory()->create();
+
+    // We need to test this via the component instance directly
+    // since jenis_rawatan is a locked property
+    $component = new BpjsRawatJalanForm;
+
+    // Test RJ - should always return true
+    $component->jenis_rawatan = 'RJ';
+    $component->sep_date = null;
+    expect($component->canShowSupportingDocuments())->toBeTrue();
+
+    // Test RI without date - should return false
+    $component->jenis_rawatan = 'RI';
+    $component->sep_date = null;
+    expect($component->canShowSupportingDocuments())->toBeFalse();
+
+    // Test RI with date - should return true
+    $component->jenis_rawatan = 'RI';
+    $component->sep_date = '2025-11-10';
+    expect($component->canShowSupportingDocuments())->toBeTrue();
+});
+
+test('validate extracted data throws exception when essential fields are empty', function () {
+    $component = new BpjsRawatJalanForm;
+
+    // Use reflection to access private method
+    $method = new ReflectionMethod($component, 'validateExtractedData');
+    $method->setAccessible(true);
+
+    // Test with empty sep_number
+    expect(fn () => $method->invoke($component, [
+        'sep_number' => '',
+        'patient_name' => 'John Doe',
+        'medical_record_number' => 'RM001',
+        'bpjs_serial_number' => '1234567890',
+    ]))->toThrow(RuntimeException::class, 'Nomor SEP');
+
+    // Test with empty patient_name
+    expect(fn () => $method->invoke($component, [
+        'sep_number' => 'SEP123',
+        'patient_name' => '',
+        'medical_record_number' => 'RM001',
+        'bpjs_serial_number' => '1234567890',
+    ]))->toThrow(RuntimeException::class, 'Nama Pasien');
+
+    // Test with all empty fields
+    expect(fn () => $method->invoke($component, [
+        'sep_number' => '',
+        'patient_name' => '',
+        'medical_record_number' => '',
+        'bpjs_serial_number' => '',
+    ]))->toThrow(RuntimeException::class);
+});
+
+test('validate extracted data passes when all essential fields are present', function () {
+    $component = new BpjsRawatJalanForm;
+
+    $method = new ReflectionMethod($component, 'validateExtractedData');
+    $method->setAccessible(true);
+
+    // Should not throw exception
+    $method->invoke($component, [
+        'sep_number' => 'SEP123',
+        'patient_name' => 'John Doe',
+        'medical_record_number' => 'RM001',
+        'bpjs_serial_number' => '1234567890',
+    ]);
+
+    expect(true)->toBeTrue(); // If we reach here, no exception was thrown
+});
+
+test('check duplicate sep number throws exception when sep exists', function () {
+    $user = User::factory()->create();
+
+    // Create existing claim with a specific SEP number
+    BpjsClaim::create([
+        'no_rm' => 'RM001',
+        'no_kartu_bpjs' => '1234567890',
+        'no_sep' => 'SEP123456789',
+        'jenis_rawatan' => 'RJ',
+        'tanggal_rawatan' => '2025-11-15',
+        'nama_pasien' => 'Existing Patient',
+        'kelas_rawatan' => '1',
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(BpjsRawatJalanForm::class);
+
+    // Use reflection to access private method
+    $reflection = new ReflectionClass($component->instance());
+    $method = $reflection->getMethod('checkDuplicateSepNumber');
+
+    // Expect exception when checking duplicate SEP
+    expect(fn () => $method->invoke($component->instance(), 'SEP123456789'))
+        ->toThrow(RuntimeException::class, 'Nomor SEP SEP123456789 sudah terdaftar sebelumnya');
+});
+
+test('check duplicate sep number passes when sep does not exist', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)
+        ->test(BpjsRawatJalanForm::class);
+
+    // Use reflection to access private method
+    $reflection = new ReflectionClass($component->instance());
+    $method = $reflection->getMethod('checkDuplicateSepNumber');
+
+    // Should not throw exception for new SEP number
+    $method->invoke($component->instance(), 'NEW_SEP_NUMBER');
+
+    expect(true)->toBeTrue(); // If we reach here, no exception was thrown
+});
+
+test('check duplicate sep number skips validation for empty sep', function () {
+    $user = User::factory()->create();
+
+    $component = Livewire::actingAs($user)
+        ->test(BpjsRawatJalanForm::class);
+
+    // Use reflection to access private method
+    $reflection = new ReflectionClass($component->instance());
+    $method = $reflection->getMethod('checkDuplicateSepNumber');
+
+    // Should not throw exception for empty SEP number
+    $method->invoke($component->instance(), '');
+
+    expect(true)->toBeTrue(); // If we reach here, no exception was thrown
 });

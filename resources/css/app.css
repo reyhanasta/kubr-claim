@@ -8,9 +8,20 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Alpine.js x-cloak directive */
+[x-cloak] {
+    display: none !important;
+}
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
+    /* ========================================
+       💎 EMERALD COLOR PALETTE
+       Clean, professional with emerald accent
+       ======================================== */
+
+    /* Keep zinc for neutral grays */
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
     --color-zinc-200: #e5e5e5;
@@ -23,46 +34,144 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
-    --color-accent-foreground: var(--color-white);
+    /* Accent colors using emerald theme */
+    --color-accent: #059669;
+    --color-accent-content: #059669;
+    --color-accent-foreground: #ffffff;
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        --color-accent: #34d399;
+        --color-accent-content: #34d399;
+        --color-accent-foreground: #064e3b;
     }
 }
 
-@layer base {
+/* ========================================
+   🎨 CSS CUSTOM PROPERTIES FOR THEMING
+   ======================================== */
 
+:root {
+    /* Light Mode Colors */
+    --bg-primary: #f9fafb;
+    --bg-secondary: #f3f4f6;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #ffffff;
+    
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #6b7280;
+    
+    --border-default: #e5e7eb;
+    --border-subtle: #f3f4f6;
+    
+    --accent-primary: #059669;
+    --accent-primary-hover: #047857;
+    --accent-secondary: #10b981;
+    --accent-light: #34d399;
+    
+    /* Status Colors */
+    --color-success: #059669;
+    --color-warning: #d97706;
+    --color-error: #dc2626;
+    --color-info: #0284c7;
+}
+
+.dark {
+    /* Dark Mode Colors */
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-surface: #1f2937;
+    --bg-surface-elevated: #374151;
+    
+    --text-primary: #f9fafb;
+    --text-secondary: #e5e7eb;
+    --text-muted: #9ca3af;
+    
+    --border-default: #374151;
+    --border-subtle: #1f2937;
+    
+    --accent-primary: #34d399;
+    --accent-primary-hover: #6ee7b7;
+    --accent-secondary: #10b981;
+    --accent-light: #a7f3d0;
+    
+    /* Status Colors (slightly adjusted for dark) */
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-error: #ef4444;
+    --color-info: #38bdf8;
+}
+
+@layer base {
     *,
     ::after,
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
+        border-color: var(--border-default, currentColor);
     }
 }
+
+/* ========================================
+   🧩 COMPONENT STYLES
+   ======================================== */
 
 [data-flux-field]:not(ui-radio, ui-checkbox) {
     @apply grid gap-2;
 }
 
 [data-flux-label] {
-    @apply  !mb-0 !leading-tight;
+    @apply !mb-0 !leading-tight;
 }
 
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
-    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+    @apply outline-hidden ring-2 ring-emerald-500 ring-offset-2 ring-offset-white dark:ring-emerald-400 dark:ring-offset-gray-900;
 }
 
-  
+/* ========================================
+   🎯 UTILITY CLASSES
+   ======================================== */
 
-/* \[:where(&)\]:size-4 {
-    @apply size-4;
-} */
+/* Gradient backgrounds */
+.bg-emerald-gradient {
+    @apply bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600;
+}
+
+.bg-emerald-gradient-light {
+    @apply bg-gradient-to-br from-gray-50 to-emerald-50/30 dark:from-gray-900 dark:to-gray-800;
+}
+
+/* Card styles */
+.card-default {
+    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm;
+}
+
+.card-elevated {
+    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl;
+}
+
+/* Button styles */
+.btn-primary {
+    @apply bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-emerald-950 font-semibold px-6 py-3 rounded-xl shadow-lg transition-all duration-200;
+}
+
+.btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 font-medium px-6 py-3 rounded-xl transition-all duration-200;
+}
+
+/* Text colors */
+.text-primary {
+    @apply text-gray-900 dark:text-gray-50;
+}
+
+.text-secondary {
+    @apply text-gray-700 dark:text-gray-300;
+}
+
+.text-muted {
+    @apply text-gray-500 dark:text-gray-400;
+}
