@@ -125,6 +125,7 @@
                                 <flux:label class="flex items-center gap-2">
                                     <flux:icon.calendar class="w-4 h-4" />
                                     {{ $sep_date_label }}
+                                    <flux:text size="sm" class="text-rose-600 dark:text-rose-400">*</flux:text>
                                 </flux:label>
                                 {{-- Use wire:model.live for RI so supporting docs form appears immediately --}}
                                 <flux:input type="date" wire:model.live="sep_date" />
@@ -137,6 +138,7 @@
                                 <flux:label class="flex items-center gap-2">
                                     <flux:icon.shield-check class="w-4 h-4" />
                                     Kelas Pasien
+                                    <flux:text size="sm" class="text-rose-600 dark:text-rose-400">*</flux:text>
                                 </flux:label>
                                 <flux:input type="text" wire:model="patient_class" />
                                 @error('patient_class')
@@ -606,7 +608,7 @@
                 </div> --}}
                 <flux:heading size="xl" level="1"
                     class="mb-2 bg-gradient-to-r from-emerald-800 via-emerald-600 to-emerald-500 dark:from-emerald-200 dark:via-emerald-400 dark:to-emerald-500 bg-clip-text text-transparent">
-                    Form Klaim BPJS Rawat Jalan
+                    Form Klaim BPJS
                 </flux:heading>
                 <flux:subheading class="text-gray-600 dark:text-gray-400">
                     Silakan upload dokumen SEP untuk memulai proses klaim

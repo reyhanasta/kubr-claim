@@ -5,6 +5,11 @@
 
     RewriteEngine On
 
+    # Ensure Livewire & Flux asset endpoints route through Laravel
+    # Helpful on some Apache setups where extensioned paths skip rewrites
+    RewriteRule ^livewire/livewire(\.min)?\.js(\.map)?$ index.php [L]
+    RewriteRule ^flux/flux(\.min)?\.(js|css)$ index.php [L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
