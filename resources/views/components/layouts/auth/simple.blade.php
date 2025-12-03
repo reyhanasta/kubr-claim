@@ -32,7 +32,7 @@
             {{-- Content --}}
             <div class="relative z-10 flex flex-col justify-center items-center w-full p-12 text-white">
                 {{-- App Icon --}}
-                <div class="mb-8 p-4 bg-white/20 backdrop-blur-sm rounded-3xl border border-white/20 shadow-2xl">
+                <div class="mb-8 p-4 bg-white/95 backdrop-blur-sm rounded-3xl border border-white/20 shadow-2xl">
                     <img src="{{ asset('FastClaim_Icon.png') }}" alt="FastClaim" class="w-24 h-24 object-contain" />
                 </div>
 
