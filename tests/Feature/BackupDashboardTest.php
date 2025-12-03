@@ -16,7 +16,7 @@ beforeEach(function () {
 });
 
 test('backup dashboard can be rendered', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     Livewire::actingAs($user)
         ->test(BackupDashboard::class)
@@ -25,7 +25,7 @@ test('backup dashboard can be rendered', function () {
 });
 
 test('backup dashboard shows stats correctly', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     // Create some backup logs
     BackupLog::create([
@@ -51,7 +51,7 @@ test('backup dashboard shows stats correctly', function () {
 });
 
 test('backup dashboard can filter by status', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     BackupLog::create([
         'source_path' => '/test/success.pdf',
@@ -77,7 +77,7 @@ test('backup dashboard can retry failed backup', function () {
     // Use queue fake to prevent actual job execution
     Queue::fake();
 
-    $user = User::factory()->create();
+    $user = User::factory()->admin()->create();
 
     $claim = BpjsClaim::create([
         'no_rm' => 'RM001',
@@ -104,6 +104,22 @@ test('backup dashboard can retry failed backup', function () {
     $log->refresh();
     expect($log->status)->toBe('pending');
     expect($log->error_message)->toBeNull();
+});
+
+test('backup dashboard is not accessible by operator', function () {
+    $operator = User::factory()->operator()->create();
+
+    $this->actingAs($operator)
+        ->get(route('backup.dashboard'))
+        ->assertForbidden();
+});
+
+test('backup dashboard is accessible by admin', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->get(route('backup.dashboard'))
+        ->assertOk();
 });
 
 test('backup log model has correct scopes', function () {

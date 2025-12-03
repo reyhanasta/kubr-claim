@@ -25,8 +25,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 
-    // Backup Dashboard
-    Route::get('backup', BackupDashboard::class)->name('backup.dashboard');
+    // Admin Only Routes
+    Route::middleware(['admin'])->group(function () {
+        Route::get('backup', BackupDashboard::class)->name('backup.dashboard');
+    });
 });
 
 Route::get('bpjs-rajal-form', \App\Livewire\BpjsRawatJalanForm::class)->middleware(['auth', 'verified'])->name('bpjs-rajal-form');

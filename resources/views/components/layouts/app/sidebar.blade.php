@@ -21,10 +21,15 @@
                 <flux:navlist.item icon="clipboard-document-check" :href="route('bpjs-rajal-form')"
                     :current="request()->routeIs('bpjs-rajal-form')" wire:navigate>{{ __('Claim Input') }}
                 </flux:navlist.item>
-                <flux:navlist.item icon="server-stack" :href="route('backup.dashboard')"
-                    :current="request()->routeIs('backup.dashboard')" wire:navigate>{{ __('Backup Monitor') }}
-                </flux:navlist.item>
             </flux:navlist.group>
+
+            @if(auth()->user()->isAdmin())
+                <flux:navlist.group :heading="__('System')" class="grid">
+                    <flux:navlist.item icon="server-stack" :href="route('backup.dashboard')"
+                        :current="request()->routeIs('backup.dashboard')" wire:navigate>{{ __('Backup Monitor') }}
+                    </flux:navlist.item>
+                </flux:navlist.group>
+            @endif
         </flux:navlist>
 
         <flux:spacer />
