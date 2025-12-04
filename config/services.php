@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'pdftotext' => [
+        'path' => env('PDFTOTEXT_PATH'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

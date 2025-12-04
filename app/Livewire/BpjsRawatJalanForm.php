@@ -477,13 +477,14 @@ class BpjsRawatJalanForm extends Component
 
     private function getOrderedFilesForMerge(): array
     {
+        // Urutan: SEP → SEP RJ → Resume → Lab Results → Billing (terakhir)
         return collect([
             $this->rotatedPaths['sepFile'] ?? null,
             $this->rotatedPaths['sepRJFile'] ?? null,
             $this->rotatedPaths['resumeFile'] ?? null,
-            $this->rotatedPaths['billingFile'] ?? null,
             $this->rotatedPaths['labResultFile'] ?? null,
             $this->rotatedPaths['labResultFile2'] ?? null,
+            $this->rotatedPaths['billingFile'] ?? null,
         ])->filter()->values()->all();
     }
 

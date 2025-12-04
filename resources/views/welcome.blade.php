@@ -7,7 +7,10 @@
 
     <title>{{ $title ?? config('app.name') }}</title>
 
-    <link rel="icon" href="{{ asset('FastClaim_Icon.png') }}" type="image/png">
+    {{-- Favicon dengan dark mode support --}}
+    <link rel="icon" href="{{ asset('FastClaim_Icon.png') }}" type="image/png" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="{{ asset('FastClaim_Icon_dark.png') }}" type="image/png"
+        media="(prefers-color-scheme: dark)">
     <link rel="apple-touch-icon" href="{{ asset('FastClaim_Icon.png') }}">
 
     <!-- Fonts -->

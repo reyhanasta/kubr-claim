@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Log;
 use Spatie\PdfToText\Pdf;
 
@@ -16,8 +15,13 @@ class PdfReadService
      */
     public function getPdfTextwithSpatie($file)
     {
+        $pdftoTextPath = config('services.pdftotext.path');
+        
+        if (empty($pdftoTextPath)) {
+            throw new \RuntimeException('PDFTOTEXT_PATH is not configured. Please set it in .env file.');
+        }
 
-        $text = Pdf::getText($file->getRealPath(), Env::get('PDFTOTEXT_PATH'));
+        $text = Pdf::getText($file->getRealPath(), $pdftoTextPath);
 
         return $text;
     }

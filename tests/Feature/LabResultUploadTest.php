@@ -50,7 +50,7 @@ it('rejects non-pdf for lab result file', function () {
         ->assertHasErrors(['labResultFile']);
 });
 
-it('includes lab result in merge order after billing when provided', function () {
+it('includes lab result in merge order after resume when provided', function () {
     $user = User::factory()->create();
 
     // Mock services
@@ -111,16 +111,17 @@ it('includes lab result in merge order after billing when provided', function ()
         ->call('submit')
         ->assertHasNoErrors();
 
-    // Ensure merger was called and lab result is included last
+    // Ensure merger was called and files are in correct order
+    // Order: SEP → Resume → Lab → Billing
     expect($calledWithFiles)->not->toBeNull();
     expect($calledWithFiles)->toBeArray();
     expect(count($calledWithFiles ?? []))->toBeGreaterThanOrEqual(4);
 
-    // Check ordering by filename suffix
+    // Check ordering: first is SEP, last is Billing
     expect(Str::endsWith($calledWithFiles[0], 'sep.pdf'))->toBeTrue();
     $array = $calledWithFiles ?? [];
     $last = $array ? $array[count($array) - 1] : '';
-    expect(Str::endsWith($last, 'lab.pdf'))->toBeTrue();
+    expect(Str::endsWith($last, 'billing.pdf'))->toBeTrue();
 });
 
 it('rejects non-pdf for lab result file 2', function () {
@@ -155,7 +156,7 @@ it('rejects non-pdf for lab result file 2', function () {
         ->assertHasErrors(['labResultFile2']);
 });
 
-it('includes both lab result files in merge order after billing', function () {
+it('includes both lab result files in merge order before billing', function () {
     $user = User::factory()->create();
 
     $outputDir = 'claims/2025-11-10/SEP789_RJ/';
@@ -206,13 +207,14 @@ it('includes both lab result files in merge order after billing', function () {
         ->call('submit')
         ->assertHasNoErrors();
 
-    // Verify merge order: SEP, Resume, Billing, Lab1, Lab2
+    // Verify merge order: SEP → Resume → Lab1 → Lab2 → Billing
     expect($calledWithFiles)->not->toBeNull();
     expect($calledWithFiles)->toBeArray();
     expect(count($calledWithFiles ?? []))->toBe(5);
 
-    // Check first is sep.pdf and last two are lab files
+    // Check order: first is sep.pdf, lab files before billing, billing is last
     expect(Str::endsWith($calledWithFiles[0], 'sep.pdf'))->toBeTrue();
-    expect(Str::endsWith($calledWithFiles[3], 'lab1.pdf'))->toBeTrue();
-    expect(Str::endsWith($calledWithFiles[4], 'lab2.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[2], 'lab1.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[3], 'lab2.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[4], 'billing.pdf'))->toBeTrue();
 });

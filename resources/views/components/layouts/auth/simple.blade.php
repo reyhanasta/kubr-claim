@@ -83,8 +83,11 @@
             <div class="w-full max-w-md">
                 {{-- Mobile Logo --}}
                 <div class="lg:hidden flex flex-col items-center mb-8">
-                    <div class="p-2 bg-white rounded-2xl shadow-xl mb-4">
-                        <img src="{{ asset('FastClaim_Icon.png') }}" alt="FastClaim" class="w-16 h-16 object-contain" />
+                    <div class="p-2 bg-white dark:bg-gray-800 rounded-2xl shadow-xl mb-4">
+                        <img src="{{ asset('FastClaim_Icon.png') }}" alt="FastClaim"
+                            class="w-16 h-16 object-contain dark:hidden" />
+                        <img src="{{ asset('FastClaim_Icon_dark.png') }}" alt="FastClaim"
+                            class="w-16 h-16 object-contain hidden dark:block" />
                     </div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-50">
                         {{ config('app.name', 'Fast Claim') }}
