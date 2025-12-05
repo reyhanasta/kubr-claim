@@ -34,7 +34,6 @@
 | **Upload Dokumen**  | Upload SEP, Resume Medis, Billing, LIP, dan Hasil Lab dalam format PDF       |
 | **Auto Extract**    | Ekstraksi otomatis nomor SEP, nama pasien, tanggal, dan kelas dari file SEP  |
 | **PDF Merge**       | Penggabungan otomatis semua dokumen menjadi satu file PDF                    |
-| **Rotasi PDF**      | Deteksi dan koreksi orientasi halaman landscape secara otomatis              |
 | **Backup Otomatis** | Backup file ke lokasi terpisah dengan struktur folder yang sama              |
 | **Dashboard**       | Monitoring jumlah klaim, statistik per periode, dan status backup            |
 | **Multi User**      | Role Admin dan Operator dengan hak akses berbeda                             |
@@ -46,7 +45,9 @@
 -   **Backend**: Laravel 12, PHP 8.2+
 -   **Frontend**: Livewire 3, Flux UI, Tailwind CSS 4
 -   **Database**: MySQL / SQLite
--   **PDF Processing**: FPDF, FPDI, Poppler (pdftotext)
+-   **PDF Processing**:
+    -   `setasign/fpdi` - Merge PDF
+    -   `spatie/pdf-to-text` - Ekstraksi teks PDF (via Poppler)
 -   **Queue**: Database Queue Driver
 
 ## 📦 Requirements
@@ -57,9 +58,9 @@
     -   BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
 -   Composer >= 2.0
 -   Node.js >= 18.x dengan NPM
--   MySQL >= 8.0 atau SQLite
+-   MySQL >= 5.7.x atau SQLite
 -   **Poppler Utils** (untuk ekstraksi teks PDF)
-    -   Windows: Download dari [poppler releases](https://github.com/osborn/poppler-windows/releases)
+    -   Windows: Download dari [poppler-windows](https://github.com/oschwartz10612/poppler-windows/releases)
     -   Linux: `sudo apt install poppler-utils`
 
 ### Hardware (Minimum)

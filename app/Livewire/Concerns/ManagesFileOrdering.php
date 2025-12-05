@@ -24,7 +24,7 @@ trait ManagesFileOrdering
 
     protected function swapFiles(int $index1, int $index2): void
     {
-        $arrays = ['scanned_docs', 'previewUrls', 'rotatedPaths', 'rotations'];
+        $arrays = ['scanned_docs', 'previewUrls'];
 
         foreach ($arrays as $arrayName) {
             if (isset($this->{$arrayName}[$index1]) && isset($this->{$arrayName}[$index2])) {
