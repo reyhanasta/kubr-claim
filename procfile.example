@@ -1,0 +1,6 @@
+# FastClaim Production Server
+# File ini dibaca oleh Laragon untuk auto-start services
+# Letakkan di: C:\laragon\etc\procfile atau sesuai konfigurasi Laragon
+
+fastclaim: cd /d "D:\Web Development Reyhan\kubr-claim" && php artisan serve --host=192.168.18.9 --port=8088
+fastclaim-queue: cd /d "D:\Web Development Reyhan\kubr-claim" && php artisan queue:listen --tries=3 --timeout=120
