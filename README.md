@@ -19,7 +19,7 @@
 
 ## 📋 Tentang Aplikasi
 
-**FastClaim** adalah aplikasi web untuk mengelola dokumen klaim BPJS Kesehatan di fasilitas kesehatan (klinik/rumah sakit). Aplikasi ini membantu proses:
+**FastClaim** adalah aplikasi web untuk mengelola dokumen klaim BPJS Kesehatan di fasilitas kesehatan rawat tingkat lanjut (klinik/rumah sakit). Aplikasi ini membantu proses:
 
 -   📄 Upload dan merge dokumen klaim (SEP, Resume Medis, Billing, Hasil Lab)
 -   🔄 Ekstraksi data otomatis dari file SEP PDF
@@ -55,7 +55,8 @@
 ### Software
 
 -   PHP >= 8.2 dengan extensions:
-    -   BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+    -   **Wajib**: Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+    -   **Opsional**: BCMath (untuk perhitungan presisi), DOM (untuk PDF processing)
 -   Composer >= 2.0
 -   Node.js >= 18.x dengan NPM
 -   MySQL >= 5.7.x atau SQLite
@@ -272,7 +273,7 @@ php artisan test --filter=BpjsRawatJalanFormTest
 -   Folder browser untuk konfigurasi path
 -   Dark mode support
 
-## 🤝 Kontribusi
+<!-- ## 🤝 Kontribusi
 
 Kontribusi sangat diterima! Silakan:
 
@@ -281,7 +282,7 @@ Kontribusi sangat diterima! Silakan:
 3. Format code (`vendor/bin/pint --dirty`)
 4. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
 5. Push ke branch (`git push origin feature/AmazingFeature`)
-6. Buat Pull Request
+6. Buat Pull Request -->
 
 ## 📄 Lisensi
 
@@ -292,9 +293,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 **Developer**: Reyhan Asta  
 **Email**: astareyhan@gmail.com  
 **Repository**: [https://github.com/reyhanasta/kubr-claim](https://github.com/reyhanasta/kubr-claim)
-
----
-
-<p align="center">
-  Made with ❤️ for Indonesian Healthcare
-</p>
