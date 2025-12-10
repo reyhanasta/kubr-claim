@@ -46,8 +46,8 @@
                             </flux:badge>
                         @endif
                     </div>
-                    <flux:button variant="primary" size="sm" color="green" wire:click="testConnection('shared')"
-                        type="button">
+                    <flux:button variant="primary" icon="arrow-path" size="sm" color="green"
+                        wire:click="testConnection('shared')" type="button">
                         Test Koneksi
                     </flux:button>
                 </div>
@@ -96,7 +96,7 @@
                             </flux:badge>
                         @endif
                     </div>
-                    <flux:button icon="x-circle" variant="primary" size="sm" color="green"
+                    <flux:button icon="arrow-path" variant="primary" size="sm" color="green"
                         wire:click="testConnection('backup')" type="button">
                         Test Koneksi
                     </flux:button>

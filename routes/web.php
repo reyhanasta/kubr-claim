@@ -14,10 +14,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 })->name('home');
 
-// Route::view('dashboard', 'dashboard')
-//     ->middleware(['auth', 'verified'])
-//     ->name('dashboard');
-
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', BpjsClaimDashboard::class)
         ->name('dashboard');

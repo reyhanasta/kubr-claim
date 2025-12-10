@@ -19,7 +19,7 @@
 
 ## 📋 Tentang Aplikasi
 
-**FastClaim** adalah aplikasi web untuk mengelola dokumen klaim BPJS Kesehatan di fasilitas kesehatan (klinik/rumah sakit). Aplikasi ini membantu proses:
+**FastClaim** adalah aplikasi web untuk mengelola dokumen klaim BPJS Kesehatan di fasilitas kesehatan rawat tingkat lanjut (klinik/rumah sakit). Aplikasi ini membantu proses:
 
 -   📄 Upload dan merge dokumen klaim (SEP, Resume Medis, Billing, Hasil Lab)
 -   🔄 Ekstraksi data otomatis dari file SEP PDF
@@ -55,7 +55,8 @@
 ### Software
 
 -   PHP >= 8.2 dengan extensions:
-    -   BCMath, Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+    -   **Wajib**: Ctype, Fileinfo, JSON, Mbstring, OpenSSL, PDO, Tokenizer, XML
+    -   **Opsional**: BCMath (untuk perhitungan presisi), DOM (untuk PDF processing)
 -   Composer >= 2.0
 -   Node.js >= 18.x dengan NPM
 -   MySQL >= 5.7.x atau SQLite
@@ -185,6 +186,43 @@ Setelah menjalankan seeder:
 
 > ⚠️ **Penting**: Segera ganti password default setelah login pertama!
 
+## 📄 Data Dummy untuk Testing
+
+Kami menyediakan file PDF dummy yang dapat digunakan untuk mencoba aplikasi tanpa perlu data asli. File-file ini tersimpan di folder `public/dummy/`:
+
+### **File yang Tersedia:**
+
+| File                   | Deskripsi                                     |
+| ---------------------- | --------------------------------------------- |
+| `SEP-DUMMY.pdf`        | File SEP dengan data yang dapat diekstrak    |
+| `RESUME-DUMMY.pdf`     | Resume Medis pasien                          |
+| `BILLING-DUMMY.pdf`    | Billing/rincian biaya                        |
+| `LIP-DUMMY.pdf`        | Lembar Informasi Pasien                      |
+| `LAB 1-DUMMY.pdf`      | Hasil laboratorium (file 1)                  |
+| `LAB 2-DUMMY.pdf`      | Hasil laboratorium (file 2)                  |
+
+### **Data SEP Dummy:**
+```
+No. SEP         : 0069G0020212X123426
+Tgl. SEP        : 2021-01-01
+No. Kartu BPJS  : 0009999999999
+No. RM          : 0242424
+Nama Pasien     : Jep Besos
+Jenis Rawatan   : R.Jalan
+Kelas Rawat     : Kelas 3
+```
+
+### **Cara Menggunakan:**
+
+1. Login ke aplikasi dengan kredensial default
+2. Pilih menu **Klaim → Rawat Jalan** atau **Rawat Inap**
+3. Upload file `SEP-DUMMY.pdf` → data akan ter-ekstrak otomatis
+4. Upload file dummy lainnya (Resume, Billing, LIP, Lab)
+5. Klik **Simpan** untuk merge dan simpan ke folder output
+6. Cek hasil di folder `FOLDER_SHARED` yang sudah dikonfigurasi
+
+> 💡 **Tips**: File dummy ini berguna untuk demo, testing fitur, atau training user baru tanpa menggunakan data pasien asli.
+
 ## 📁 Struktur Folder Output
 
 File klaim akan disimpan dengan struktur:
@@ -272,7 +310,7 @@ php artisan test --filter=BpjsRawatJalanFormTest
 -   Folder browser untuk konfigurasi path
 -   Dark mode support
 
-## 🤝 Kontribusi
+<!-- ## 🤝 Kontribusi
 
 Kontribusi sangat diterima! Silakan:
 
@@ -281,7 +319,7 @@ Kontribusi sangat diterima! Silakan:
 3. Format code (`vendor/bin/pint --dirty`)
 4. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
 5. Push ke branch (`git push origin feature/AmazingFeature`)
-6. Buat Pull Request
+6. Buat Pull Request -->
 
 ## 📄 Lisensi
 
@@ -292,9 +330,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 **Developer**: Reyhan Asta  
 **Email**: astareyhan@gmail.com  
 **Repository**: [https://github.com/reyhanasta/kubr-claim](https://github.com/reyhanasta/kubr-claim)
-
----
-
-<p align="center">
-  Made with ❤️ for Indonesian Healthcare
-</p>

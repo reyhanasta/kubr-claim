@@ -13,6 +13,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed app settings first
+        $this->call(AppSettingsSeeder::class);
+
         // User::factory(10)->create();
 
         // Admin user
