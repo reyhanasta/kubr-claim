@@ -59,7 +59,7 @@ return [
         'shared' => [
             'driver' => 'local',
             // 'root' => env('FOLDER_SHARED'),
-            // 'root' => 'Z:/mnt/test_shared', 
+            // 'root' => 'Z:/mnt/test_shared',
             'root' => env('FOLDER_SHARED'),
             // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
             'permissions' => [

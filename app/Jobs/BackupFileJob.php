@@ -72,13 +72,13 @@ class BackupFileJob implements ShouldQueue
 
         try {
             // Check if source file exists
-            if (!$sourceDisk->exists($sourcePath)) {
+            if (! $sourceDisk->exists($sourcePath)) {
                 throw new \RuntimeException("Source file not found: {$sourcePath}");
             }
 
             // Check if backup disk is writable
-            if (!$this->isBackupDiskAccessible($backupDisk)) {
-                throw new \RuntimeException("Backup disk is not accessible or writable");
+            if (! $this->isBackupDiskAccessible($backupDisk)) {
+                throw new \RuntimeException('Backup disk is not accessible or writable');
             }
 
             // Gunakan path yang sama dengan file asli
@@ -121,9 +121,10 @@ class BackupFileJob implements ShouldQueue
     protected function isBackupDiskAccessible($disk): bool
     {
         try {
-            $testFile = '.backup_test_' . uniqid();
+            $testFile = '.backup_test_'.uniqid();
             $disk->put($testFile, 'test');
             $disk->delete($testFile);
+
             return true;
         } catch (\Throwable $e) {
             return false;
@@ -147,7 +148,7 @@ class BackupFileJob implements ShouldQueue
             ->where('status', 'pending')
             ->update([
                 'status' => 'failed',
-                'error_message' => 'Job failed after max retries: ' . $exception->getMessage(),
+                'error_message' => 'Job failed after max retries: '.$exception->getMessage(),
             ]);
 
         // TODO: Send notification (email/slack/etc)

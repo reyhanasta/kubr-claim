@@ -19,6 +19,14 @@
                 wire:navigate>
                 {{ __('Dashboard') }}
             </flux:navbar.item>
+            <flux:navbar.item icon="document-text" :href="route('claims.list')"
+                :current="request()->routeIs('claims.list')" wire:navigate>
+                Daftar Klaim
+            </flux:navbar.item>
+            <flux:navbar.item icon="document-plus" :href="route('bpjs-rajal-form')"
+                :current="request()->routeIs('bpjs-rajal-form')" wire:navigate>
+                Buat Klaim
+            </flux:navbar.item>
         </flux:navbar>
 
         <flux:spacer />

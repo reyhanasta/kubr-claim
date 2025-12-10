@@ -293,8 +293,8 @@ class BpjsRawatJalanForm extends Component
             // Merge PDFs
             $finalPath = $pdfMergeService->mergePdfs($orderedFiles, $pdfOutputPath);
 
-            // Create claim record
-            $claim = $this->createClaimRecord();
+            // Create claim record with file path
+            $claim = $this->createClaimRecord($finalPath);
 
             // Store claim documents
             $this->storeClaimDocuments($claim, $finalPath);
@@ -488,7 +488,7 @@ class BpjsRawatJalanForm extends Component
         ])->filter()->values()->all();
     }
 
-    private function createClaimRecord(): BpjsClaim
+    private function createClaimRecord(string $finalPath): BpjsClaim
     {
         return BpjsClaim::create([
             'no_rm' => $this->medical_record_number,
@@ -498,6 +498,7 @@ class BpjsRawatJalanForm extends Component
             'tanggal_rawatan' => $this->sep_date,
             'nama_pasien' => $this->patient_name,
             'kelas_rawatan' => $this->patient_class,
+            'file_path' => $finalPath,
         ]);
     }
 
@@ -545,13 +546,8 @@ class BpjsRawatJalanForm extends Component
 
         Storage::disk('shared')->putFileAs($outputDir, $this->fileLIP, $lipFilename);
 
-        ClaimDocument::create([
-            'bpjs_claims_id' => $claim->id,
-            'filename' => $lipFilename,
-            'order' => 'LIP',
-            'disk' => 'shared',
-            'path' => $lipPath,
-        ]);
+        // Update claim record with LIP path
+        $claim->update(['lip_file_path' => $lipPath]);
 
         Log::info('LIP file saved', compact('lipPath'));
 

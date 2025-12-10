@@ -173,7 +173,7 @@ class PdfMergerService
     public function mergePdfsNew(array $files, string $outputPath)
     {
         // versi refactor yang aku bantu ubah
-        $output = new \setasign\Fpdi\Fpdi;
+        $output = new Fpdi;
 
         foreach ($files as $file) {
             if (! file_exists($file)) {

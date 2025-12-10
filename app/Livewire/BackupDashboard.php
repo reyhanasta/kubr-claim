@@ -13,7 +13,9 @@ class BackupDashboard extends Component
     use WithPagination;
 
     public string $statusFilter = 'all';
+
     public string $dateFilter = 'today';
+
     public string $searchQuery = '';
 
     public function updatedStatusFilter(): void
@@ -71,7 +73,7 @@ class BackupDashboard extends Component
             // Check if disk is accessible
             $isAccessible = false;
             try {
-                $testFile = '.health_check_' . uniqid();
+                $testFile = '.health_check_'.uniqid();
                 $backupDisk->put($testFile, 'test');
                 $backupDisk->delete($testFile);
                 $isAccessible = true;
@@ -151,7 +153,7 @@ class BackupDashboard extends Component
     {
         $log = BackupLog::find($logId);
 
-        if (!$log || $log->status !== 'failed') {
+        if (! $log || $log->status !== 'failed') {
             return;
         }
 
@@ -181,7 +183,7 @@ class BackupDashboard extends Component
         $pow = min($pow, count($units) - 1);
         $bytes /= pow(1024, $pow);
 
-        return round($bytes, $precision) . ' ' . $units[$pow];
+        return round($bytes, $precision).' '.$units[$pow];
     }
 
     public function render()
