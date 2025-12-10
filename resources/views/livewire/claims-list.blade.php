@@ -69,20 +69,7 @@
                     </flux:select>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    @if($search || $filterJenisRawatan || $filterKelas || $filterMonth || $filterYear)
-                        <flux:button icon="x-mark" variant="ghost" wire:click="clearFilters">
-                            Clear Filters
-                        </flux:button>
-                    @endif
 
-                    @if(count($selectedClaims) > 0)
-                        <flux:badge variant="primary">{{ count($selectedClaims) }} dipilih</flux:badge>
-                        <flux:button icon="arrow-down-tray" variant="primary" size="sm" wire:click="downloadMultiple">
-                            Download ZIP
-                        </flux:button>
-                    @endif>
-                </div>
             </div>
         </div>
 
