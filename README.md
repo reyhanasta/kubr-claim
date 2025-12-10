@@ -19,13 +19,105 @@
 
 ## 📋 Tentang Aplikasi
 
-**FastClaim** adalah aplikasi web untuk mengelola dokumen klaim BPJS Kesehatan di fasilitas kesehatan rawat tingkat lanjut (klinik/rumah sakit). Aplikasi ini membantu proses:
+**FastClaim** adalah aplikasi web modern berbasis Laravel yang dirancang khusus untuk menyederhanakan dan mengotomatisasi proses manajemen dokumen klaim BPJS Kesehatan di fasilitas kesehatan tingkat lanjut (klinik dan rumah sakit).
+
+### 🎯 Latar Belakang
+
+Dalam sistem klaim BPJS Kesehatan, fasilitas kesehatan harus mengumpulkan dan menyusun berbagai dokumen pendukung untuk setiap klaim yang diajukan. Dokumen-dokumen ini meliputi:
+
+- **SEP (Surat Eligibilitas Peserta)** - Dokumen utama yang berisi data pasien dan hak klaim
+- **Resume Medis** - Ringkasan pelayanan medis yang diberikan
+- **Billing/Rincian Biaya** - Daftar tagihan dan biaya perawatan
+- **LIP (Lembar Informasi Pelayanan)** - Informasi detail pelayanan
+- **Hasil Lab** - Hasil pemeriksaan laboratorium pendukung
+
+**Tantangan yang Sering Dihadapi:**
+
+1. **Proses Manual yang Memakan Waktu**: Petugas harus mengumpulkan dokumen dari berbagai sumber, menginput data secara manual, dan menggabungkan PDF satu per satu
+2. **Kesalahan Input Data**: Pengetikan manual nomor SEP, nama pasien, dan data lainnya rawan typo dan kesalahan
+3. **Struktur Penyimpanan Tidak Konsisten**: File tersebar tanpa penamaan dan struktur folder yang jelas, menyulitkan pencarian
+4. **Risiko Kehilangan Data**: Tidak ada sistem backup otomatis, data rawan hilang jika terjadi masalah pada storage
+5. **Sulit Tracking**: Tidak ada dashboard untuk melihat berapa klaim yang sudah diproses atau status backup
+
+### 💡 Solusi yang Ditawarkan
+
+FastClaim hadir untuk mengatasi semua tantangan di atas dengan fitur-fitur otomasi dan smart workflow:
+
+#### **1. Smart Upload & Auto Extract**
+Upload file SEP, dan aplikasi secara otomatis mengekstrak data penting seperti:
+- Nomor SEP
+- Nama Pasien
+- Tanggal SEP
+- Kelas Rawatan (Kelas 1/2/3)
+
+Teknologi OCR berbasis Poppler Utils membaca teks dari PDF dan mengisi form secara otomatis.
+
+#### **2. One-Click PDF Merge**
+Semua dokumen (SEP, Resume Medis, Billing, Lab) otomatis digabung menjadi **satu file PDF** dengan nama yang sesuai nama pasien. Tidak perlu lagi buka Adobe Acrobat atau tool merge manual.
+
+#### **3. Structured File Organization**
+Setiap file otomatis disimpan dengan struktur folder yang konsisten:
+```
+2025/
+└── 12_DESEMBER REGULER 2025/
+    ├── R.JALAN/
+    │   └── 01/
+    │       └── 0069S0020125V000001/
+    │           ├── NAMA_PASIEN.pdf (gabungan semua dokumen)
+    │           └── LIP.pdf (terpisah karena sifatnya khusus)
+    └── R.INAP/
+        └── 15/
+            └── ...
+```
+Format ini mengikuti standar penamaan BPJS dan mudah untuk audit.
+
+#### **4. Automated Backup**
+Setiap file yang di-upload otomatis di-backup ke lokasi terpisah (network drive, external HDD, NAS) menggunakan **Laravel Queue System**. Background job memastikan backup berjalan tanpa memperlambat proses upload.
+
+#### **5. Real-time Dashboard & Analytics**
+Monitor aktivitas klaim dengan dashboard yang menampilkan:
+- Total klaim bulan ini
+- Jumlah klaim per jenis rawatan (Rawat Jalan vs Rawat Inap)
+- Status backup terakhir
+- Grafik tren klaim bulanan
+
+#### **6. Multi-User & Role Management**
+Dukung tim dengan sistem role:
+- **Admin**: Full access, kelola user, ubah settings
+- **Operator**: Upload klaim, lihat dashboard (read-only settings)
+
+#### **7. Dark Mode & Modern UI**
+Interface menggunakan **Flux UI** dan **Tailwind CSS 4** dengan dukungan dark mode, memberikan pengalaman kerja yang nyaman di berbagai kondisi pencahayaan.
+
+### 👥 Target Pengguna
+
+- **Klinik Pratama & Utama** yang bekerjasama dengan BPJS
+- **Rumah Sakit Tipe D/C** dengan volume klaim menengah
+- **Puskesmas** yang menangani klaim BPJS
+- **Tim Administrasi Kesehatan** yang mengelola dokumen klaim
+- **Petugas Verifikator** yang perlu akses cepat ke dokumen terstruktur
+
+### ✨ Nilai Tambah
+
+| Sebelum FastClaim | Sesudah FastClaim |
+|-------------------|-------------------|
+| ⏱️ 5-10 menit per klaim (manual) | ⚡ 1-2 menit per klaim (otomatis) |
+| 📝 Input data manual → rawan error | 🤖 Auto-extract → akurat & cepat |
+| 📂 Struktur folder tidak konsisten | 🗂️ Terorganisir sesuai standar BPJS |
+| 💾 Backup manual (sering terlupa) | ☁️ Backup otomatis setiap upload |
+| ❓ Tidak tahu berapa klaim selesai | 📊 Dashboard real-time |
+| 🔍 Sulit cari file lama | 🎯 Search by nomor SEP/nama pasien |
+
+### 🎁 Bonus Features
 
 -   📄 Upload dan merge dokumen klaim (SEP, Resume Medis, Billing, Hasil Lab)
 -   🔄 Ekstraksi data otomatis dari file SEP PDF
 -   📁 Penyimpanan terstruktur berdasarkan periode dan jenis rawatan
 -   💾 Backup otomatis ke lokasi terpisah
 -   👥 Manajemen user dengan role (Admin/Operator)
+-   🎨 Dark mode & responsive design
+-   🔧 Folder browser untuk setting lokasi storage via UI
+-   📱 Mobile-friendly (akses via tablet/smartphone)
 
 ## ✨ Fitur Utama
 
