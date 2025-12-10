@@ -10,8 +10,8 @@
                     <div class="flex gap-2">
                         <flux:input wire:model="folder_shared" type="text" required
                             placeholder="Z:/FOLDER KLAIM REGULER BPJS" class="flex-1" />
-                        <flux:button type="button" variant="filled" wire:click="openBrowser('shared')">
-                            <flux:icon.folder-open class="size-4" />
+                        <flux:button icon="folder-open" type="button" variant="filled"
+                            wire:click="openBrowser('shared')">
                         </flux:button>
                     </div>
                 </flux:field>
@@ -20,13 +20,8 @@
                 <div class="flex flex-wrap gap-2">
                     <flux:text size="xs" class="text-zinc-400 w-full">Quick select:</flux:text>
                     @foreach($availableDrives as $drive)
-                        <flux:button size="xs" variant="ghost" wire:click="selectPreset('shared', '{{ $drive['path'] }}')"
-                            type="button">
-                            @if($drive['type'] === 'network')
-                                <flux:icon.globe-alt class="size-3 mr-1" />
-                            @else
-                                <flux:icon.server class="size-3 mr-1" />
-                            @endif
+                        <flux:button icon="server" size="xs" variant="ghost"
+                            wire:click="selectPreset('shared', '{{ $drive['path'] }}')" type="button">
                             {{ $drive['label'] }}
                         </flux:button>
                     @endforeach
@@ -60,8 +55,8 @@
                     <div class="flex gap-2">
                         <flux:input wire:model="folder_backup" type="text" required
                             placeholder="D:/Backup Folder Klaim BPJS" class="flex-1" />
-                        <flux:button type="button" variant="filled" wire:click="openBrowser('backup')">
-                            <flux:icon.folder-open class="size-4" />
+                        <flux:button icon="folder-open" type="button" variant="filled"
+                            wire:click="openBrowser('backup')">
                         </flux:button>
                     </div>
                 </flux:field>
@@ -70,13 +65,9 @@
                 <div class="flex flex-wrap gap-2">
                     <flux:text size="xs" class="text-zinc-400 w-full">Quick select:</flux:text>
                     @foreach($availableDrives as $drive)
-                        <flux:button size="xs" variant="ghost" wire:click="selectPreset('backup', '{{ $drive['path'] }}')"
-                            type="button">
-                            @if($drive['type'] === 'network')
-                                <flux:icon.globe-alt class="size-3 mr-1" />
-                            @else
-                                <flux:icon.server class="size-3 mr-1" />
-                            @endif
+                        <flux:button size="xs" icon="server" variant="ghost"
+                            wire:click="selectPreset('backup', '{{ $drive['path'] }}')" type="button">
+
                             {{ $drive['label'] }}
                         </flux:button>
                     @endforeach
@@ -146,9 +137,8 @@
 
             {{-- Current Path --}}
             <div class="flex items-center gap-2 p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-                <flux:button size="sm" variant="ghost" wire:click="navigateUp"
+                <flux:button icon="arrow-up" size="sm" variant="ghost" wire:click="navigateUp"
                     :disabled="$currentBrowsePath === dirname($currentBrowsePath)">
-                    <flux:icon.arrow-up class="size-4" />
                 </flux:button>
                 <flux:text class="font-mono text-sm flex-1 truncate">{{ $currentBrowsePath }}</flux:text>
                 <flux:button size="sm" variant="ghost" wire:click="loadFolders('{{ $currentBrowsePath }}')">
@@ -159,14 +149,9 @@
             {{-- Drive Selection --}}
             <div class="flex flex-wrap gap-2">
                 @foreach($availableDrives as $drive)
-                    <flux:button size="sm"
+                    <flux:button icon="server" size="sm"
                         :variant="str_starts_with($currentBrowsePath, $drive['path']) ? 'primary' : 'ghost'"
                         wire:click="navigateTo('{{ $drive['path'] }}')" type="button">
-                        @if($drive['type'] === 'network')
-                            <flux:icon.globe-alt class="size-4 mr-1" />
-                        @else
-                            <flux:icon.server class="size-4 mr-1" />
-                        @endif
                         {{ $drive['label'] }}
                     </flux:button>
                 @endforeach
@@ -198,8 +183,7 @@
                 <flux:button variant="ghost" wire:click="closeBrowser">
                     Batal
                 </flux:button>
-                <flux:button variant="primary" wire:click="selectFolder">
-                    <flux:icon.check class="size-4 mr-1" />
+                <flux:button icon="check" variant="primary" wire:click="selectFolder">
                     Pilih Folder Ini
                 </flux:button>
             </div>

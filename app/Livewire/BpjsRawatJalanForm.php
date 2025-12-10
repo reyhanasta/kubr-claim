@@ -91,7 +91,7 @@ class BpjsRawatJalanForm extends Component
     // Constants
     private const ALLOWED_JENIS_RAWATAN = ['RJ', 'RI'];
 
-    private const MAX_FILE_SIZE = 2048; // KB
+    private const MAX_FILE_SIZE = 300; // KB
 
     private const TEMP_STORAGE_PATH = 'temp';
 
@@ -185,6 +185,13 @@ class BpjsRawatJalanForm extends Component
     public function updatedSepFile(): void
     {
         if (! $this->sepFile) {
+            return;
+        }
+       
+        if ($this->sepFile->getSize() / 1024 > self::MAX_FILE_SIZE) {
+            $this->showErrorAlert('Ukuran file terlalu besar', 'File SEP maksimal '.self::MAX_FILE_SIZE.' KB');
+            $this->sepFile = null;
+
             return;
         }
 

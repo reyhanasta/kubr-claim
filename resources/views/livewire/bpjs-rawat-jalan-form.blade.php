@@ -602,10 +602,6 @@
         {{-- Initial SEP Upload Section --}}
         @if(!$showUploadedData)
             <div class="mb-8 text-center animate-fade-in">
-                {{-- <div
-                    class="inline-block p-4 bg-gradient-to-br from-emerald-600 to-emerald-500 rounded-2xl mb-4 shadow-xl transform hover:scale-105 transition-transform duration-300">
-                    <flux:icon.document-check class="w-12 h-12 text-white" />
-                </div> --}}
                 <flux:heading size="xl" level="1"
                     class="mb-2 bg-gradient-to-r from-emerald-800 via-emerald-600 to-emerald-500 dark:from-emerald-200 dark:via-emerald-400 dark:to-emerald-500 bg-clip-text text-transparent">
                     Form Klaim BPJS
@@ -699,35 +695,6 @@
         @endif
     </div>
 
-    {{-- Loading Overlay with Better Animation --}}
-    {{-- <div wire:loading.flex
-        wire:target="sepFile,resumeFile,billingFile,fileLIP,sepRJFile,labResultFile,labResultFile2,submit"
-        class="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center animate-fade-in">
-        <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center border border-gray-200 dark:border-gray-700">
-            <div class="relative w-20 h-20 mx-auto mb-6">
-                <div class="absolute inset-0 border-4 border-emerald-200 dark:border-emerald-800 rounded-full"></div>
-                <div
-                    class="absolute inset-0 border-4 border-transparent border-t-emerald-600 dark:border-t-emerald-400 rounded-full animate-spin">
-                </div>
-                <flux:icon.document-arrow-up
-                    class="absolute inset-0 m-auto w-8 h-8 text-emerald-600 dark:text-emerald-400" />
-            </div>
-
-            <flux:heading size="lg" class="text-gray-900 dark:text-white mb-2">
-                Memproses File
-            </flux:heading>
-            <flux:text size="sm" class="text-gray-600 dark:text-gray-400">
-                Mohon tunggu, sedang memproses dokumen...
-            </flux:text>
-
-            <div class="mt-6 flex items-center justify-center gap-2">
-                <div class="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-                <div class="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
-            </div>
-        </div>
-    </div> --}}
 
     <div wire:loading.flex wire:target="sepFile,submit"
         class="fixed inset-0 z-50 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center animate-fade-in">

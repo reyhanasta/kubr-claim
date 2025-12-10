@@ -13,8 +13,7 @@
                         Kelola dan cari klaim yang telah dibuat
                     </p>
                 </div>
-                <flux:button variant="primary" href="{{ route('bpjs-rajal-form') }}" wire:navigate>
-                    <flux:icon name="plus" class="size-5" />
+                <flux:button icon="plus" variant="primary" href="{{ route('bpjs-rajal-form') }}" wire:navigate>
                     Buat Klaim Baru
                 </flux:button>
             </div>
@@ -72,16 +71,14 @@
 
                 <div class="flex items-center gap-2">
                     @if($search || $filterJenisRawatan || $filterKelas || $filterMonth || $filterYear)
-                        <flux:button variant="ghost" wire:click="clearFilters">
-                            <flux:icon name="x-mark" class="size-4" />
+                        <flux:button icon="x-mark" variant="ghost" wire:click="clearFilters">
                             Clear Filters
                         </flux:button>
                     @endif
 
                     @if(count($selectedClaims) > 0)
                         <flux:badge variant="primary">{{ count($selectedClaims) }} dipilih</flux:badge>
-                        <flux:button variant="primary" size="sm" wire:click="downloadMultiple">
-                            <flux:icon name="arrow-down-tray" class="size-4" />
+                        <flux:button icon="arrow-down-tray" variant="primary" size="sm" wire:click="downloadMultiple">
                             Download ZIP
                         </flux:button>
                     @endif>
@@ -177,14 +174,14 @@
 
                         {{-- Card Actions --}}
                         <div class="p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex gap-2">
-                            <flux:button icon="arrow-down-tray" variant="ghost" wire:click="downloadFile({{ $claim->id }})"
+                            <flux:button icon="arrow-down-tray" variant="primary" wire:click="downloadFile({{ $claim->id }})"
                                 class="flex-1">
                                 Unduh
                                 PDF
                             </flux:button>
                             @if($claim->lip_file_path)
-                                <flux:button icon="document-text" variant="primary" wire:click="downloadLip({{ $claim->id }})"
-                                    class="flex-1">
+                                <flux:button icon="document-text" variant="primary" color="orange"
+                                    wire:click="downloadLip({{ $claim->id }})" class="flex-1">
                                     Unduh
                                     LIP
                                 </flux:button>
