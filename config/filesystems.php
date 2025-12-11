@@ -85,7 +85,8 @@ return [
         ],
         'backup' => [
             'driver' => 'local',
-            'root' => env('FOLDER_BACKUP'),
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

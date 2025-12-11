@@ -80,7 +80,9 @@ class BpjsRawatJalanForm extends Component
     // Internal state
     public array $scanned_docs = [];
 
-    public array $rotatedPaths = [];
+    public array $temporaryPaths = [];
+
+    public array $rawDocumentPaths = [];
 
     public array $previewUrls = [];
 
@@ -96,6 +98,21 @@ class BpjsRawatJalanForm extends Component
     private const TEMP_STORAGE_PATH = 'temp';
 
     private const RAW_DOCUMENTS_PATH = 'raw-documents';
+
+    // File key identifiers
+    private const FILE_SEP = 'sepFile';
+
+    private const FILE_SEP_RJ = 'sepRJFile';
+
+    private const FILE_RESUME = 'resumeFile';
+
+    private const FILE_BILLING = 'billingFile';
+
+    private const FILE_LIP = 'fileLIP';
+
+    private const FILE_LAB_RESULT = 'labResultFile';
+
+    private const FILE_LAB_RESULT_2 = 'labResultFile2';
 
     protected function messages(): array
     {
@@ -143,7 +160,7 @@ class BpjsRawatJalanForm extends Component
     #[Computed]
     public function currentPreviewUrl(): string
     {
-        return $this->previewUrls['sepFile'] ?? '';
+        return $this->previewUrls[self::FILE_SEP] ?? '';
     }
 
     #[Computed]
@@ -187,7 +204,7 @@ class BpjsRawatJalanForm extends Component
         if (! $this->sepFile) {
             return;
         }
-       
+
         if ($this->sepFile->getSize() / 1024 > self::MAX_FILE_SIZE) {
             $this->showErrorAlert('Ukuran file terlalu besar', 'File SEP maksimal '.self::MAX_FILE_SIZE.' KB');
             $this->sepFile = null;
@@ -211,32 +228,32 @@ class BpjsRawatJalanForm extends Component
 
     public function updatedResumeFile(): void
     {
-        $this->processOptionalFile($this->resumeFile, 'resumeFile');
+        $this->processOptionalFile($this->resumeFile, self::FILE_RESUME);
     }
 
     public function updatedSepRJFile(): void
     {
-        $this->processOptionalFile($this->sepRJFile, 'sepRJFile');
+        $this->processOptionalFile($this->sepRJFile, self::FILE_SEP_RJ);
     }
 
     public function updatedBillingFile(): void
     {
-        $this->processOptionalFile($this->billingFile, 'billingFile');
+        $this->processOptionalFile($this->billingFile, self::FILE_BILLING);
     }
 
     public function updatedFileLIP(): void
     {
-        $this->processOptionalFile($this->fileLIP, 'fileLIP');
+        $this->processOptionalFile($this->fileLIP, self::FILE_LIP);
     }
 
     public function updatedLabResultFile(): void
     {
-        $this->processOptionalFile($this->labResultFile, 'labResultFile');
+        $this->processOptionalFile($this->labResultFile, self::FILE_LAB_RESULT);
     }
 
     public function updatedLabResultFile2(): void
     {
-        $this->processOptionalFile($this->labResultFile2, 'labResultFile2');
+        $this->processOptionalFile($this->labResultFile2, self::FILE_LAB_RESULT_2);
     }
 
     public function cancelUpload(): void
@@ -256,23 +273,15 @@ class BpjsRawatJalanForm extends Component
         $this->redirect(request()->header('Referer') ?? route('dashboard'), navigate: true);
     }
 
+    /**
+     * Submit and process the BPJS claim.
+     * Merges all uploaded documents, creates database records, and dispatches backup job.
+     */
     public function submit(
         PdfMergerService $pdfMergeService,
         GenerateFolderService $generateFolderService
     ): void {
-        // Validate all fields
-        try {
-            $this->validate();
-        } catch (ValidationException $e) {
-            $this->handleValidationErrors($e);
-
-            return;
-        }
-
-        // Double-check required files
-        if (! $this->requiredFilesUploaded) {
-            $this->showErrorAlert('File tidak lengkap', 'Semua file wajib harus diunggah sebelum menyimpan klaim');
-
+        if (! $this->validateSubmission()) {
             return;
         }
 
@@ -336,8 +345,41 @@ class BpjsRawatJalanForm extends Component
         return view('livewire.bpjs-rawat-jalan-form');
     }
 
-    // Private helper methods
+    // ========================================
+    // Validation Methods
+    // ========================================
 
+    /**
+     * Validate submission requirements.
+     */
+    private function validateSubmission(): bool
+    {
+        try {
+            $this->validate();
+        } catch (ValidationException $e) {
+            $this->handleValidationErrors($e);
+
+            return false;
+        }
+
+        if (! $this->requiredFilesUploaded) {
+            $this->showErrorAlert('File tidak lengkap', 'Semua file wajib harus diunggah sebelum menyimpan klaim');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    // ========================================
+    // File Processing Methods
+    // ========================================
+
+    /**
+     * Process SEP file: extract data and auto-fill form fields.
+     *
+     * @throws \RuntimeException if SEP is invalid or duplicate
+     */
     private function processSepFile(): void
     {
         /** @var PdfReadService $pdfReadService */
@@ -454,25 +496,38 @@ class BpjsRawatJalanForm extends Component
         }
     }
 
+    /**
+     * Store uploaded file to temporary storage.
+     */
     private function storeTempFile(TemporaryUploadedFile $file, string $key): void
     {
         $filename = $this->generateUniqueFilename($file);
         $storedPath = $file->storeAs(self::TEMP_STORAGE_PATH, $filename, 'public');
 
         $this->scanned_docs[$key] = $file;
-        $this->rotatedPaths[$key] = $storedPath;
-        $this->previewUrls[$key] = $key === 'sepFile'
+        $this->temporaryPaths[$key] = $storedPath;
+        $this->previewUrls[$key] = $key === self::FILE_SEP
             ? url('storage/'.$storedPath)
             : Storage::url($storedPath);
 
         Log::info("File {$key} uploaded", compact('filename', 'storedPath'));
     }
 
+    // ========================================
+    // Utility Methods
+    // ========================================
+
+    /**
+     * Generate unique filename with timestamp prefix.
+     */
     private function generateUniqueFilename(TemporaryUploadedFile $file): string
     {
         return uniqid('', true).'_'.$file->getClientOriginalName();
     }
 
+    /**
+     * Sanitize patient name for safe filename usage.
+     */
     private function sanitizePatientName(): string
     {
         return Str::of($this->patient_name)
@@ -482,19 +537,29 @@ class BpjsRawatJalanForm extends Component
             ->toString();
     }
 
+    /**
+     * Get ordered file paths for PDF merging.
+     * Order: SEP → SEP RJ → Resume → Lab Results → Billing
+     */
     private function getOrderedFilesForMerge(): array
     {
-        // Urutan: SEP → SEP RJ → Resume → Lab Results → Billing (terakhir)
         return collect([
-            $this->rotatedPaths['sepFile'] ?? null,
-            $this->rotatedPaths['sepRJFile'] ?? null,
-            $this->rotatedPaths['resumeFile'] ?? null,
-            $this->rotatedPaths['labResultFile'] ?? null,
-            $this->rotatedPaths['labResultFile2'] ?? null,
-            $this->rotatedPaths['billingFile'] ?? null,
+            $this->temporaryPaths[self::FILE_SEP] ?? null,
+            $this->temporaryPaths[self::FILE_SEP_RJ] ?? null,
+            $this->temporaryPaths[self::FILE_RESUME] ?? null,
+            $this->temporaryPaths[self::FILE_LAB_RESULT] ?? null,
+            $this->temporaryPaths[self::FILE_LAB_RESULT_2] ?? null,
+            $this->temporaryPaths[self::FILE_BILLING] ?? null,
         ])->filter()->values()->all();
     }
 
+    // ========================================
+    // Database Operations
+    // ========================================
+
+    /**
+     * Create BPJS claim record in database.
+     */
     private function createClaimRecord(string $finalPath): BpjsClaim
     {
         return BpjsClaim::create([
@@ -509,12 +574,15 @@ class BpjsRawatJalanForm extends Component
         ]);
     }
 
+    /**
+     * Store individual claim documents to raw-documents directory.
+     */
     private function storeClaimDocuments(BpjsClaim $claim, string $finalPath): void
     {
         Storage::disk('public')->makeDirectory(self::RAW_DOCUMENTS_PATH);
 
         foreach ($this->scanned_docs as $index => $file) {
-            if (! $file || $index === 'fileLIP') {
+            if (! $file || $index === self::FILE_LIP) {
                 continue;
             }
 
@@ -532,7 +600,7 @@ class BpjsRawatJalanForm extends Component
 
     private function moveToRawDocuments(string $index, TemporaryUploadedFile $file, string $filename): void
     {
-        $tempPath = $this->rotatedPaths[$index] ?? null;
+        $tempPath = $this->temporaryPaths[$index] ?? null;
         $destination = self::RAW_DOCUMENTS_PATH.'/'.$filename;
 
         if ($tempPath && Storage::disk('public')->exists($tempPath)) {
@@ -540,8 +608,13 @@ class BpjsRawatJalanForm extends Component
         } else {
             $file->storeAs(self::RAW_DOCUMENTS_PATH, $filename, 'public');
         }
+
+        $this->rawDocumentPaths[] = $destination;
     }
 
+    /**
+     * Handle optional LIP file upload and storage.
+     */
     private function handleLipFile(BpjsClaim $claim, string $outputDir): ?string
     {
         if (! $this->fileLIP) {
@@ -552,8 +625,6 @@ class BpjsRawatJalanForm extends Component
         $lipPath = $outputDir.$lipFilename;
 
         Storage::disk('shared')->putFileAs($outputDir, $this->fileLIP, $lipFilename);
-
-        // Update claim record with LIP path
         $claim->update(['lip_file_path' => $lipPath]);
 
         Log::info('LIP file saved', compact('lipPath'));
@@ -561,22 +632,48 @@ class BpjsRawatJalanForm extends Component
         return $lipPath;
     }
 
+    // ========================================
+    // Cleanup Methods
+    // ========================================
+
+    /**
+     * Remove temporary files from temp storage.
+     */
     private function cleanupTempFiles(): void
     {
-        foreach ($this->rotatedPaths as $path) {
+        foreach ($this->temporaryPaths as $path) {
             if (str_starts_with($path, self::TEMP_STORAGE_PATH.'/') && Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
             }
         }
     }
 
+    /**
+     * Remove raw document files from staging directory.
+     */
+    private function cleanupRawDocuments(): void
+    {
+        foreach ($this->rawDocumentPaths as $path) {
+            if (str_starts_with($path, self::RAW_DOCUMENTS_PATH.'/') && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+    }
+
+    /**
+     * Cleanup all temporary and staging files after successful submission.
+     */
     private function cleanUpAfterSubmit(PdfMergerService $pdfMergeService): void
     {
         $this->cleanupTempFiles();
-        $pdfMergeService->cleanupTempFiles($this->rotatedPaths);
+        $pdfMergeService->cleanupTempFiles($this->temporaryPaths);
+        $this->cleanupRawDocuments();
         $this->resetUploadState();
     }
 
+    /**
+     * Reset component state to initial values.
+     */
     private function resetUploadState(): void
     {
         $this->reset([
@@ -589,7 +686,8 @@ class BpjsRawatJalanForm extends Component
             'labResultFile2',
             'scanned_docs',
             'previewUrls',
-            'rotatedPaths',
+            'temporaryPaths',
+            'rawDocumentPaths',
             'showUploadedData',
         ]);
     }
@@ -618,13 +716,16 @@ class BpjsRawatJalanForm extends Component
 
         $this->cancelUpload();
 
-        // Use custom message from RuntimeException, otherwise use generic message
-        if ($e instanceof \RuntimeException) {
-            $this->showErrorAlert('Gagal memproses file!', $e->getMessage());
-        } else {
-            $this->showErrorAlert('Gagal memproses file!', 'Terjadi kesalahan saat memproses file');
-        }
+        $message = $e instanceof \RuntimeException
+            ? $e->getMessage()
+            : 'Terjadi kesalahan saat memproses file';
+
+        $this->showErrorAlert('Gagal memproses file!', $message);
     }
+
+    // ========================================
+    // Alert/Notification Methods
+    // ========================================
 
     private function showSuccessAlert(string $title, string $text): void
     {

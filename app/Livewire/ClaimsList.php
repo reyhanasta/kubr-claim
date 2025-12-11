@@ -92,7 +92,7 @@ class ClaimsList extends Component
     public function downloadFile($claimId)
     {
         $claim = BpjsClaim::findOrFail($claimId);
-        $disk = Storage::disk('shared');
+        $disk = Storage::disk('backup');
 
         if (! $disk->exists($claim->file_path)) {
             LivewireAlert::title('File tidak ditemukan')
@@ -120,7 +120,7 @@ class ClaimsList extends Component
             return;
         }
 
-        $disk = Storage::disk('shared');
+        $disk = Storage::disk('backup');
 
         if (! $disk->exists($claim->lip_file_path)) {
             LivewireAlert::title('File tidak ditemukan')
@@ -158,10 +158,10 @@ class ClaimsList extends Component
         $claim = BpjsClaim::findOrFail($claimId);
 
         // Optional: Delete physical file
-        // $disk = Storage::disk('shared');
-        // if ($disk->exists($claim->file_path)) {
-        //     $disk->delete($claim->file_path);
-        // }
+        $disk = Storage::disk('shared');
+        if ($disk->exists($claim->file_path)) {
+            $disk->delete($claim->file_path);
+        }
 
         $claim->delete();
 
