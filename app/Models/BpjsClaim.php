@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BpjsClaim extends Model
 {
@@ -20,19 +19,14 @@ class BpjsClaim extends Model
         ];
     }
 
-    public function documents(): HasMany
-    {
-        return $this->hasMany(ClaimDocument::class, 'bpjs_claims_id');
-    }
-
     public function scopeRawatJalan($query)
     {
-        return $query->where('jenis_rawatan', 'RJ');
+        return $query->where('jenis_rawatan', 'R.Jalan');
     }
 
     public function scopeRawatInap($query)
     {
-        return $query->where('jenis_rawatan', 'RI');
+        return $query->where('jenis_rawatan', 'R.Inap');
     }
 
     public function scopeForMonth($query, int $month, int $year)

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 
+use function Pest\Laravel\mock;
+
 beforeEach(function () {
     Storage::fake('public');
     Storage::fake('shared');

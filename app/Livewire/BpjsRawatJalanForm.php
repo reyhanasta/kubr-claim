@@ -6,16 +6,17 @@ namespace App\Livewire;
 
 use App\Jobs\BackupFileJob;
 use App\Models\BpjsClaim;
-use App\Models\ClaimDocument;
+use App\Services\FileUploadService;
 use App\Services\GenerateFolderService;
 use App\Services\PdfMergerService;
 use App\Services\PdfReadService;
+use App\Services\SepDataProcessor;
+use App\Traits\HasAlerts;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
@@ -26,7 +27,7 @@ use Livewire\WithFileUploads;
 
 class BpjsRawatJalanForm extends Component
 {
-    use WithFileUploads;
+    use HasAlerts, WithFileUploads;
 
     // File uploads
     #[Validate('required|file|mimes:pdf|max:2048')]
@@ -78,11 +79,7 @@ class BpjsRawatJalanForm extends Component
     public string $sep_date_label = 'Tanggal SEP';
 
     // Internal state
-    public array $scanned_docs = [];
-
     public array $temporaryPaths = [];
-
-    public array $rawDocumentPaths = [];
 
     public array $previewUrls = [];
 
@@ -91,13 +88,9 @@ class BpjsRawatJalanForm extends Component
     public bool $showUploadedData = false;
 
     // Constants
-    private const ALLOWED_JENIS_RAWATAN = ['RJ', 'RI'];
-
     private const MAX_FILE_SIZE = 300; // KB
 
     private const TEMP_STORAGE_PATH = 'temp';
-
-    private const RAW_DOCUMENTS_PATH = 'raw-documents';
 
     // File key identifiers
     private const FILE_SEP = 'sepFile';
@@ -158,12 +151,6 @@ class BpjsRawatJalanForm extends Component
     }
 
     #[Computed]
-    public function currentPreviewUrl(): string
-    {
-        return $this->previewUrls[self::FILE_SEP] ?? '';
-    }
-
-    #[Computed]
     public function requiredFilesUploaded(): bool
     {
         return $this->sepFile !== null
@@ -206,7 +193,11 @@ class BpjsRawatJalanForm extends Component
         }
 
         if ($this->sepFile->getSize() / 1024 > self::MAX_FILE_SIZE) {
-            $this->showErrorAlert('Ukuran file terlalu besar', 'File SEP maksimal '.self::MAX_FILE_SIZE.' KB');
+            $fileSizeKB = round($this->sepFile->getSize() / 1024, 2);
+            $this->showErrorAlert(
+                'File SEP terlalu besar',
+                "Ukuran file {$fileSizeKB} KB melebihi batas maksimal ".self::MAX_FILE_SIZE.' KB. Silakan kompres file terlebih dahulu atau gunakan PDF yang lebih kecil.'
+            );
             $this->sepFile = null;
 
             return;
@@ -312,9 +303,6 @@ class BpjsRawatJalanForm extends Component
             // Create claim record with file path
             $claim = $this->createClaimRecord($finalPath);
 
-            // Store claim documents
-            $this->storeClaimDocuments($claim, $finalPath);
-
             // Handle optional LIP file
             $lipPath = $this->handleLipFile($claim, $outputDir);
 
@@ -336,7 +324,17 @@ class BpjsRawatJalanForm extends Component
                 'sep_number' => $this->sep_number,
             ]);
 
-            $this->showErrorAlert('Klaim gagal dibuat!', 'Terjadi kesalahan: '.$e->getMessage());
+            $errorMessage = 'Terjadi kesalahan saat menyimpan klaim. ';
+
+            if (str_contains($e->getMessage(), 'duplicate')) {
+                $errorMessage .= 'Nomor SEP sudah terdaftar dalam sistem.';
+            } elseif (str_contains($e->getMessage(), 'PDF')) {
+                $errorMessage .= 'File PDF tidak dapat diproses. Pastikan file tidak terenkripsi atau corrupt.';
+            } else {
+                $errorMessage .= 'Silakan coba lagi atau hubungi administrator jika masalah berlanjut.';
+            }
+
+            $this->showErrorAlert('Klaim gagal dibuat', $errorMessage);
         }
     }
 
@@ -363,7 +361,22 @@ class BpjsRawatJalanForm extends Component
         }
 
         if (! $this->requiredFilesUploaded) {
-            $this->showErrorAlert('File tidak lengkap', 'Semua file wajib harus diunggah sebelum menyimpan klaim');
+            $missingFiles = [];
+            if (! $this->sepFile) {
+                $missingFiles[] = 'SEP';
+            }
+            if (! $this->resumeFile) {
+                $missingFiles[] = 'Resume Medis';
+            }
+            if (! $this->billingFile) {
+                $missingFiles[] = 'Billing';
+            }
+
+            $fileList = implode(', ', $missingFiles);
+            $this->showErrorAlert(
+                'Dokumen belum lengkap',
+                "File berikut masih diperlukan: {$fileList}. Silakan upload semua file wajib terlebih dahulu."
+            );
 
             return false;
         }
@@ -385,6 +398,9 @@ class BpjsRawatJalanForm extends Component
         /** @var PdfReadService $pdfReadService */
         $pdfReadService = app(PdfReadService::class);
 
+        /** @var SepDataProcessor $sepProcessor */
+        $sepProcessor = app(SepDataProcessor::class);
+
         $pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
         $extractedData = $pdfReadService->extractPdf($pdfText);
 
@@ -392,93 +408,21 @@ class BpjsRawatJalanForm extends Component
             throw new \RuntimeException('Format dokumen SEP tidak valid atau tidak dapat dibaca');
         }
 
-        // Validate essential fields are not empty
-        $this->validateExtractedData($extractedData);
+        // Validate and check duplicates using SepDataProcessor
+        $sepProcessor->validateExtractedData($extractedData);
+        $sepProcessor->checkDuplicateSepNumber($extractedData['sep_number'] ?? '');
 
-        // Check if SEP number already exists in database
-        $this->checkDuplicateSepNumber($extractedData['sep_number'] ?? '');
-
-        $this->fillPatientData($extractedData);
-        $this->storeTempFile($this->sepFile, 'sepFile');
-        $this->showUploadedData = true;
-    }
-
-    /**
-     * Check if SEP number already exists in database.
-     *
-     * @throws \RuntimeException if SEP number is duplicate
-     */
-    private function checkDuplicateSepNumber(string $sepNumber): void
-    {
-        if (empty($sepNumber)) {
-            return;
-        }
-
-        $existingClaim = BpjsClaim::where('no_sep', $sepNumber)->first();
-
-        if ($existingClaim) {
-            $tanggalRawatan = $existingClaim->tanggal_rawatan?->format('d/m/Y') ?? '-';
-            $jenisRawatan = $existingClaim->jenis_rawatan === 'RI' ? 'Rawat Inap' : 'Rawat Jalan';
-
-            throw new \RuntimeException(
-                "Nomor SEP {$sepNumber} sudah terdaftar sebelumnya. ".
-                "Data klaim: {$existingClaim->nama_pasien} ({$jenisRawatan}) ".
-                "tanggal {$tanggalRawatan}."
-            );
-        }
-    }
-
-    /**
-     * Validate that essential data was extracted from SEP document.
-     *
-     * @throws \RuntimeException if essential data is missing
-     */
-    private function validateExtractedData(array $data): void
-    {
-        $requiredFields = [
-            'sep_number' => 'Nomor SEP',
-            'patient_name' => 'Nama Pasien',
-            'medical_record_number' => 'Nomor Rekam Medis',
-            'bpjs_serial_number' => 'Nomor Kartu BPJS',
-        ];
-
-        $missingFields = [];
-
-        foreach ($requiredFields as $field => $label) {
-            if (empty(trim($data[$field] ?? ''))) {
-                $missingFields[] = $label;
-            }
-        }
-
-        if (! empty($missingFields)) {
-            throw new \RuntimeException(
-                'Data SEP tidak lengkap. Field berikut tidak dapat dibaca: '.implode(', ', $missingFields).'. Pastikan file SEP yang diupload valid dan dapat dibaca.'
-            );
-        }
-    }
-
-    private function fillPatientData(array $data): void
-    {
-        // Extract numeric patient class from "Kelas 1", "Kelas 2", "Kelas 3"
-        $patientClass = $data['patient_class'] ?? '';
-        if (preg_match('/\d+/', $patientClass, $matches)) {
-            $patientClass = $matches[0];
-        }
-
-        $this->fill([
-            'medical_record_number' => $data['medical_record_number'] ?? '',
-            'patient_name' => $data['patient_name'] ?? '',
-            'sep_number' => $data['sep_number'] ?? '',
-            'bpjs_serial_number' => $data['bpjs_serial_number'] ?? '',
-            'patient_class' => $patientClass,
-            'jenis_rawatan' => $data['jenis_rawatan'] ?? 'RJ',
-            'sep_date' => $data['sep_date'] ?? null,
-        ]);
+        // Fill form with extracted data
+        $formData = $sepProcessor->prepareFormData($extractedData);
+        $this->fill($formData);
 
         if ($this->jenis_rawatan === 'RI') {
             $this->sep_date_label = 'Tanggal Pulang';
             $this->sep_date = null;
         }
+
+        $this->storeTempFile($this->sepFile, self::FILE_SEP);
+        $this->showUploadedData = true;
     }
 
     private function processOptionalFile(?TemporaryUploadedFile $file, string $key): void
@@ -501,29 +445,21 @@ class BpjsRawatJalanForm extends Component
      */
     private function storeTempFile(TemporaryUploadedFile $file, string $key): void
     {
-        $filename = $this->generateUniqueFilename($file);
-        $storedPath = $file->storeAs(self::TEMP_STORAGE_PATH, $filename, 'public');
+        /** @var FileUploadService $uploadService */
+        $uploadService = app(FileUploadService::class);
 
-        $this->scanned_docs[$key] = $file;
-        $this->temporaryPaths[$key] = $storedPath;
-        $this->previewUrls[$key] = $key === self::FILE_SEP
-            ? url('storage/'.$storedPath)
-            : Storage::url($storedPath);
+        $fileInfo = $uploadService->storeTemporary($file, $key);
 
-        Log::info("File {$key} uploaded", compact('filename', 'storedPath'));
+        $this->temporaryPaths[$key] = $fileInfo['path'];
+        $this->previewUrls[$key] = $uploadService->generatePreviewUrl(
+            $fileInfo['path'],
+            $key === self::FILE_SEP
+        );
     }
 
     // ========================================
     // Utility Methods
     // ========================================
-
-    /**
-     * Generate unique filename with timestamp prefix.
-     */
-    private function generateUniqueFilename(TemporaryUploadedFile $file): string
-    {
-        return uniqid('', true).'_'.$file->getClientOriginalName();
-    }
 
     /**
      * Sanitize patient name for safe filename usage.
@@ -575,44 +511,6 @@ class BpjsRawatJalanForm extends Component
     }
 
     /**
-     * Store individual claim documents to raw-documents directory.
-     */
-    private function storeClaimDocuments(BpjsClaim $claim, string $finalPath): void
-    {
-        Storage::disk('public')->makeDirectory(self::RAW_DOCUMENTS_PATH);
-
-        foreach ($this->scanned_docs as $index => $file) {
-            if (! $file || $index === self::FILE_LIP) {
-                continue;
-            }
-
-            $filename = $this->generateUniqueFilename($file);
-            $this->moveToRawDocuments($index, $file, $filename);
-
-            ClaimDocument::create([
-                'bpjs_claims_id' => $claim->id,
-                'filename' => $filename,
-                'order' => $index,
-                'disk' => Storage::disk('shared')->path($finalPath),
-            ]);
-        }
-    }
-
-    private function moveToRawDocuments(string $index, TemporaryUploadedFile $file, string $filename): void
-    {
-        $tempPath = $this->temporaryPaths[$index] ?? null;
-        $destination = self::RAW_DOCUMENTS_PATH.'/'.$filename;
-
-        if ($tempPath && Storage::disk('public')->exists($tempPath)) {
-            Storage::disk('public')->move($tempPath, $destination);
-        } else {
-            $file->storeAs(self::RAW_DOCUMENTS_PATH, $filename, 'public');
-        }
-
-        $this->rawDocumentPaths[] = $destination;
-    }
-
-    /**
      * Handle optional LIP file upload and storage.
      */
     private function handleLipFile(BpjsClaim $claim, string $outputDir): ?string
@@ -641,33 +539,18 @@ class BpjsRawatJalanForm extends Component
      */
     private function cleanupTempFiles(): void
     {
-        foreach ($this->temporaryPaths as $path) {
-            if (str_starts_with($path, self::TEMP_STORAGE_PATH.'/') && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
-        }
+        /** @var FileUploadService $uploadService */
+        $uploadService = app(FileUploadService::class);
+        $uploadService->cleanupTempFiles($this->temporaryPaths);
     }
 
     /**
-     * Remove raw document files from staging directory.
-     */
-    private function cleanupRawDocuments(): void
-    {
-        foreach ($this->rawDocumentPaths as $path) {
-            if (str_starts_with($path, self::RAW_DOCUMENTS_PATH.'/') && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
-        }
-    }
-
-    /**
-     * Cleanup all temporary and staging files after successful submission.
+     * Cleanup all temporary files after successful submission.
      */
     private function cleanUpAfterSubmit(PdfMergerService $pdfMergeService): void
     {
         $this->cleanupTempFiles();
         $pdfMergeService->cleanupTempFiles($this->temporaryPaths);
-        $this->cleanupRawDocuments();
         $this->resetUploadState();
     }
 
@@ -684,10 +567,8 @@ class BpjsRawatJalanForm extends Component
             'fileLIP',
             'labResultFile',
             'labResultFile2',
-            'scanned_docs',
             'previewUrls',
             'temporaryPaths',
-            'rawDocumentPaths',
             'showUploadedData',
         ]);
     }
@@ -697,13 +578,7 @@ class BpjsRawatJalanForm extends Component
         $this->uploading = false;
 
         foreach ($e->validator->errors()->all() as $error) {
-            LivewireAlert::toast()
-                ->error()
-                ->title('Validasi Gagal')
-                ->text($error)
-                ->position('top-end')
-                ->timer(4000)
-                ->show();
+            $this->showErrorAlert('Validasi Gagal', $error);
         }
     }
 
@@ -721,37 +596,5 @@ class BpjsRawatJalanForm extends Component
             : 'Terjadi kesalahan saat memproses file';
 
         $this->showErrorAlert('Gagal memproses file!', $message);
-    }
-
-    // ========================================
-    // Alert/Notification Methods
-    // ========================================
-
-    private function showSuccessAlert(string $title, string $text): void
-    {
-        LivewireAlert::title($title)
-            ->success()
-            ->text($text)
-            ->show();
-    }
-
-    private function showErrorAlert(string $title, string $text): void
-    {
-        LivewireAlert::title($title)
-            ->error()
-            ->text($text)
-            ->timer(5000)
-            ->show();
-    }
-
-    private function showWarningAlert(string $title, string $text): void
-    {
-        LivewireAlert::toast()
-            ->warning()
-            ->title($title)
-            ->text($text)
-            ->position('top-end')
-            ->timer(3000)
-            ->show();
     }
 }

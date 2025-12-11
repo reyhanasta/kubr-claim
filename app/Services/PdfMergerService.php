@@ -13,6 +13,13 @@ class PdfMergerService
 
     protected int $maxRetries = 3;
 
+    protected ?PdfDecompressionService $decompressor = null;
+
+    public function __construct(?PdfDecompressionService $decompressor = null)
+    {
+        $this->decompressor = $decompressor;
+    }
+
     /**
      * Merge multiple PDF files into one.
      *
@@ -95,8 +102,44 @@ class PdfMergerService
                     $pdf->useTemplate($tpage);
                 }
                 $processed++;
-            } catch (\Throwable $e) {
-                Log::error("Gagal memproses file: {$path}", ['error' => $e->getMessage()]);
+            } catch (\Exception $e) {
+                // If compression error, try to decompress PDF and retry
+                if (str_contains($e->getMessage(), 'compression technique')) {
+                    if (! $this->decompressor || ! $this->decompressor->isAvailable()) {
+                        Log::error("PDF menggunakan kompresi tidak didukung dan Ghostscript tidak tersedia: {$path}", [
+                            'error' => $e->getMessage(),
+                            'solution' => 'Install Ghostscript dari https://ghostscript.com/releases/gsdnld.html',
+                        ]);
+
+                        continue;
+                    }
+
+                    Log::warning("PDF menggunakan kompresi tidak didukung, mencoba dekompresi: {$path}");
+
+                    try {
+                        $decompressedPath = $this->decompressor->decompress($filePath);
+
+                        $pageCount = $pdf->setSourceFile($decompressedPath);
+                        for ($i = 1; $i <= $pageCount; $i++) {
+                            $tpage = $pdf->importPage($i);
+                            $size = $pdf->getTemplateSize($tpage);
+                            $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
+                            $pdf->AddPage($orientation, [$size['width'], $size['height']]);
+                            $pdf->useTemplate($tpage);
+                        }
+                        $processed++;
+
+                        // Clean up decompressed temp file
+                        @unlink($decompressedPath);
+                    } catch (\Throwable $retryError) {
+                        Log::error("Gagal memproses file setelah dekompresi: {$path}", [
+                            'original_error' => $e->getMessage(),
+                            'retry_error' => $retryError->getMessage(),
+                        ]);
+                    }
+                } else {
+                    Log::error("Gagal memproses file: {$path}", ['error' => $e->getMessage()]);
+                }
             }
         }
 

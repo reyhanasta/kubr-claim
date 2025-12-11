@@ -182,6 +182,57 @@
 
                 {{-- Documents Upload Section --}}
                 @if ($this->canShowSupportingDocuments)
+                    {{-- Upload Progress Indicator --}}
+                    <div
+                        class="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl p-6 border-2 border-emerald-200 dark:border-emerald-800">
+                        <div class="flex items-center justify-between mb-4">
+                            <flux:heading size="sm" class="text-emerald-900 dark:text-emerald-100">
+                                Progress Upload Dokumen
+                            </flux:heading>
+                            <flux:text size="sm" class="font-mono text-emerald-700 dark:text-emerald-300">
+                                {{ collect($this->uploadProgress)->filter()->count() }} / 3 File
+                            </flux:text>
+                        </div>
+
+                        {{-- Progress Bar --}}
+                        <div class="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500 rounded-full"
+                                style="width: {{ (collect($this->uploadProgress)->filter()->count() / 3) * 100 }}%">
+                            </div>
+                        </div>
+
+                        {{-- Upload Checklist --}}
+                        <div class="mt-4 grid grid-cols-3 gap-3">
+                            <div class="flex items-center gap-2 text-sm">
+                                @if($this->uploadProgress['sep'])
+                                    <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                    <span class="text-emerald-700 dark:text-emerald-300 font-medium">SEP ✓</span>
+                                @else
+                                    <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                                    <span class="text-gray-500 dark:text-gray-400">SEP</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center gap-2 text-sm">
+                                @if($this->uploadProgress['resume'])
+                                    <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                    <span class="text-emerald-700 dark:text-emerald-300 font-medium">Resume ✓</span>
+                                @else
+                                    <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                                    <span class="text-gray-500 dark:text-gray-400">Resume</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center gap-2 text-sm">
+                                @if($this->uploadProgress['billing'])
+                                    <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                    <span class="text-emerald-700 dark:text-emerald-300 font-medium">Billing ✓</span>
+                                @else
+                                    <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                                    <span class="text-gray-500 dark:text-gray-400">Billing</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     <div
                         class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                         <div
@@ -487,7 +538,7 @@
                             </div>
 
                             {{-- Upload Progress Indicator --}}
-                            <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                            {{-- <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
                                 <div class="flex items-center justify-between mb-3">
                                     <flux:text size="sm" class="text-gray-600 dark:text-gray-400 font-medium">Status Upload
                                     </flux:text>
@@ -513,14 +564,14 @@
                                         <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">Billing</flux:text>
                                     </div>
                                     @if($jenis_rawatan === 'RI')
+                                    <div
+                                        class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $sepRJFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
                                         <div
-                                            class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $sepRJFile ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
-                                            <div
-                                                class="text-2xl font-bold {{ $sepRJFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}">
-                                                {{ $sepRJFile ? '✓' : '○' }}
-                                            </div>
-                                            <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">SEP RJ</flux:text>
+                                            class="text-2xl font-bold {{ $sepRJFile ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}">
+                                            {{ $sepRJFile ? '✓' : '○' }}
                                         </div>
+                                        <flux:text size="xs" class="text-gray-600 dark:text-gray-400 mt-1">SEP RJ</flux:text>
+                                    </div>
                                     @endif
                                     <div
                                         class="text-center p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border {{ $fileLIP ? 'border-emerald-300 dark:border-emerald-700' : 'border-gray-200 dark:border-gray-700' }}">
@@ -549,7 +600,7 @@
                                         </flux:text>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 @endif

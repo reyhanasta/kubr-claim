@@ -18,11 +18,6 @@ return new class extends Migration
             $table->index('no_rm', 'idx_no_rm');
             $table->index('created_at', 'idx_created_at');
         });
-
-        Schema::table('claim_documents', function (Blueprint $table) {
-            $table->index('bpjs_claims_id', 'idx_claim_id');
-            $table->index('order', 'idx_order');
-        });
     }
 
     /**
@@ -35,11 +30,6 @@ return new class extends Migration
             $table->dropIndex('idx_no_sep');
             $table->dropIndex('idx_no_rm');
             $table->dropIndex('idx_created_at');
-        });
-
-        Schema::table('claim_documents', function (Blueprint $table) {
-            $table->dropIndex('idx_claim_id');
-            $table->dropIndex('idx_order');
         });
     }
 };
