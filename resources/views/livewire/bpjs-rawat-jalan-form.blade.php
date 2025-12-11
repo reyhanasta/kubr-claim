@@ -202,35 +202,7 @@
                         </div>
 
                         {{-- Upload Checklist --}}
-                        <div class="mt-4 grid grid-cols-3 gap-3">
-                            <div class="flex items-center gap-2 text-sm">
-                                @if($this->uploadProgress['sep'])
-                                    <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                                    <span class="text-emerald-700 dark:text-emerald-300 font-medium">SEP ✓</span>
-                                @else
-                                    <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
-                                    <span class="text-gray-500 dark:text-gray-400">SEP</span>
-                                @endif
-                            </div>
-                            <div class="flex items-center gap-2 text-sm">
-                                @if($this->uploadProgress['resume'])
-                                    <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                                    <span class="text-emerald-700 dark:text-emerald-300 font-medium">Resume ✓</span>
-                                @else
-                                    <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
-                                    <span class="text-gray-500 dark:text-gray-400">Resume</span>
-                                @endif
-                            </div>
-                            <div class="flex items-center gap-2 text-sm">
-                                @if($this->uploadProgress['billing'])
-                                    <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                                    <span class="text-emerald-700 dark:text-emerald-300 font-medium">Billing ✓</span>
-                                @else
-                                    <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
-                                    <span class="text-gray-500 dark:text-gray-400">Billing</span>
-                                @endif
-                            </div>
-                        </div>
+
                     </div>
 
                     <div
@@ -601,6 +573,37 @@
                                     </div>
                                 </div>
                             </div> --}}
+                            {{-- --}}
+                            <div class="mt-4 grid grid-cols-3 gap-3">
+                                <div class="flex items-center gap-2 text-sm">
+                                    @if($this->uploadProgress['sep'])
+                                        <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                        <span class="text-emerald-700 dark:text-emerald-300 font-medium">SEP ✓</span>
+                                    @else
+                                        <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                                        <span class="text-gray-500 dark:text-gray-400">SEP</span>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-2 text-sm">
+                                    @if($this->uploadProgress['resume'])
+                                        <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                        <span class="text-emerald-700 dark:text-emerald-300 font-medium">Resume ✓</span>
+                                    @else
+                                        <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                                        <span class="text-gray-500 dark:text-gray-400">Resume</span>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-2 text-sm">
+                                    @if($this->uploadProgress['billing'])
+                                        <flux:icon.check-circle class="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                                        <span class="text-emerald-700 dark:text-emerald-300 font-medium">Billing ✓</span>
+                                    @else
+                                        <flux:icon.exclamation-circle class="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                                        <span class="text-gray-500 dark:text-gray-400">Billing</span>
+                                    @endif
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 @endif
