@@ -679,7 +679,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="p-8">
                     <div
                         class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 text-center hover:border-emerald-500 dark:hover:border-emerald-400 transition-all duration-300 bg-gradient-to-br from-gray-50 to-emerald-50/30 dark:from-gray-900/50 dark:to-emerald-900/10">
@@ -688,7 +687,6 @@
                                 class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 mb-4 mx-auto">
                                 <flux:icon.document-plus class="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
                             </div>
-
                             <div>
                                 <label for="sepFile" class="cursor-pointer">
                                     <div
@@ -699,7 +697,6 @@
                                     <input id="sepFile" wire:model="sepFile" type="file" class="sr-only" accept=".pdf">
                                 </label>
                             </div>
-
                             <div class="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                                 <flux:icon.information-circle class="w-4 h-4" />
                                 <span>Format: PDF | Maksimal: 2MB</span>

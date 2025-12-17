@@ -74,15 +74,15 @@
         </div>
 
         {{-- Bulk Actions --}}
-        @if($this->claims->isNotEmpty())
-            <div class="mb-4 flex items-center gap-2">
-                <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <input type="checkbox" wire:model.live="selectAll"
-                        class="rounded border-gray-300 dark:border-gray-600 text-emerald-600 focus:ring-emerald-500 dark:bg-gray-700">
-                    Pilih semua di halaman ini
-                </label>
-            </div>
-        @endif
+        {{-- @if($this->claims->isNotEmpty())
+        <div class="mb-4 flex items-center gap-2">
+            <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <input type="checkbox" wire:model.live="selectAll"
+                    class="rounded border-gray-300 dark:border-gray-600 text-emerald-600 focus:ring-emerald-500 dark:bg-gray-700">
+                Pilih semua di halaman ini
+            </label>
+        </div>
+        @endif --}}
 
         {{-- Cards Grid --}}
         @if($this->claims->isEmpty())
@@ -102,7 +102,7 @@
                 </flux:button>
             </div>
         @else
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-6">
                 @foreach($this->claims as $claim)
                     <div
                         class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
@@ -111,8 +111,9 @@
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <div class="flex items-center gap-2 mb-2">
-                                        <input type="checkbox" wire:model.live="selectedClaims" value="{{ $claim->id }}"
+                                        {{-- <input type="checkbox" wire:model.live="selectedClaims" value="{{ $claim->id }}"
                                             class="rounded border-gray-300 dark:border-gray-600 text-emerald-600 focus:ring-emerald-500 dark:bg-gray-700">
+                                        --}}
                                         <flux:badge variant="{{ $claim->jenis_rawatan === 'RJ' ? 'info' : 'warning' }}">
                                             {{ $claim->jenis_rawatan === 'RJ' ? 'R. Jalan' : 'R. Inap' }}
                                         </flux:badge>
@@ -160,7 +161,8 @@
                         </div>
 
                         {{-- Card Actions --}}
-                        <div class="p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex gap-2">
+                        <div
+                            class="p-2  rounded-b-lg bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex  gap-1">
                             <flux:button icon="arrow-down-tray" variant="primary" wire:click="downloadFile({{ $claim->id }})"
                                 class="flex-1">
                                 Unduh
