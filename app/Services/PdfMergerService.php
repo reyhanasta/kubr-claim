@@ -79,7 +79,6 @@ class PdfMergerService
         foreach ($pdfPaths as $path) {
             if (! $disk->exists($path)) {
                 Log::warning("File tidak ditemukan: {$path}");
-
                 continue;
             }
 
@@ -88,7 +87,6 @@ class PdfMergerService
 
             if ($size < $this->minFileSize) {
                 Log::warning("File terlalu kecil untuk diproses: {$path}");
-
                 continue;
             }
 
@@ -110,10 +108,8 @@ class PdfMergerService
                             'error' => $e->getMessage(),
                             'solution' => 'Install Ghostscript dari https://ghostscript.com/releases/gsdnld.html',
                         ]);
-
                         continue;
                     }
-
                     Log::warning("PDF menggunakan kompresi tidak didukung, mencoba dekompresi: {$path}");
 
                     try {
@@ -127,10 +123,11 @@ class PdfMergerService
                             $pdf->AddPage($orientation, [$size['width'], $size['height']]);
                             $pdf->useTemplate($tpage);
                         }
+                        
                         $processed++;
 
                         // Clean up decompressed temp file
-                        @unlink($decompressedPath);
+@unlink($decompressedPath);
                     } catch (\Throwable $retryError) {
                         Log::error("Gagal memproses file setelah dekompresi: {$path}", [
                             'original_error' => $e->getMessage(),
@@ -142,8 +139,10 @@ class PdfMergerService
                 }
             }
         }
-
+        
         return $processed;
+
+
     }
 
     protected function saveToSharedStorage(string $tempPath, string $outputPath): void

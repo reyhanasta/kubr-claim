@@ -506,6 +506,98 @@
                                             </div>
                                         @endif
                                     </div>
+
+                                    {{-- Hasil Lab 3 (PDF only) --}}
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg">
+                                                <flux:icon.beaker class="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                                            </div>
+                                            <div class="flex-grow">
+                                                <flux:heading size="sm">Hasil Labor 3</flux:heading>
+                                                <flux:text size="xs" class="text-gray-500 dark:text-gray-400">
+                                                    Opsional, diikutkan dalam file gabungan
+                                                </flux:text>
+                                            </div>
+
+                                        </div>
+                                        <flux:input type="file" wire:model="labResultFile3" accept=".pdf"
+                                            label="Upload Hasil Lab (PDF)" />
+                                        {{-- Upload indicator --}}
+                                        <div wire:loading wire:target="labResultFile3"
+                                            class="flex items-center gap-2 text-emerald-600">
+                                            <div
+                                                class="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent">
+                                            </div>
+                                            <span class="text-xs font-medium">Uploading...</span>
+                                        </div>
+                                        @error('labResultFile3')
+                                            <div
+                                                class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                                                <flux:icon.exclamation-circle
+                                                    class="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                                                <flux:text size="sm" class="text-rose-900 dark:text-rose-100">{{ $message }}
+                                                </flux:text>
+                                            </div>
+                                        @enderror
+                                        @if($labResultFile3)
+                                            <div
+                                                class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                                                <flux:icon.check-circle
+                                                    class="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                                <flux:text size="sm"
+                                                    class="text-emerald-900 dark:text-emerald-100 truncate flex-grow">
+                                                    {{ is_object($labResultFile3) ? $labResultFile3->getClientOriginalName() : 'Hasil Lab 3' }}
+                                                </flux:text>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Hasil Lab 4 (PDF only) --}}
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-lg">
+                                                <flux:icon.beaker class="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                                            </div>
+                                            <div class="flex-grow">
+                                                <flux:heading size="sm">Hasil Labor 4</flux:heading>
+                                                <flux:text size="xs" class="text-gray-500 dark:text-gray-400">
+                                                    Opsional, diikutkan dalam file gabungan
+                                                </flux:text>
+                                            </div>
+
+                                        </div>
+                                        <flux:input type="file" wire:model="labResultFile4" accept=".pdf"
+                                            label="Upload Hasil Lab (PDF)" />
+                                        {{-- Upload indicator --}}
+                                        <div wire:loading wire:target="labResultFile4"
+                                            class="flex items-center gap-2 text-emerald-600">
+                                            <div
+                                                class="animate-spin rounded-full h-4 w-4 border-2 border-emerald-600 border-t-transparent">
+                                            </div>
+                                            <span class="text-xs font-medium">Uploading...</span>
+                                        </div>
+                                        @error('labResultFile4')
+                                            <div
+                                                class="flex items-center gap-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
+                                                <flux:icon.exclamation-circle
+                                                    class="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+                                                <flux:text size="sm" class="text-rose-900 dark:text-rose-100">{{ $message }}
+                                                </flux:text>
+                                            </div>
+                                        @enderror
+                                        @if($labResultFile4)
+                                            <div
+                                                class="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                                                <flux:icon.check-circle
+                                                    class="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                                <flux:text size="sm"
+                                                    class="text-emerald-900 dark:text-emerald-100 truncate flex-grow">
+                                                    {{ is_object($labResultFile4) ? $labResultFile4->getClientOriginalName() : 'Hasil Lab 4' }}
+                                                </flux:text>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
 
@@ -632,7 +724,7 @@
                         @endif
 
                         <flux:button type="submit" variant="primary" icon="check" wire:loading.attr="disabled"
-                            wire:target="submit,resumeFile,billingFile,sepRJFile,fileLIP,labResultFile,labResultFile2"
+                            wire:target="submit,resumeFile,billingFile,sepRJFile,fileLIP,labResultFile,labResultFile2,labResultFile3,labResultFile4"
                             disabled="{{ !$this->canShowSupportingDocuments || !$resumeFile || !$billingFile }}"
                             class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-500 text-white shadow-lg px-8 disabled:opacity-50 disabled:cursor-not-allowed">
                             <span wire:loading.remove wire:target="submit">Simpan Klaim</span>

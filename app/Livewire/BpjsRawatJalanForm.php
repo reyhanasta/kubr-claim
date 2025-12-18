@@ -49,6 +49,12 @@ class BpjsRawatJalanForm extends Component
     // Lab result (optional, PDF only) – merged into final combined PDF
     #[Validate('nullable|file|mimes:pdf|max:2048')]
     public ?TemporaryUploadedFile $labResultFile2 = null;
+    // Lab result (optional, PDF only) – merged into final combined PDF
+    #[Validate('nullable|file|mimes:pdf|max:2048')]
+    public ?TemporaryUploadedFile $labResultFile3 = null;
+    // Lab result (optional, PDF only) – merged into final combined PDF
+    #[Validate('nullable|file|mimes:pdf|max:2048')]
+    public ?TemporaryUploadedFile $labResultFile4 = null;
 
     #[Validate('nullable|file|mimes:pdf|max:2048')]
     public ?TemporaryUploadedFile $fileLIP = null;
@@ -107,6 +113,10 @@ class BpjsRawatJalanForm extends Component
 
     private const FILE_LAB_RESULT_2 = 'labResultFile2';
 
+    private const FILE_LAB_RESULT_3 = 'labResultFile3';
+
+    private const FILE_LAB_RESULT_4 = 'labResultFile4';
+
     protected function messages(): array
     {
         return [
@@ -127,6 +137,10 @@ class BpjsRawatJalanForm extends Component
             'labResultFile.max' => 'File Hasil Labor maksimal 2MB',
             'labResultFile2.mimes' => 'File Hasil Labor harus berformat PDF maksimal 2MB',
             'labResultFile2.max' => 'File Hasil Labor maksimal 2MB',
+            'labResultFile3.mimes' => 'File Hasil Labor harus berformat PDF maksimal 2MB',
+            'labResultFile3.max' => 'File Hasil Labor maksimal 2MB',
+            'labResultFile4.mimes' => 'File Hasil Labor harus berformat PDF maksimal 2MB',
+            'labResultFile4.max' => 'File Hasil Labor maksimal 2MB',
             'sep_number.required' => 'Nomor SEP wajib diisi',
             'sep_number.unique' => 'Nomor SEP sudah terdaftar',
             'sep_date.required' => 'Tanggal SEP wajib diisi',
@@ -167,6 +181,10 @@ class BpjsRawatJalanForm extends Component
             'billing' => $this->billingFile !== null,
             'sepRJ' => $this->sepRJFile !== null,
             'lip' => $this->fileLIP !== null,
+            'labResultFile' => $this->fileLIP !== null,
+            'labResultFile2' => $this->fileLIP !== null,
+            'lilabResultFile3' => $this->fileLIP !== null,
+            'lilabResultFile4' => $this->fileLIP !== null,
         ];
     }
 
@@ -246,6 +264,14 @@ class BpjsRawatJalanForm extends Component
     {
         $this->processOptionalFile($this->labResultFile2, self::FILE_LAB_RESULT_2);
     }
+    public function updatedLabResultFile3(): void
+    {
+        $this->processOptionalFile($this->labResultFile3, self::FILE_LAB_RESULT_3);
+    }
+    public function updatedLabResultFile4(): void
+    {
+        $this->processOptionalFile($this->labResultFile4, self::FILE_LAB_RESULT_4);
+    }
 
     public function cancelUpload(): void
     {
@@ -292,6 +318,9 @@ class BpjsRawatJalanForm extends Component
 
             // Get ordered files for merging
             $orderedFiles = $this->getOrderedFilesForMerge();
+
+            Log::info('Order Files',$orderedFiles);
+           
 
             if (empty($orderedFiles)) {
                 throw new \RuntimeException('Tidak ada file yang dapat digabungkan');
@@ -485,6 +514,8 @@ class BpjsRawatJalanForm extends Component
             $this->temporaryPaths[self::FILE_RESUME] ?? null,
             $this->temporaryPaths[self::FILE_LAB_RESULT] ?? null,
             $this->temporaryPaths[self::FILE_LAB_RESULT_2] ?? null,
+            $this->temporaryPaths[self::FILE_LAB_RESULT_3] ?? null,
+            $this->temporaryPaths[self::FILE_LAB_RESULT_4] ?? null,
             $this->temporaryPaths[self::FILE_BILLING] ?? null,
         ])->filter()->values()->all();
     }
@@ -567,6 +598,8 @@ class BpjsRawatJalanForm extends Component
             'fileLIP',
             'labResultFile',
             'labResultFile2',
+            'labResultFile3',
+            'labResultFile4',
             'previewUrls',
             'temporaryPaths',
             'showUploadedData',
