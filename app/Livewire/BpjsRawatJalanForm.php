@@ -181,12 +181,13 @@ class BpjsRawatJalanForm extends Component
             'billing' => $this->billingFile !== null,
             'sepRJ' => $this->sepRJFile !== null,
             'lip' => $this->fileLIP !== null,
-            'labResultFile' => $this->fileLIP !== null,
-            'labResultFile2' => $this->fileLIP !== null,
-            'lilabResultFile3' => $this->fileLIP !== null,
-            'lilabResultFile4' => $this->fileLIP !== null,
+            'labResultFile' => $this->labResultFile !== null,
+            'labResultFile2' => $this->labResultFile2 !== null,
+            'labResultFile3' => $this->labResultFile3 !== null,
+            'labResultFile4' => $this->labResultFile4 !== null,
         ];
     }
+    
 
     /**
      * Check if supporting documents form can be displayed.
@@ -429,6 +430,9 @@ class BpjsRawatJalanForm extends Component
 
         /** @var SepDataProcessor $sepProcessor */
         $sepProcessor = app(SepDataProcessor::class);
+
+        // Validate SEP PDF must be a single page
+        $pdfReadService->ensureSinglePage($this->sepFile);
 
         $pdfText = $pdfReadService->getPdfTextwithSpatie($this->sepFile);
         $extractedData = $pdfReadService->extractPdf($pdfText);

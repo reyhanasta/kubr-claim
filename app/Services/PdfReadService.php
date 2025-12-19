@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 use Spatie\PdfToText\Pdf;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use setasign\Fpdi\Fpdi;
 
 class PdfReadService
 {
@@ -39,6 +41,7 @@ class PdfReadService
         if (! preg_match('/No\.SEP\s*(?:\s*):\s*([\w\/\.-]+)/i', $text, $m)) {
             throw new \RuntimeException('No. SEP tidak ditemukan di file. Pastikan file SEP yang valid.');
         }
+        
         $data['sep_number'] = trim($m[1]);
 
         // 🔹 FAIL FAST: Tgl.SEP - Field WAJIB
@@ -116,5 +119,20 @@ class PdfReadService
         Log::info('SEP berhasil diekstrak', $data);
 
         return $data;
+    }
+
+    /**
+     * Ensure the uploaded PDF only contains a single page.
+     *
+     * @throws \RuntimeException when PDF has more than one page or cannot be parsed
+     */
+    public function ensureSinglePage(TemporaryUploadedFile $file): void
+    {
+        $fpdi = new Fpdi();
+        $pageCount = $fpdi->setSourceFile($file->getRealPath());
+
+        if ($pageCount !== 1) {
+            throw new \RuntimeException('File SEP harus hanya 1 halaman');
+        }
     }
 }

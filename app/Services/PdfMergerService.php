@@ -13,12 +13,12 @@ class PdfMergerService
 
     protected int $maxRetries = 3;
 
-    protected ?PdfDecompressionService $decompressor = null;
+    // protected ?PdfDecompressionService $decompressor = null;
 
-    public function __construct(?PdfDecompressionService $decompressor = null)
-    {
-        $this->decompressor = $decompressor;
-    }
+    // public function __construct(?PdfDecompressionService $decompressor = null)
+    // {
+    //     $this->decompressor = $decompressor;
+    // }
 
     /**
      * Merge multiple PDF files into one.
