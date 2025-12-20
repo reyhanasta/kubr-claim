@@ -13,6 +13,13 @@ class PdfMergerService
 
     protected int $maxRetries = 3;
 
+    // protected ?PdfDecompressionService $decompressor = null;
+
+    // public function __construct(?PdfDecompressionService $decompressor = null)
+    // {
+    //     $this->decompressor = $decompressor;
+    // }
+
     /**
      * Merge multiple PDF files into one.
      *
@@ -72,7 +79,6 @@ class PdfMergerService
         foreach ($pdfPaths as $path) {
             if (! $disk->exists($path)) {
                 Log::warning("File tidak ditemukan: {$path}");
-
                 continue;
             }
 
@@ -81,7 +87,6 @@ class PdfMergerService
 
             if ($size < $this->minFileSize) {
                 Log::warning("File terlalu kecil untuk diproses: {$path}");
-
                 continue;
             }
 
@@ -95,12 +100,18 @@ class PdfMergerService
                     $pdf->useTemplate($tpage);
                 }
                 $processed++;
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
+                // If compression error, try to decompress PDF and retry
+                
                 Log::error("Gagal memproses file: {$path}", ['error' => $e->getMessage()]);
+                throw $e;
+                
             }
         }
-
+        
         return $processed;
+
+
     }
 
     protected function saveToSharedStorage(string $tempPath, string $outputPath): void
@@ -173,7 +184,7 @@ class PdfMergerService
     public function mergePdfsNew(array $files, string $outputPath)
     {
         // versi refactor yang aku bantu ubah
-        $output = new \setasign\Fpdi\Fpdi;
+        $output = new Fpdi;
 
         foreach ($files as $file) {
             if (! file_exists($file)) {

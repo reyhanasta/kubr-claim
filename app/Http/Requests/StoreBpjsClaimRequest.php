@@ -22,12 +22,19 @@ class StoreBpjsClaimRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'no_rm' => ['required', 'string', 'max:50'],
-            'tanggal_rawatan' => ['required', 'date'],
-            'jenis_rawatan' => ['required', 'string', 'in:RJ,RI'],
-            'no_sep' => ['required', 'string', 'max:100'],
-            'scanned_docs' => ['required', 'array', 'min:1'],
-            'scanned_docs.*' => ['required', 'file', 'mimes:pdf,jpg,png,jpeg', 'max:2048'],
+            'sepFile' => ['required', 'file', 'mimes:pdf', 'max:2048'],
+            'sepRJFile' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
+            'resumeFile' => ['required', 'file', 'mimes:pdf', 'max:2048'],
+            'billingFile' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:2048'],
+            'labResultFile' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
+            'labResultFile2' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
+            'fileLIP' => ['nullable', 'file', 'mimes:pdf', 'max:2048'],
+            'medical_record_number' => ['required', 'string', 'max:50'],
+            'patient_name' => ['required', 'string', 'max:100'],
+            'sep_number' => ['required', 'string', 'max:50', 'unique:bpjs_claims,no_sep'],
+            'bpjs_serial_number' => ['required', 'string', 'max:20'],
+            'sep_date' => ['required', 'date'],
+            'patient_class' => ['required', 'string', 'in:1,2,3'],
         ];
     }
 
@@ -39,36 +46,32 @@ class StoreBpjsClaimRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'no_rm.required' => 'Nomor Rekam Medis wajib diisi.',
-            'no_rm.max' => 'Nomor Rekam Medis maksimal 50 karakter.',
-            'tanggal_rawatan.required' => 'Tanggal rawatan wajib diisi.',
-            'tanggal_rawatan.date' => 'Tanggal rawatan harus berupa tanggal yang valid.',
-            'jenis_rawatan.required' => 'Jenis rawatan wajib dipilih.',
-            'jenis_rawatan.in' => 'Jenis rawatan harus RJ atau RI.',
-            'no_sep.required' => 'Nomor SEP wajib diisi.',
-            'no_sep.max' => 'Nomor SEP maksimal 100 karakter.',
-            'scanned_docs.required' => 'Minimal satu file harus diunggah.',
-            'scanned_docs.min' => 'Minimal satu file harus diunggah.',
-            'scanned_docs.*.required' => 'File tidak boleh kosong.',
-            'scanned_docs.*.file' => 'File harus berupa file yang valid.',
-            'scanned_docs.*.mimes' => 'File harus berformat PDF, JPG, PNG, atau JPEG.',
-            'scanned_docs.*.max' => 'Ukuran file maksimal 2MB.',
-        ];
-    }
-
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function attributes(): array
-    {
-        return [
-            'no_rm' => 'Nomor Rekam Medis',
-            'tanggal_rawatan' => 'Tanggal Rawatan',
-            'jenis_rawatan' => 'Jenis Rawatan',
-            'no_sep' => 'Nomor SEP',
-            'scanned_docs' => 'Dokumen Scan',
+            'sepFile.required' => 'File SEP wajib diunggah',
+            'sepFile.mimes' => 'File SEP harus berformat PDF maksimal 2MB',
+            'sepFile.max' => 'File SEP maksimal 2MB',
+            'resumeFile.required' => 'File Resume Medis wajib diunggah',
+            'resumeFile.mimes' => 'File Resume Medis harus berformat PDF maksimal 2MB',
+            'resumeFile.max' => 'File Resume Medis maksimal 2MB',
+            'billingFile.required' => 'File Billing wajib diunggah',
+            'billingFile.mimes' => 'File Billing harus berformat PDF/JPG/PNG maksimal 2MB',
+            'billingFile.max' => 'File Billing maksimal 2MB',
+            'fileLIP.mimes' => 'File LIP harus berformat PDF maksimal 2MB',
+            'fileLIP.max' => 'File LIP maksimal 2MB',
+            'sepRJFile.mimes' => 'File SEP RJ harus berformat PDF maksimal 2MB',
+            'sepRJFile.max' => 'File SEP RJ maksimal 2MB',
+            'labResultFile.mimes' => 'File Hasil Labor harus berformat PDF maksimal 2MB',
+            'labResultFile.max' => 'File Hasil Labor maksimal 2MB',
+            'labResultFile2.mimes' => 'File Hasil Labor harus berformat PDF maksimal 2MB',
+            'labResultFile2.max' => 'File Hasil Labor maksimal 2MB',
+            'sep_number.required' => 'Nomor SEP wajib diisi',
+            'sep_number.unique' => 'Nomor SEP sudah terdaftar',
+            'sep_date.required' => 'Tanggal SEP wajib diisi',
+            'sep_date.date' => 'Tanggal SEP harus berupa format tanggal yang valid',
+            'medical_record_number.required' => 'Nomor RM wajib diisi',
+            'patient_name.required' => 'Nama pasien wajib diisi',
+            'bpjs_serial_number.required' => 'Nomor kartu BPJS wajib diisi',
+            'patient_class.required' => 'Kelas rawatan wajib diisi',
+            'patient_class.in' => 'Kelas rawatan harus berupa 1, 2, atau 3',
         ];
     }
 }

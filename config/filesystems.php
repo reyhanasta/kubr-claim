@@ -59,7 +59,7 @@ return [
         'shared' => [
             'driver' => 'local',
             // 'root' => env('FOLDER_SHARED'),
-            // 'root' => 'Z:/mnt/test_shared', 
+            // 'root' => 'Z:/mnt/test_shared',
             'root' => env('FOLDER_SHARED'),
             // 'root' => '//192.168.18.48/E:/', // Path to mounted shared folder
             'permissions' => [
@@ -85,7 +85,8 @@ return [
         ],
         'backup' => [
             'driver' => 'local',
-            'root' => env('FOLDER_BACKUP'),
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

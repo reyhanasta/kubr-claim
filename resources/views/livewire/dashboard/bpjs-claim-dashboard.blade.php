@@ -2,7 +2,8 @@
     {{-- Filter --}}
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
         <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
-            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
                 </path>
@@ -29,74 +30,81 @@
     </div>
 
     {{-- Summary Cards - Row 1: Total, RI, RJ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {{-- Total Klaim - Emerald Primary --}}
-        <div
-            class="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 p-6 rounded-2xl shadow-lg text-white">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
-            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-emerald-100 text-sm font-medium">Total Klaim</p>
-                        <p class="text-4xl font-bold mt-1">{{ $summary['total_claims'] ?? 0 }}</p>
-                    </div>
-                    <div class="p-3 bg-white/20 rounded-xl">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                            </path>
-                        </svg>
+    <div wire:loading.remove wire:target="year,month">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {{-- Total Klaim - Emerald Primary --}}
+            <div
+                class="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 p-6 rounded-2xl shadow-lg text-white">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-emerald-100 text-sm font-medium">Total Klaim</p>
+                            <p class="text-4xl font-bold mt-1">{{ $summary['total_claims'] ?? 0 }}</p>
+                        </div>
+                        <div class="p-3 bg-white/20 rounded-xl">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Rawat Inap - Sky/Blue --}}
-        <div
-            class="relative overflow-hidden bg-gradient-to-br from-sky-500 to-blue-500 dark:from-sky-600 dark:to-blue-600 p-6 rounded-2xl shadow-lg text-white">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
-            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sky-100 text-sm font-medium">Rawat Inap (RI)</p>
-                        <p class="text-4xl font-bold mt-1">{{ $summary['total_ri'] ?? 0 }}</p>
-                    </div>
-                    <div class="p-3 bg-white/20 rounded-xl">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
-                            </path>
-                        </svg>
+            {{-- Rawat Inap - Sky/Blue --}}
+            <div
+                class="relative overflow-hidden bg-gradient-to-br from-sky-500 to-blue-500 dark:from-sky-600 dark:to-blue-600 p-6 rounded-2xl shadow-lg text-white">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sky-100 text-sm font-medium">Rawat Inap (RI)</p>
+                            <p class="text-4xl font-bold mt-1">{{ $summary['total_ri'] ?? 0 }}</p>
+                        </div>
+                        <div class="p-3 bg-white/20 rounded-xl">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                </path>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- Rawat Jalan - Amber/Orange --}}
-        <div
-            class="relative overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 dark:from-amber-600 dark:to-orange-600 p-6 rounded-2xl shadow-lg text-white">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
-            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-amber-100 text-sm font-medium">Rawat Jalan (RJ)</p>
-                        <p class="text-4xl font-bold mt-1">{{ $summary['total_rj'] ?? 0 }}</p>
-                    </div>
-                    <div class="p-3 bg-white/20 rounded-xl">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                            </path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
+            {{-- Rawat Jalan - Amber/Orange --}}
+            <div
+                class="relative overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 dark:from-amber-600 dark:to-orange-600 p-6 rounded-2xl shadow-lg text-white">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/10 rounded-full"></div>
+                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-16 h-16 bg-white/10 rounded-full"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-amber-100 text-sm font-medium">Rawat Jalan (RJ)</p>
+                            <p class="text-4xl font-bold mt-1">{{ $summary['total_rj'] ?? 0 }}</p>
+                        </div>
+                        <div class="p-3 bg-white/20 rounded-xl">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    {{-- Loading Skeleton for Stats --}}
+    <div wire:loading wire:target="year,month">
+        <x-skeleton.stats count="3" />
     </div>
 
     {{-- Summary Cards - Row 2: Kelas 1, 2, 3 --}}
@@ -231,17 +239,17 @@
                 options: {
                     responsive: true,
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { color: gridColor }, 
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
                             ticks: { color: textColor }
                         },
-                        x: { 
-                            grid: { display: false }, 
+                        x: {
+                            grid: { display: false },
                             ticks: { color: textColor }
                         }
                     },
-                    plugins: { 
+                    plugins: {
                         legend: { display: false }
                     }
                 }
@@ -254,16 +262,16 @@
                 data: {
                     labels: jenisRawatanData.labels,
                     datasets: [
-                        { 
-                            label: 'Rawat Jalan (RJ)', 
-                            data: jenisRawatanData.rj, 
+                        {
+                            label: 'Rawat Jalan (RJ)',
+                            data: jenisRawatanData.rj,
                             backgroundColor: 'rgba(245, 158, 11, 0.8)', // amber-500
                             borderRadius: 6,
                             borderSkipped: false,
                         },
-                        { 
-                            label: 'Rawat Inap (RI)', 
-                            data: jenisRawatanData.ri, 
+                        {
+                            label: 'Rawat Inap (RI)',
+                            data: jenisRawatanData.ri,
                             backgroundColor: 'rgba(14, 165, 233, 0.8)', // sky-500
                             borderRadius: 6,
                             borderSkipped: false,
@@ -273,20 +281,20 @@
                 options: {
                     responsive: true,
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            grid: { color: gridColor }, 
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: gridColor },
                             ticks: { color: textColor }
                         },
-                        x: { 
-                            grid: { display: false }, 
+                        x: {
+                            grid: { display: false },
                             ticks: { color: textColor }
                         }
                     },
                     plugins: {
-                        legend: { 
-                            position: 'top', 
-                            labels: { 
+                        legend: {
+                            position: 'top',
+                            labels: {
                                 color: textColor,
                                 usePointStyle: true,
                                 padding: 20

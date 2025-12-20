@@ -73,7 +73,7 @@ class BackupLog extends Model
 
     public function getFormattedFileSizeAttribute(): string
     {
-        if (!$this->file_size) {
+        if (! $this->file_size) {
             return '-';
         }
 
@@ -86,7 +86,7 @@ class BackupLog extends Model
             $unitIndex++;
         }
 
-        return round($size, 2) . ' ' . $units[$unitIndex];
+        return round($size, 2).' '.$units[$unitIndex];
     }
 
     public function getStatusBadgeColorAttribute(): string

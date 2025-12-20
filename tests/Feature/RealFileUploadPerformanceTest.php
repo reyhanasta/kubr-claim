@@ -26,7 +26,7 @@ test('it_measures_resume_upload_time_on_real_disk', function () {
 
     dump('Resume upload (real disk) time: '.number_format($elapsed * 1000, 2).' ms');
 
-    Storage::disk('public')->assertExists($storedPath);
+    expect(Storage::disk('public')->exists($storedPath))->toBeTrue();
 });
 
 test('it_measures_billing_upload_time_on_real_disk', function () {
@@ -45,7 +45,7 @@ test('it_measures_billing_upload_time_on_real_disk', function () {
 
     dump('Billing upload (real disk) time: '.number_format($elapsed * 1000, 2).' ms');
 
-    Storage::disk('public')->assertExists($storedPath);
+    expect(Storage::disk('public')->exists($storedPath))->toBeTrue();
 });
 
 test('it_measures_sep_upload_and_parsing_time_on_real_disk', function () {
@@ -64,5 +64,5 @@ test('it_measures_sep_upload_and_parsing_time_on_real_disk', function () {
 
     dump('SEP upload (real disk) time: '.number_format($elapsed * 1000, 2).' ms');
 
-    Storage::disk('public')->assertExists($storedPath);
+    expect(Storage::disk('public')->exists($storedPath))->toBeTrue();
 });

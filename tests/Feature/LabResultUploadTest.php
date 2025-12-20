@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 
+use function Pest\Laravel\mock;
+
 beforeEach(function () {
     Storage::fake('public');
     Storage::fake('shared');
@@ -22,6 +24,7 @@ it('rejects non-pdf for lab result file', function () {
 
     // Minimal mocks for SEP processing so component doesn't fail earlier
     $this->mock(PdfReadService::class, function ($mock) {
+        $mock->shouldReceive('ensureSinglePage')->andReturnNull();
         $mock->shouldReceive('getPdfTextwithSpatie')->andReturn('X');
         $mock->shouldReceive('extractPdf')->andReturn([
             'patient_class' => '1',
@@ -46,6 +49,9 @@ it('rejects non-pdf for lab result file', function () {
         ->set('resumeFile', UploadedFile::fake()->create('resume.pdf', 100))
         ->set('billingFile', UploadedFile::fake()->create('billing.pdf', 100))
         ->set('labResultFile', UploadedFile::fake()->create('lab.jpg', 100))
+        ->set('labResultFile2', UploadedFile::fake()->create('lab2.jpg', 100))
+        ->set('labResultFile3', UploadedFile::fake()->create('lab3.jpg', 100))
+        ->set('labResultFile4', UploadedFile::fake()->create('lab4.jpg', 100))
         ->call('submit')
         ->assertHasErrors(['labResultFile']);
 });
@@ -79,6 +85,7 @@ it('includes lab result in merge order after resume when provided', function () 
 
     // Mock PDF read service so updatedSepFile succeeds
     $this->mock(PdfReadService::class, function ($mock) {
+        $mock->shouldReceive('ensureSinglePage')->andReturnNull();
         $mock->shouldReceive('getPdfTextwithSpatie')
             ->andReturn('FAKE_PDF_TEXT');
         $mock->shouldReceive('extractPdf')
@@ -108,6 +115,9 @@ it('includes lab result in merge order after resume when provided', function () 
         ->set('billingFile', UploadedFile::fake()->create('billing.pdf', 100))
         // upload optional lab result
         ->set('labResultFile', UploadedFile::fake()->create('lab.pdf', 100))
+        ->set('labResultFile2', UploadedFile::fake()->create('lab2.pdf', 100))
+        ->set('labResultFile3', UploadedFile::fake()->create('lab3.pdf', 100))
+        ->set('labResultFile4', UploadedFile::fake()->create('lab4.pdf', 100))
         ->call('submit')
         ->assertHasNoErrors();
 
@@ -128,6 +138,7 @@ it('rejects non-pdf for lab result file 2', function () {
     $user = User::factory()->create();
 
     $this->mock(PdfReadService::class, function ($mock) {
+        $mock->shouldReceive('ensureSinglePage')->andReturnNull();
         $mock->shouldReceive('getPdfTextwithSpatie')->andReturn('X');
         $mock->shouldReceive('extractPdf')->andReturn([
             'patient_class' => '1',
@@ -152,6 +163,8 @@ it('rejects non-pdf for lab result file 2', function () {
         ->set('resumeFile', UploadedFile::fake()->create('resume.pdf', 100))
         ->set('billingFile', UploadedFile::fake()->create('billing.pdf', 100))
         ->set('labResultFile2', UploadedFile::fake()->create('lab2.jpg', 100))
+        ->set('labResultFile3', UploadedFile::fake()->create('lab3.pdf', 100))
+        ->set('labResultFile4', UploadedFile::fake()->create('lab4.pdf', 100))
         ->call('submit')
         ->assertHasErrors(['labResultFile2']);
 });
@@ -204,17 +217,23 @@ it('includes both lab result files in merge order before billing', function () {
         ->set('billingFile', UploadedFile::fake()->create('billing.pdf', 100))
         ->set('labResultFile', UploadedFile::fake()->create('lab1.pdf', 100))
         ->set('labResultFile2', UploadedFile::fake()->create('lab2.pdf', 100))
+        ->set('labResultFile3', UploadedFile::fake()->create('lab3.pdf', 100))
+        ->set('labResultFile4', UploadedFile::fake()->create('lab4.pdf', 100))
         ->call('submit')
         ->assertHasNoErrors();
 
     // Verify merge order: SEP → Resume → Lab1 → Lab2 → Billing
     expect($calledWithFiles)->not->toBeNull();
+   
     expect($calledWithFiles)->toBeArray();
-    expect(count($calledWithFiles ?? []))->toBe(5);
-
+    expect(count($calledWithFiles ?? []))->toBe(7);
     // Check order: first is sep.pdf, lab files before billing, billing is last
     expect(Str::endsWith($calledWithFiles[0], 'sep.pdf'))->toBeTrue();
-    expect(Str::endsWith($calledWithFiles[2], 'lab1.pdf'))->toBeTrue();
-    expect(Str::endsWith($calledWithFiles[3], 'lab2.pdf'))->toBeTrue();
-    expect(Str::endsWith($calledWithFiles[4], 'billing.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[1], 'sepRJ.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[2], 'resume.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[3], 'lab1.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[4], 'lab2.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[5], 'lab3.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[6], 'lab4.pdf'))->toBeTrue();
+    expect(Str::endsWith($calledWithFiles[7], 'billing.pdf'))->toBeTrue();
 });

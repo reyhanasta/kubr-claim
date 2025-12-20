@@ -18,8 +18,11 @@
             <flux:navlist.group :heading="__('Platform')" class="grid">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                <flux:navlist.item icon="document-text" :href="route('claims.list')"
+                    :current="request()->routeIs('claims.list')" wire:navigate>Daftar Klaim
+                </flux:navlist.item>
                 <flux:navlist.item icon="clipboard-document-check" :href="route('bpjs-rajal-form')"
-                    :current="request()->routeIs('bpjs-rajal-form')" wire:navigate>{{ __('Claim Input') }}
+                    :current="request()->routeIs('bpjs-rajal-form')" wire:navigate>{{ __('Tambah Klaim') }}
                 </flux:navlist.item>
             </flux:navlist.group>
 

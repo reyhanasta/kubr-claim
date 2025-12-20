@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\UserRole;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -14,13 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed app settings first
+        $this->call(AppSettingsSeeder::class);
+
         // User::factory(10)->create();
 
         // Admin user
         User::factory()->admin()->create([
             'name' => 'Asta',
             'email' => 'astareyhan@gmail.com',
-            'password' => 'r3yh4n123',
+            'password' => 'admin1234',
         ]);
 
         // Operator user (example)
