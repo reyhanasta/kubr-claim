@@ -15,7 +15,7 @@
     @fluxAppearance
 </head>
 
-<body class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-6">
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-8">
     <div class="max-w-md w-full text-center">
         <!-- Icon -->
         <div class="mb-8">
@@ -33,7 +33,7 @@
             <h1 class="text-6xl font-bold text-gray-900 dark:text-gray-50">500</h1>
             <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">Server Error</h2>
             <p class="text-gray-600 dark:text-gray-400">
-                Maaf, terjadi kesalahan pada server kami. Tim teknis telah diberitahu dan sedang menangani masalah ini.
+                Maaf, terjadi masalah pada server kami. .
             </p>
         </div>
 
@@ -47,14 +47,7 @@
                 </svg>
                 Kembali ke Dashboard
             </a>
-            <button onclick="window.location.reload()"
-                class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 font-medium rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Muat Ulang
-            </button>
+
         </div>
 
         @if(app()->environment('local'))
